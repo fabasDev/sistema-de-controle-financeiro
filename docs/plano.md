@@ -5,7 +5,7 @@ Hoje o app é só React/TypeScript, sem servidor (~11 mil linhas, 51 testes Vite
 Decisões já tomadas por você:
 - Os dados passam a ficar no servidor (PostgreSQL), e a página de Privacidade e o README serão reescritos.
 - Interface em Thymeleaf + JS puro.
-- Simulador, assistente offline e questionário de perfil continuam como JS no navegador.
+- Simulador, assistente offline e questionário de perfil continuam como JS no navegador (as contas de dinheiro foram para o servidor, ver "Decisões da Fase 1").
 - Você tira a pasta do OneDrive e eu inicio o git.
 
 Versões confirmadas na doc oficial em 13/10/2026: **Java 25 (LTS)** e **Spring Boot 4.1.1**, que exige Java 17 ou mais e funciona até o Java 26.

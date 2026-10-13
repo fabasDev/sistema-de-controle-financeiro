@@ -14,7 +14,7 @@ Fabrício, estudante do ensino médio, aprendendo programação e mirando carrei
 - Interface: HTML, CSS e JavaScript (o navegador não roda Java). Thymeleaf ou front separado consumindo API REST, conforme a decisão registrada abaixo.
 - Testes: JUnit 5.
 
-Decisão sobre a interface: Thymeleaf (HTML renderizado no servidor) com JavaScript puro só onde precisa. Simulador, assistente offline e questionário de perfil rodam em JS no navegador. Os dados ficam no servidor (PostgreSQL), não mais só no aparelho. O React antigo fica em `legacy-web/` até a nova versão ter as mesmas funcionalidades. Plano aprovado em `docs/plano.md`.
+Decisão sobre a interface: Thymeleaf (HTML renderizado no servidor) com JavaScript puro só onde precisa. O questionário de perfil roda em JS no navegador. O simulador e o assistente desenham o gráfico e montam o texto em JS, mas as contas de dinheiro (projeção, meses até a meta, aporte, divisão da carteira) são feitas no servidor, em `BigDecimal`. Os dados ficam no servidor (PostgreSQL), não mais só no aparelho. O React antigo fica em `legacy-web/` até a nova versão ter as mesmas funcionalidades. Plano aprovado em `docs/plano.md`.
 
 ## Comandos
 
