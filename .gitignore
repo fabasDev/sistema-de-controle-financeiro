@@ -54,3 +54,6 @@ HELP.md
 *.iml
 *.ipr
 /nbproject/private/
+
+# Banco H2 do perfil dev
+/data/
