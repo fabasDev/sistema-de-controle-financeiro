@@ -10,6 +10,12 @@ Decisões já tomadas por você:
 
 Versões confirmadas na doc oficial em 13/10/2026: **Java 25 (LTS)** e **Spring Boot 4.1.1**, que exige Java 17 ou mais e funciona até o Java 26.
 
+### Decisões da Fase 1 (13/10/2026)
+Detalhes em `docs/auditoria-seguranca.md`, seção "Decisões".
+- **O dinheiro do simulador e do assistente é calculado no servidor** (`BigDecimal`). O JS só desenha o gráfico e monta o texto, e o questionário de perfil continua todo em JS (não envolve dinheiro). Isso substitui "simulador continua como JS" no que diz respeito às contas. Na Fase 2 entram `SimulationService` (projeção, meses até a meta, aporte necessário) e o cálculo da divisão da carteira, com testes portados de `finance.test.ts` e `advisor.test.ts`. Na Fase 3, o simulador chama o servidor com `debounce` ao mudar os campos.
+- **Cadastro** diz quando o usuário já existe. Login e recuperação seguem neutros.
+- **Senha:** mínimo de 12 caracteres, máximo de 72 bytes UTF-8 (limite do BCrypt, conferido em login e cadastro), sem regra de composição e conferida contra pelo menos 3000 senhas comuns (ASVS 5.0 6.2.1, 6.2.4, 6.2.5 e 6.2.8).
+
 ## Fase 0: preparação (o que você faz + linha de base)
 **O que você faz, à mão:**
 1. Mover a pasta para fora do OneDrive (ex.: `C:\dev\Sistema-controle-financeiro`) e abrir o Claude Code lá.
