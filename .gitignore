@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Segredos (o .env.example, sem valores, entra no git)
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+target/
+
+# Banco H2 local
+*.mv.db
+*.trace.db
+
+# React antigo depois da mudança de pasta
+legacy-web/node_modules
