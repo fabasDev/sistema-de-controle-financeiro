@@ -37,3 +37,20 @@ target/
 
 # React antigo depois da mudança de pasta
 legacy-web/node_modules
+
+# Maven Wrapper: só os scripts e o .properties entram no git
+.mvn/wrapper/maven-wrapper.jar
+HELP.md
+
+# IDEs Java (Eclipse/STS, IntelliJ, NetBeans)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+*.iws
+*.iml
+*.ipr
+/nbproject/private/

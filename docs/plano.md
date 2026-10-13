@@ -44,19 +44,23 @@ Não existe histórico git anterior, então não há segredos antigos a procurar
 - O React vai para `legacy-web/`. Fica lá até as funcionalidades estarem equivalentes, e só apago com o seu ok.
 - Java em `src/main/java/br/.../financas/`, com os pacotes `controller`, `service`, `repository`, `domain`, `dto`, `config` e `security`.
 
-**Dependências** (uma linha de motivo para cada, também no README):
-- `spring-boot-starter-web`: rotas HTTP.
+**Dependências** (uma linha de motivo para cada, também no README). Os nomes foram conferidos no Spring Initializr com o Boot 4.1.1 em 13/10/2026. O Boot 4 dividiu os starters, então alguns nomes mudaram em relação à versão anterior deste plano:
+- `spring-boot-starter-webmvc` (antes `-web`): rotas HTTP.
 - `-thymeleaf`: HTML no servidor, com escape automático.
 - `-security`: login, BCrypt, CSRF e cabeçalhos.
-- `thymeleaf-extras-springsecurity`: token CSRF e usuário logado nos templates.
 - `-data-jpa`: repositórios e paginação.
 - `-validation`: Bean Validation.
-- `flyway-core` + `flyway-database-postgresql`: migrações.
-- `h2` (só dev/test) e `postgresql` (runtime).
-- `spring-boot-starter-test`: JUnit 5 e MockMvc.
-- Plugin `dependency-check-maven`.
+- `spring-boot-starter-flyway` (antes `flyway-core`) + `flyway-database-postgresql`: migrações.
+- `h2` e `postgresql` (runtime).
+- Testes: `spring-boot-starter-webmvc-test` (JUnit 5 e MockMvc), `-security-test` e `-data-jpa-test`.
+- Plugin `dependency-check-maven` 13.0.0.
 
-Todos os nomes e versões serão conferidos na doc do Boot 4.1 antes de entrar no `pom.xml`. O limite de login será código próprio, sem biblioteca extra.
+O que ficou de fora:
+- `thymeleaf-extras-springsecurity6`. A documentação do Spring Security confirma que o Thymeleaf já põe o token CSRF nos formulários `th:action`, e o usuário logado vai para o template pelo controller.
+- `spring-boot-h2console`, que o Initializr adiciona junto com o H2. Um console do banco exposto é uma falha A02.
+- `-thymeleaf-test`, `-validation-test` e `-flyway-test`. Os POMs mostram que eles só trazem o `spring-boot-starter-test`, que já vem pelos outros, mais o starter principal.
+
+O limite de login será código próprio, sem biblioteca extra.
 
 **Domínio:** `User`, `Category`, `Bucket` (regra configurável), `Transaction`, `Recurring` (fixas e parcelamentos), `Goal`, `Settings`.
 - Dinheiro em `BigDecimal` com `NUMERIC(14,2)`. Percentuais também em `BigDecimal`.
