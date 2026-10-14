@@ -49,6 +49,14 @@ Em **Ajustes → Exportar meus dados**, o app baixa tudo o que a conta tem num a
 
 O OWASP Dependency-Check precisa de uma chave gratuita da NVD. Sem ela, a primeira atualização do banco de vulnerabilidades é muito lenta. Peça em https://nvd.nist.gov/developers/request-an-api-key e defina a variável `NVD_API_KEY` antes de rodar `./mvnw dependency-check:check`. O build falha se houver vulnerabilidade com nota CVSS 7 ou mais, e o relatório fica em `target/dependency-check-report.html`.
 
+Sem a chave, a versão 13.0.0 do plugin (a do `pom.xml`) não roda: ela manda a chave vazia e a NVD responde "Invalid apiKey". A 12.2.2 roda sem chave, sem mudar o `pom.xml`:
+
+```bash
+./mvnw org.owasp:dependency-check-maven:12.2.2:check -DossIndexAnalyzerEnabled=false
+```
+
+A primeira vez baixa da NVD cerca de 400 mil registros, a uma consulta a cada 8 segundos, e leva horas. As próximas só baixam o que mudou. O analisador OSS Index fica desligado porque agora exige uma conta na Sonatype.
+
 Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
 
 ## O que dá para fazer

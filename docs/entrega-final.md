@@ -83,11 +83,37 @@ Detalhes:
 ## Decisões que você pode rever
 
 - **Questionário fechado:** em Investimentos, o questionário de perfil fica dentro de "Responder as perguntas" (Fase 5), então é um clique a mais. Aberto por padrão, a página volta a pular (CLS 0,436).
-- **Senha de 12 caracteres e BCrypt** foram decisões do plano. As referências atuais pedem mais:
-  - o Authentication Cheat Sheet da OWASP considera fraca uma senha com menos de 15 caracteres quando não há segundo fator (MFA);
-  - o Password Storage Cheat Sheet prefere Argon2id e deixa o BCrypt para sistemas legados.
-  - Subir o mínimo para 15 é mudar a constante `MIN_LENGTH` do `PasswordPolicy` e o texto de ajuda de três telas (cadastro, recuperação e Ajustes).
-  - O Argon2 do Spring Security precisa de uma dependência a mais (Bouncy Castle). O `DelegatingPasswordEncoder` permite trocar sem invalidar as senhas que já existem.
+## Pendências resolvidas depois do relatório
+
+Você pediu para arrumar as pendências. Ficaram assim:
+
+**Senha: mínimo de 15 caracteres e Argon2id** (`66fe6aa`)
+- O Authentication Cheat Sheet considera fraca uma senha com menos de 15 caracteres sem segundo fator, e o Password Storage Cheat Sheet põe o Argon2id em primeiro lugar.
+- Hash novo em Argon2id com os mínimos do cheat sheet: 19 MiB de memória, 2 iterações e paralelismo 1. Precisou de uma dependência nova, o Bouncy Castle (`bcprov-jdk18on` 1.86), porque o Argon2 do Spring Security calcula com ele.
+- Senhas antigas em BCrypt continuam valendo e viram Argon2id no primeiro login. Quem já tinha senha de 12 a 14 caracteres continua entrando; o mínimo vale ao criar ou trocar a senha.
+- A lista de senhas comuns foi refeita da mesma fonte, com as 10.000 mais usadas de 15 caracteres ou mais. A antiga tinha só 1.397 desse tamanho, menos que as 3.000 que o ASVS 6.2.4 pede.
+- O máximo de 72 bytes continua, por causa das senhas antigas em BCrypt.
+- `/security-review` sem achados. Foi conferido:
+  - a troca do hash no login só acontece depois de a senha conferir, para a própria conta, e grava sempre um hash novo;
+  - o hash não vai para a sessão nem para o log;
+  - o limite de 72 bytes vale antes de qualquer hash, em todos os caminhos.
+- Detalhe que a revisão anotou, sem ser falha: o código de recuperação de quem criou a conta antes da troca continua em BCrypt até ser usado ou gerado de novo em Ajustes.
+
+**Gráfico do histórico no celular** (`88dd19a`, `fe0faba`)
+- O servidor desenha o gráfico em duas larguras: 640 para a tela larga e 320 para o celular. O CSS mostra uma só.
+- A letra do eixo passou de uns 9 px para 14,5 px na tela de 390 px (medido no Chrome). Na tela larga ficou com 13,2 px.
+- Os nomes de mês têm espaçamento igual e o último cabe inteiro.
+
+**Teste num PostgreSQL de verdade**
+- PostgreSQL 18.6, com os binários oficiais para Windows (zip da EDB, o indicado pelo postgresql.org), rodando só na pasta temporária e já desligado.
+- O usuário e o banco foram criados com os comandos do passo 2. Confirmado que, no PostgreSQL 18, o esquema `public` pertence ao dono do banco, e que o usuário `financas` pode criar tabelas nele.
+- O jar subiu sem perfil, como em produção, só com `DB_URL`, `DB_USER` e `DB_PASSWORD`. O Flyway aplicou as migrações V1, V2 e V3, e a conferência do esquema (`ddl-auto=validate`) passou.
+- No Chrome, contra esse banco, passaram:
+  - o roteiro do plano: cadastrar, entrar, lançar, editar, apagar e desfazer, marcar como pago e importar o backup antigo (15 verificações);
+  - o roteiro das funções novas: pendências, filtros, temas, exportar e importar em outra conta, e marcar como pago sem JavaScript (24 verificações);
+  - as 17 telas com dados de exemplo, inclusive o histórico de 24 meses, e a busca com `%` e `_` tratados como texto.
+- O log do servidor ficou sem erro, e todas as 5 contas criadas tinham o hash em Argon2id com os parâmetros de produção.
+- O teste mostrou um detalhe: num banco com o locale "C", a busca não iguala letras acentuadas maiúsculas e minúsculas ("CAFÉ" e "café"). Num banco criado com `ICU_LOCALE 'pt-BR'`, iguala. Por isso o passo 2 agora cria o banco assim. O app e o roteiro de todas as telas também passaram nesse banco.
 
 ## O que você precisa fazer à mão
 
@@ -103,12 +129,13 @@ Nesta ordem:
    ```sql
    CREATE ROLE financas LOGIN;
    \password financas
-   CREATE DATABASE financas OWNER financas;
+   CREATE DATABASE financas OWNER financas TEMPLATE template0 LOCALE_PROVIDER icu ICU_LOCALE 'pt-BR';
    ```
 
    - O `\password` pede a senha sem mostrá-la e sem deixá-la no histórico do terminal.
    - O dono do banco consegue criar as tabelas no esquema `public`. A partir do PostgreSQL 15, esse esquema pertence ao dono do banco.
-   - O app nunca rodou num PostgreSQL de verdade, só no H2 imitando o PostgreSQL. Faça a primeira subida num banco de teste (`financas_teste`) e rode o roteiro (cadastrar, lançar, importar).
+   - O `ICU_LOCALE 'pt-BR'` faz a busca de Lançamentos achar "CAFÉ" quando você digita "café". Num banco com o locale "C", o PostgreSQL não passa letras acentuadas maiúsculas para minúsculas, e a busca não as acharia. Testado no PostgreSQL 18.6, nos dois tipos de banco.
+   - O app já foi testado no PostgreSQL 18.6 (ver "Pendências resolvidas"). Mesmo assim, na sua máquina ou servidor, faça a primeira subida num banco de teste (`financas_teste`) e rode o roteiro (cadastrar, lançar, importar).
    - Se o Flyway ou a conferência do esquema (`ddl-auto=validate`) falharem, o app nem sobe, e o erro aparece no log.
 
 3. **Definir as variáveis** `DB_URL` (ex.: `jdbc:postgresql://localhost:5432/financas`), `DB_USER` e `DB_PASSWORD`.
@@ -145,8 +172,7 @@ Nesta ordem:
 ## Pendências
 
 - Dependency-Check não rodou (falta a `NVD_API_KEY`).
-- Migrações não testadas num PostgreSQL de verdade.
-- O gráfico do histórico é um SVG de largura fixa. No celular, a letra dos eixos continua pequena. A tabela logo abaixo tem os mesmos números.
+- PostgreSQL testado só na versão 18.6.
 - `favicon.svg` e `robots.txt` ficam 1 ano no cache sem versão no nome. Se um deles mudar, troque o nome do arquivo.
 - SEO 54 nas telas medidas, de propósito: o `robots.txt` bloqueia buscadores. Também falta `meta description`.
 - Testado só no Chrome e em `localhost`. Safari e Firefox não foram testados.

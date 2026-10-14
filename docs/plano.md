@@ -272,3 +272,9 @@ Relatório curto por fase, pendências e o que você precisa fazer à mão:
 
 ### Como a Entrega final ficou (14/10/2026)
 O relatório por fase e o passo a passo à mão estão em `docs/entrega-final.md`. A conferência com o app antigo achou três funções que faltavam: exportar os dados, a lista de pendências na tela inicial e a escolha de tema. Com a sua autorização, as três entraram no mesmo dia (`905ba89`, `b65cf87`, `24a5675`). Os detalhes estão no mesmo arquivo, em "O que faltava do app antigo".
+
+### Pendências resolvidas depois da Entrega (14/10/2026)
+Detalhes em `docs/entrega-final.md`, seção "Pendências resolvidas depois do relatório".
+- **Senha:** mínimo de 15 caracteres e Argon2id (`66fe6aa`). Isso substitui a decisão da Fase 1 (12 caracteres) e o BCrypt da Fase 2. Senhas antigas viram Argon2id no primeiro login.
+- **Gráfico do histórico no celular:** desenho próprio para a tela estreita (`88dd19a`, `fe0faba`).
+- **PostgreSQL de verdade:** migrações e roteiros testados no PostgreSQL 18.6. O banco de produção deve ser criado com `ICU_LOCALE 'pt-BR'`, para a busca igualar maiúsculas acentuadas.
