@@ -74,10 +74,10 @@ Fazer:
 - Tokens de cor, tipografia e espaçamento em um único arquivo. Paleta curta com uma cor de destaque.
 - Fonte com personalidade nos títulos e `font-variant-numeric: tabular-nums` nos valores.
 - Ícones de uma biblioteca só.
-- Hierarquia por tamanho, peso e espaço, não por caixas.
+- Hierarquia por tamanho, peso e espaço. Painéis só para agrupar partes da tela, de pesos diferentes, com borda fina e sem sombra (escolha de 14/10/2026, no lugar de "sem caixas").
 - Textos curtos, escritos como uma pessoa falaria.
 
-Direção visual escolhida (14/10/2026, no lugar do livro-caixa esverdeado da Fase 4): noite azul. Fundo azul-marinho escuro por padrão, texto claro, um azul-céu de destaque e vermelho só para valor negativo; o claro (papel frio, tinta azul-marinho, destaque azul-cobalto) fica como escolha em Ajustes. Os números continuam o protagonista: todo valor em Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Hierarquia por espaço, sem caixas. Texto em Atkinson Hyperlegible Next, ícones do Lucide sempre ao lado de texto. Tokens em `src/main/resources/static/css/tokens.css`; detalhes em `docs/plano.md` ("Noite azul").
+Direção visual escolhida (14/10/2026, no lugar do livro-caixa esverdeado da Fase 4): noite azul. Fundo azul-marinho escuro por padrão, texto claro, um azul-céu de destaque e vermelho só para valor negativo; o claro (papel frio, tinta azul-marinho, destaque azul-cobalto) fica como escolha em Ajustes. Os números continuam o protagonista: todo valor em Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Cada parte da tela fica num painel um tom acima do fundo, com borda fina e cantos arredondados, sem sombra; os três números do topo ficam num cartão azul-cobalto. Na tela larga, menu fixo à esquerda com as telas em grupos; no celular, barra fixa embaixo. Botões com cantos arredondados: a ação principal cheia, as outras com fundo azul suave. Texto em Atkinson Hyperlegible Next, ícones do Lucide sempre ao lado de texto. Tokens em `src/main/resources/static/css/tokens.css`; detalhes em `docs/plano.md` ("Noite azul" e "Menu lateral e painéis").
 
 ## Materiais de consulta
 

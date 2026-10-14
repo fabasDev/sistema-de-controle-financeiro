@@ -278,6 +278,30 @@
     vertical-align: -0.25em;
   }
 
+  /*
+   * Painéis: cada parte da tela fica num bloco um tom acima do fundo, com borda fina e cantos
+   * arredondados, sem sombra. Valem para as seções, os formulários e as tabelas que estão direto
+   * na página, e para as colunas da visão geral. Os avisos (.notice) têm o próprio visual.
+   * :where() deixa a regra sem peso, para o traço de .quick-add e as margens próprias valerem.
+   */
+  :where(.page > section:not(.notice), .page > .form, .page > table.table, .page > .table-scroll, .page > .chart,
+      .home-side > section, .home-main > section, .filters-box) {
+    margin-block: 0 var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-panel);
+    background: var(--surface);
+  }
+  :is(.page > section, .home-side > section, .home-main > section) > h2 { margin-block-start: 0; font-size: var(--text-h3); }
+  .page:not(.home) > :is(section, .form, table.table, .table-scroll, .chart, .filters-box) { max-inline-size: 60rem; }
+  .page > .form { max-inline-size: 40rem; }
+  .page > .form-grid { max-inline-size: 60rem; }
+  /* O último item de cada painel não leva linha nem margem embaixo: a borda do painel já fecha. */
+  :is(.home-side, .home-main) > section > :last-child, .page > section > :last-child { margin-block-end: 0; }
+  .table tbody tr:last-child, .table tbody tr:last-child :is(th, td), .plan-list > li:last-child { border-block-end: 0; }
+  /* Tabela como painel: bordas separadas, para os cantos arredondados aparecerem. */
+  .page > table.table { inline-size: 100%; border-collapse: separate; border-spacing: 0; padding-block: var(--space-1); }
+
   /* Mês: título grande, e os meses vizinhos logo abaixo. */
   .month-nav {
     display: grid;
@@ -292,11 +316,14 @@
     align-items: center;
     gap: var(--space-1);
     min-block-size: var(--target);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
     color: var(--ink-muted);
     font-size: var(--text-small);
     text-decoration: none;
   }
-  .month-nav a:hover { color: var(--accent); text-decoration: underline; }
+  .month-nav a:hover { background: var(--accent-soft); color: var(--ink); }
   .month-prev { grid-area: prev; justify-self: start; }
   .month-next { grid-area: next; justify-self: end; }
   @media (min-width: 40rem) {
@@ -309,15 +336,20 @@
   }
 
   /*
-   * O topo da visão geral, como uma página de livro-caixa: rótulo à esquerda, valor à direita,
-   * uma linha de pauta entre os registros e o traço duplo da contabilidade sob o saldo.
+   * O topo da visão geral: os três números num cartão azul-cobalto, igual nos dois temas. No
+   * celular, como uma página de livro-caixa: rótulo à esquerda, valor à direita e uma linha de
+   * pauta entre eles. O saldo leva o traço duplo da contabilidade.
    */
   .headline {
     container: headline / inline-size;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
-    margin: 0 0 var(--space-5);
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-card);
+    background: var(--card);
+    color: var(--on-card);
   }
   .headline > div {
     flex: 1 0 100%;
@@ -327,8 +359,8 @@
     column-gap: var(--space-4);
     padding-block: var(--space-2);
   }
-  .headline > div + div { border-block-start: 1px solid var(--rule); }
-  .headline dt { color: var(--ink-muted); font-weight: 600; }
+  .headline > div + div { border-block-start: 1px solid rgb(255 255 255 / 0.25); }
+  .headline dt { color: var(--on-card-muted); font-weight: 600; }
   .figure {
     font-family: var(--font-figures);
     font-size: var(--figure-mid);
@@ -344,25 +376,24 @@
     padding-block-end: var(--space-1);
     border-block-end: 3px double currentColor;
   }
-  .headline-balance.is-negative .figure { color: var(--negative); }
-  .headline-invest .figure { color: var(--accent); }
+  .headline-balance.is-negative .figure { color: var(--negative-on-card); }
   .figure-note {
     grid-column: 1 / -1;
     margin-block-start: var(--space-1);
-    color: var(--ink-muted);
+    color: var(--on-card-muted);
     font-size: var(--text-small);
   }
-  .headline-balance.is-negative .figure-note { color: var(--negative); font-weight: 600; }
+  .headline-balance.is-negative .figure-note { color: var(--negative-on-card); font-weight: 600; }
 
   /*
-   * Com espaço (o próprio bloco com 34rem ou mais, medido por container query), os três números
-   * ficam lado a lado, cada um com o rótulo em cima, e o tamanho acompanha a largura do bloco.
+   * Com espaço (o próprio cartão com 34rem ou mais, medido por container query), os três números
+   * ficam lado a lado, cada um com o rótulo em cima, e o tamanho acompanha a largura do cartão.
    * Base 0: as colunas dividem a largura e só quebram de linha se nem o mínimo de cada uma couber;
    * quem encolhe é a nota, que quebra em mais linhas.
    */
   @container headline (min-width: 34rem) {
     .headline > div { flex: 1 1 0; display: flex; flex-direction: column; padding: var(--space-2) var(--space-5) var(--space-2) 0; }
-    .headline > div + div { border-block-start: 0; border-inline-start: 1px solid var(--rule); padding-inline-start: var(--space-5); }
+    .headline > div + div { border-block-start: 0; border-inline-start: 1px solid rgb(255 255 255 / 0.25); padding-inline-start: var(--space-5); }
     .headline .figure { align-self: flex-start; text-align: start; font-size: clamp(1.5rem, 4cqi, 2.25rem); }
     .headline-balance .figure { font-size: clamp(2rem, 5.2cqi, 3rem); }
     .headline .figure-note { max-inline-size: 16rem; }
@@ -387,14 +418,8 @@
   }
   .num { text-align: end; }
 
-  /* Seções que pedem ação: um traço forte em cima, sem caixa em volta. */
-  .quick-add, .invite {
-    margin-block: var(--space-5);
-    padding-block-start: var(--space-3);
-    border-block-start: 2px solid var(--ink);
-  }
-  .invite { border-color: var(--accent); }
-  .quick-add h2, .invite h2 { margin-block-start: 0; font-size: var(--text-h3); }
+  /* Seções que pedem ação (registrar um gasto, primeira vez): o painel ganha um traço de destaque em cima. */
+  .quick-add, .invite { border-block-start: 3px solid var(--accent); }
   .quick-add-form { grid-template-columns: 1fr 1fr; }
   .quick-add-form > :is(details, .actions) { grid-column: 1 / -1; }
 
@@ -432,7 +457,10 @@
   .hint, .small { margin: 0; color: var(--ink-muted); font-size: var(--text-small); }
   .field-error { margin: 0; color: var(--negative); font-size: var(--text-small); font-weight: 600; }
 
-  /* Botões: a ação principal é verde e cheia; as outras, com borda. */
+  /*
+   * Botões: a ação principal é cheia, na cor de destaque; as outras têm fundo suave da mesma cor,
+   * e "Sair"/"Pago" (quiet) só ganham fundo ao passar o mouse. Apertar afunda 1px.
+   */
   button, .button-primary {
     display: inline-flex;
     align-items: center;
@@ -441,20 +469,25 @@
     min-block-size: var(--target);
     min-inline-size: var(--target);
     padding: var(--space-2) var(--space-4);
-    border: 1px solid var(--rule-strong);
-    border-radius: var(--radius);
-    background: var(--paper-raised);
-    color: var(--ink);
+    border: 1px solid transparent;
+    border-radius: var(--radius-button);
+    background: var(--accent-soft);
+    color: var(--accent);
     font-weight: 600;
     line-height: 1.2;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, transform 0.1s;
   }
-  button:hover:not(:disabled) { border-color: var(--ink); }
-  .button-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-  .button-primary:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  .button-danger { border-color: var(--negative); color: var(--negative); }
-  .button-quiet { border-color: transparent; background: transparent; padding-inline: var(--space-2); }
+  button:hover:not(:disabled) { background: var(--accent-soft-strong); }
+  :is(button, .button-primary):active:not(:disabled) { transform: translateY(1px); }
+  .button-primary { background: var(--accent); color: var(--on-accent); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25); }
+  .button-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 85%, var(--ink)); }
+  .button-danger { background: var(--negative-soft); color: var(--negative); }
+  /* Ao passar o mouse, o de apagar ganha borda em vez de escurecer o fundo: assim o vermelho não perde contraste. */
+  .button-danger:hover:not(:disabled) { border-color: var(--negative); }
+  .button-quiet { background: transparent; color: var(--ink); padding-inline: var(--space-2); }
+  .button-quiet:hover:not(:disabled) { background: var(--accent-soft); }
   button:disabled { cursor: progress; opacity: 0.6; }
   /* "Sair", no pé do menu lateral: alinhado com os itens do menu. */
   @media (min-width: 64rem) {
@@ -486,6 +519,7 @@
     margin-block: var(--space-4);
     padding: var(--space-3) var(--space-4);
     border-inline-start: 4px solid var(--ink-muted);
+    border-radius: var(--radius-button);
     background: var(--paper-raised);
   }
   .notice > :is(span, div) { flex: 1 1 14rem; }
