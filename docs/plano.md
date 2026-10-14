@@ -271,4 +271,4 @@ Relatório curto por fase, pendências e o que você precisa fazer à mão:
 - apagar `legacy-web/` quando estiver satisfeito.
 
 ### Como a Entrega final ficou (14/10/2026)
-O relatório por fase, os três itens que o app antigo faz e o novo ainda não (por isso o `legacy-web/` continua) e o passo a passo à mão estão em `docs/entrega-final.md`.
+O relatório por fase e o passo a passo à mão estão em `docs/entrega-final.md`. A conferência com o app antigo achou três funções que faltavam: exportar os dados, a lista de pendências na tela inicial e a escolha de tema. Com a sua autorização, as três entraram no mesmo dia (`905ba89`, `b65cf87`, `24a5675`). Os detalhes estão no mesmo arquivo, em "O que faltava do app antigo".

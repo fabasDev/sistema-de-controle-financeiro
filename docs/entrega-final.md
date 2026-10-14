@@ -2,7 +2,7 @@
 
 O app em Java está completo na branch `melhorias-java`. A `main` continua com o app React original e não foi alterada. O repositório não tem remoto configurado, então nada foi enviado ao GitHub.
 
-O `legacy-web/` **ainda não deve ser apagado**. O plano diz que ele fica até o app novo fazer tudo o que o antigo fazia, e faltam três coisas (ver "O que o app antigo faz e o novo ainda não").
+O app novo agora faz tudo o que o antigo fazia: as três funções que faltavam entraram depois deste relatório (ver "O que faltava do app antigo"). Pela regra do plano, o `legacy-web/` já pode ser apagado, mas só depois de você exportar o backup do app antigo e conferir a importação (passos 6 e 7 abaixo).
 
 ## O que cada fase entregou
 
@@ -46,22 +46,39 @@ O `legacy-web/` **ainda não deve ser apagado**. O plano diz que ele fica até o
   - peso de 385 para 92 KiB.
 - Detalhes em `docs/lighthouse-depois.md`. `/security-review` sem achados.
 
-**Verificação:**
+**Verificação das fases:**
 - Os 220 testes JUnit (`./mvnw verify`) e os 35 de JavaScript passaram no commit `604bdca`.
-- Depois dele só mudaram documentos e o comentário do `.env.example`, sem mudança de código.
 - O roteiro do plano passou no Chrome, no perfil `dev`: cadastrar, lançar, editar, apagar e desfazer, ver o resumo e importar o backup.
 
-## O que o app antigo faz e o novo ainda não
+## O que faltava do app antigo
 
-| O quê | App antigo | App novo | Peso |
+Na primeira versão deste relatório, o app novo ainda não fazia três coisas que o antigo fazia. Você autorizou fazê-las, e elas entraram no mesmo dia:
+
+| O quê | No app antigo | No app novo | Commit |
 |---|---|---|---|
-| Exportar os dados | "Exportar backup criptografado" (`legacy-web/src/pages/Settings.tsx:144`) | Não existe | **Alto** |
-| Lista do que falta pagar | "Pendências do mês" na tela inicial, com caixa para marcar como pago (`Dashboard.tsx:344`) | Só o total "A pagar" (`home.html:64`). Os lançamentos não têm filtro por situação | Médio |
-| Escolher o tema | Automático, claro ou escuro (`Settings.tsx:75-80`) | Segue o sistema (`layout.html:6`) | Baixo |
+| Exportar os dados | "Exportar backup criptografado" | **Ajustes → Exportar meus dados**: arquivo criptografado no mesmo formato do backup antigo, que volta pela importação | `905ba89` |
+| Lista do que falta pagar | "Pendências do mês" na tela inicial, com caixa para marcar como pago | "Pendências do mês" na visão geral, com "Marcar como pago" ou "recebido", e o filtro "Situação" em Lançamentos | `b65cf87` |
+| Escolher o tema | Automático, claro ou escuro, por aparelho | Automático, claro ou escuro em **Ajustes → Aparência**, guardado na conta | `24a5675` |
 
-**Exportar os dados** é o que mais pesa. Sem isso, os dados entram no app novo e não têm como sair. A LGPD (art. 18, V) prevê o direito à portabilidade, e a página de Privacidade hoje só fala em acesso, correção e exclusão.
+Detalhes:
+- **Exportar:** a senha do arquivo segue a regra da senha da conta, porque quem pegar o arquivo pode tentar adivinhá-la no próprio computador. A Privacidade passou a citar a portabilidade (LGPD, art. 18, V). Só existe o formato criptografado; uma planilha (CSV) pode vir depois, se você quiser.
+- **Tema:** fica na conta, não num cookie, porque o "Sair" apaga os cookies do site e a Privacidade promete um cookie só. As telas de entrar e de cadastro seguem o aparelho. Se você trocar o tema num aparelho, outro aparelho já logado só muda quando entrar de novo.
 
-Os três podem ser feitos numa etapa separada, se você autorizar.
+**Verificação das três funções:**
+- `./mvnw verify`: 244 testes JUnit, BUILD SUCCESS. Os novos cobrem:
+  - exportar e importar em outra conta e comparar registro a registro, antes e depois de abrir 14 meses (o teste falha se a ligação com as contas fixas se perder: conferido quebrando o código de propósito);
+  - senha fraca, senha com acento, isolamento entre usuários, cabeçalhos do download e CSRF;
+  - pendências, filtro, redirecionamento só para telas do app;
+  - tema na sessão e no banco, "Recomeçar do zero" mantendo o tema e os dois blocos do tema escuro no CSS iguais;
+  - número de consultas ao banco que não cresce com os registros (exportar faz 8 consultas com 25 ou 75 registros).
+- Roteiro no Chrome (390 e 1280 px), com banco em memória: 24 verificações, sem erro de console, CSP ou rede. Entre elas: marcar como pago pela visão geral (com e sem JavaScript), os dois filtros, os três temas com o aparelho claro e escuro, exportar, baixar o arquivo e importar em outra conta.
+- As fotos das telas foram conferidas: a lista de pendências no celular e a seção "Aparência".
+- `/security-review` das mudanças depois de `604bdca`: sem achados. Foram conferidos:
+  - redirecionamento e cabeçalhos no "marcar como pago" (só destinos fixos);
+  - XSS pela descrição na mensagem e pelo atributo do tema;
+  - acesso aos dados de outro usuário nas consultas novas e na exportação;
+  - CSRF nas duas rotas novas;
+  - a criptografia do arquivo e o que vai nele (sem hash de senha nem do código de recuperação).
 
 ## Decisões que você pode rever
 
@@ -114,12 +131,10 @@ Nesta ordem:
 6. **Trazer os dados do app antigo.**
    - Os dados dele ficam no navegador, separados por endereço. Abra o app antigo no mesmo navegador e no mesmo endereço em que você o usava. Por exemplo, `npm run dev` abre em `localhost:5173` e `npm run preview` em `localhost:4173`.
    - Em Ajustes, use "Exportar backup criptografado".
-   - No app novo, vá em **Ajustes → Importar o backup do app antigo** e confira os números.
+   - No app novo, vá em **Ajustes → Importar um backup** e confira os números.
    - A importação **substitui** tudo o que já existe na conta nova. Importe antes de lançar dados de verdade nela.
 
-7. **Apagar `legacy-web/`**, só depois de:
-   - decidir sobre os três itens da seção acima;
-   - conferir a importação.
+7. **Apagar `legacy-web/`**, só depois de conferir a importação. Se quiser uma cópia de segurança dos dados novos, use **Ajustes → Exportar meus dados**.
 
    Enquanto ela existir, rode `npm audit` dentro dela de vez em quando.
 
