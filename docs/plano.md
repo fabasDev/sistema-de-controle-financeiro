@@ -134,6 +134,16 @@ O limite de login será código próprio, sem biblioteca extra.
   - Simulador: crescimento ao longo do tempo.
 - Gráficos em SVG gerado no servidor ou no JS puro. Não entra biblioteca nova sem eu perguntar.
 
+### Como a Fase 3 ficou (13/10/2026)
+- Lançamento rápido no topo (visão geral e lançamentos), com as categorias mais usadas nos últimos 90 dias primeiro.
+- "Desfazer" em todas as exclusões, inclusive troca de regra (ver a nota acima sobre restauração em vez de exclusão adiada).
+- Gráficos: histórico em SVG gerado no servidor e simulador em JS chamando `/api/simulacao` com debounce. Seguem a skill dataviz, com paleta provisória validada pelo script dela.
+- Questionário de perfil e assistente em JS, portados de `advisor.ts`, sem conta de dinheiro no navegador.
+- Assistente inicial e dados de exemplo (paridade com o app antigo).
+- Validação no formulário (mensagem ao lado do campo) além da do servidor.
+- Acessibilidade: alvos de 44px, foco visível, rótulos e Lighthouse 100 nas 14 telas testadas.
+- Os botões só com ícone (aria-label + tooltip) ficam para a Fase 4, porque hoje todo botão tem texto e os ícones chegam com o visual.
+
 ## Fase 4: visual
 - Carregar a skill `frontend-design` e consultar o repo anthropics/skills.
 - Direção em duas linhas para você aprovar antes de implementar: algo na linha de um livro-caixa sóbrio (papel claro, tinta escura, um verde de destaque), com números grandes em fonte tabular.

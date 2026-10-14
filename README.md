@@ -13,6 +13,7 @@ Requisitos: **Java 25** (Temurin) com `JAVA_HOME` configurado. Não precisa inst
 ./mvnw test                                             # testes (JUnit 5)
 ./mvnw verify                                           # testes + empacota o .jar em target/
 ./mvnw dependency-check:check                           # vulnerabilidades nas dependências (ver abaixo)
+node --test "src/test/js/**/*.test.mjs"                 # testes do JavaScript (Node 22 ou mais, sem instalar nada)
 ```
 
 No Windows, use `mvnw.cmd` no lugar de `./mvnw` se não estiver no Git Bash.
@@ -45,6 +46,17 @@ O cookie de sessão é `Secure`, então em produção o app precisa estar atrás
 O OWASP Dependency-Check precisa de uma chave gratuita da NVD. Sem ela, a primeira atualização do banco de vulnerabilidades é muito lenta. Peça em https://nvd.nist.gov/developers/request-an-api-key e defina a variável `NVD_API_KEY` antes de rodar `./mvnw dependency-check:check`. O build falha se houver vulnerabilidade com nota CVSS 7 ou mais, e o relatório fica em `target/dependency-check-report.html`.
 
 Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
+
+## O que dá para fazer
+
+- **Visão geral:** o topo responde quanto gastei, quanto sobra e quanto posso investir (estimativa educativa). Logo abaixo, o lançamento rápido: valor, categoria e salvar, com a data de hoje e as categorias mais usadas primeiro.
+- **Lançamentos, contas fixas e parcelas, metas, potes e categorias:** tudo pode ser apagado com "Desfazer" por 10 minutos.
+- **Investimentos:** questionário de perfil (as respostas ficam no navegador), carteira sugerida e um assistente que responde dúvidas com os seus números, sem IA externa.
+- **Simulador:** atualiza enquanto você digita, com gráfico e tabela ano a ano. As contas são feitas no servidor, em `BigDecimal`.
+- **Histórico:** entradas × saídas por mês (gráfico e tabela) e gastos por categoria.
+- **Começar:** assistente inicial para a conta nova, dados de exemplo e importação do backup do app antigo.
+
+Sem JavaScript, tudo continua funcionando: formulários vão para o servidor e apagar passa por uma página de confirmação. O JavaScript (módulos em `src/main/resources/static/js`, sem dependência nem build) só melhora a experiência.
 
 ## Dependências e por que cada uma está aqui
 
@@ -92,12 +104,14 @@ src/main/java/io/github/fabasdev/financas/
   domain/       entidades JPA, Money (BigDecimal) e Months
   repository/   consultas (sempre filtrando pelo dono)
   service/      regras: resumo do mês, sugestão de investimento, simulador, contas fixas, importação...
-  controller/   telas (Thymeleaf) e as APIs /api/simulacao e /api/assistente
+  controller/   telas (Thymeleaf), as APIs /api/simulacao e /api/assistente e o gráfico do histórico (SVG)
   security/     política de senha, limite de tentativas, filtros de sessão
   config/       Spring Security e relógio (fuso America/Sao_Paulo)
 src/main/resources/
   db/migration/ V1 (tabelas) e V2 (regras 50/30/20, 70/20/10, 6 potes e 80/20)
   templates/    HTML das telas
+  static/js/    melhorias em JavaScript (simulador, questionário, assistente, validação de formulário)
+src/test/js/    testes do JavaScript (node --test)
 legacy-web/     app React antigo (até a migração terminar)
 docs/           plano, auditoria e medições
 ```
