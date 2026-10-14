@@ -167,7 +167,11 @@ A skill `frontend-design` não estava instalada; o `SKILL.md` foi lido direto de
 | verde | `#17603f` | `#7ccb9f` | ação principal, links, "posso investir" |
 | tinta vermelha | `#a3322b` | `#f08a7e` | saldo negativo e erro, sempre com texto |
 
-**Tipos:** Besley (serifa estilo Clarendon, a dos livros contábeis e impressos antigos) nos títulos e em todo valor; Atkinson Hyperlegible Next (sucessora da Atkinson Hyperlegible, do Braille Institute, desenhada para leitura fácil) no texto. Testei a Atkinson nos números, mas o zero dela é cortado (Ø) e deixava as tabelas com cara de código. A fonte não tem zero alternativo.
+**Tipos:** Besley nos títulos e em todo valor; Atkinson Hyperlegible Next no texto.
+- A Besley é uma serifa inspirada nos desenhos de Robert Besley, o criador da Clarendon, e é mais pesada que as fontes digitais comuns. Os números dela lembram os impressos antigos, que é a ideia do livro-caixa.
+- A Atkinson Hyperlegible Next é a versão melhorada da Atkinson Hyperlegible, pensada para ser fácil de ler, como diz o nome. O nome homenageia o fundador do Braille Institute.
+- As duas descrições foram conferidas nos READMEs oficiais (indestructible-type/Besley e googlefonts/atkinson-hyperlegible-next).
+- Testei a Atkinson nos números, mas o zero dela é cortado (Ø) e deixava as tabelas com cara de código. A fonte não tem zero alternativo.
 
 **Layout:** alinhado à esquerda, sem caixas. No celular:
 
@@ -209,6 +213,8 @@ Na tela larga, números e tabelas ficam à esquerda e o lançamento rápido, fix
 - Lighthouse 13.5.0 deu 100 em acessibilidade nas 18 telas testadas (só tema claro).
 - No tema escuro, o contraste foi medido por um script próprio (texto, bordas de campo e de botão): tudo passa.
 - Fotos em 390 e 1280 px, nos dois temas: sem rolagem horizontal, sem erro de console e sem violação de CSP.
+- Fluxos no navegador com cliques de mouse nos ícones: cadastrar, lançar, marcar como pago, editar, apagar e desfazer, menu do celular e importar o backup antigo (com senha errada e com a certa). Também rodaram de novo os roteiros da Fase 3 (simulador ao vivo, gráfico, questionário e o teste de XSS pelo nome).
+- Tudo foi testado só no Chrome. Safari e Firefox não foram testados.
 
 **Pendência:** o gráfico do histórico é um SVG de largura fixa e encolhe no celular. A letra dos eixos aumenta nessa largura, mas continua pequena. A tabela logo abaixo tem os mesmos números.
 

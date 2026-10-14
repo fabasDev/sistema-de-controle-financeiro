@@ -46,9 +46,9 @@
   --series-2: #bd821a;
   --series-3: #196632;
 
-  /* Tipografia. Besley (serifa estilo Clarendon, a dos livros contábeis e impressos antigos)
-     nos títulos e em todo valor em dinheiro, como algarismos impressos numa coluna de livro-caixa.
-     Atkinson Hyperlegible Next (feita para leitura fácil) no texto, rótulos e botões. */
+  /* Tipografia. Besley (serifa inspirada na Clarendon de Robert Besley) nos títulos e em todo
+     valor em dinheiro, como algarismos impressos numa coluna de livro-caixa.
+     Atkinson Hyperlegible Next (pensada para ser fácil de ler) no texto, rótulos e botões. */
   --font-display: "Besley", Georgia, "Times New Roman", serif;
   --font-figures: var(--font-display);
   --font-text: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
