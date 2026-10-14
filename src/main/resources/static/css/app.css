@@ -55,6 +55,17 @@
   code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
   strong { font-weight: 700; }
 
+  /* Hoje o app não tem animação. Esta regra garante que uma animação futura respeite quem pediu
+     menos movimento no sistema (WCAG 2.3.3). */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* <details>: o triângulo nativo continua, só ganha altura de alvo de toque. */
   summary {
     min-block-size: var(--target);
