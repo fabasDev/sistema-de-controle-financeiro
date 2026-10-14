@@ -66,6 +66,42 @@
         </dl>
     </section>
 
+    <!-- O que ainda falta pagar ou receber no mês, do vencimento mais próximo para o mais distante. -->
+    <section th:if="${summary.hasData}" aria-labelledby="pendencias-titulo">
+        <h2 id="pendencias-titulo">Pendências do mês</h2>
+        <p th:if="${#lists.isEmpty(pending)}" class="empty">Tudo em dia: nada a pagar ou a receber neste mês.</p>
+        <table th:unless="${#lists.isEmpty(pending)}" class="table ledger">
+            <thead>
+            <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Categoria</th>
+                <th scope="col" class="num">Valor</th>
+                <th scope="col"><span class="visually-hidden">Ação</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${pending}">
+                <td class="ledger-date" th:text="${@fmt.date(t.date)}"></td>
+                <td class="ledger-desc" th:text="${t.description}"></td>
+                <td class="ledger-cat" th:text="${t.type.name() == 'INCOME'} ? 'Receita' : (${t.categoryName} ?: 'Sem categoria')"></td>
+                <td class="value num ledger-amount" th:classappend="${t.type.name() == 'INCOME'} ? 'is-income'"
+                    th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
+                <td class="ledger-status">
+                    <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
+                        <input type="hidden" name="voltar" value="inicio">
+                        <button type="submit" class="button-quiet">
+                            <svg th:replace="~{fragments/icons :: circleCheck}"></svg>
+                            <span th:text="${t.type.name() == 'INCOME'} ? 'Marcar como recebido' : 'Marcar como pago'">Marcar como pago</span><span class="visually-hidden" th:text="': ' + ${t.description}"></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${pendingMore}"><a class="link-standalone" th:href="@{/lancamentos(mes=${month},situacao='pendente')}">Ver todas as pendências</a></p>
+    </section>
+
     <section aria-labelledby="potes-titulo">
         <h2 id="potes-titulo">Planejado × realizado</h2>
         <table class="table">

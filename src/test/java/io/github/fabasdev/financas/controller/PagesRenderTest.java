@@ -55,6 +55,7 @@ class PagesRenderTest {
         String[] pages = {
                 "/", "/?mes=2026-01", "/?mes=lixo",
                 "/lancamentos", "/lancamentos?tipo=EXPENSE&busca=gasto&page=0&size=500", "/lancamentos/novo",
+                "/lancamentos?situacao=pendente", "/lancamentos?situacao=pago", "/lancamentos?situacao=lixo",
                 "/lancamentos/" + ids.transaction() + "/editar", "/lancamentos/" + ids.transaction() + "/excluir",
                 "/contas-fixas", "/contas-fixas/nova", "/contas-fixas/" + ids.recurring() + "/editar",
                 "/contas-fixas/" + ids.recurring() + "/excluir",

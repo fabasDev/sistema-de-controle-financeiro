@@ -53,7 +53,7 @@ Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
 
 ## O que dá para fazer
 
-- **Visão geral:** o topo responde quanto gastei, quanto sobra e quanto posso investir (estimativa educativa). Logo abaixo, o lançamento rápido: valor, categoria e salvar, com a data de hoje e as categorias mais usadas primeiro.
+- **Visão geral:** o topo responde quanto gastei, quanto sobra e quanto posso investir (estimativa educativa). Logo abaixo, o lançamento rápido: valor, categoria e salvar, com a data de hoje e as categorias mais usadas primeiro. Mais abaixo, as pendências do mês (o que falta pagar ou receber), cada uma com o botão de marcar como pago. Em Lançamentos, o filtro "Situação" mostra só as pendentes ou só as pagas.
 - **Lançamentos, contas fixas e parcelas, metas, potes e categorias:** tudo pode ser apagado com "Desfazer" por 10 minutos.
 - **Investimentos:** questionário de perfil (as respostas ficam no navegador), carteira sugerida e um assistente que responde dúvidas com os seus números, sem IA externa.
 - **Simulador:** atualiza enquanto você digita, com gráfico e tabela ano a ano. As contas são feitas no servidor, em `BigDecimal`.

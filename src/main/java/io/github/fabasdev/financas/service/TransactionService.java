@@ -15,6 +15,7 @@ import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,8 +37,8 @@ public class TransactionService {
             Long categoryId, Long goalId, boolean paid, boolean repeat, Integer installments) {
     }
 
-    /** Filtros da listagem. Todos opcionais. */
-    public record Filter(TransactionType type, Long categoryId, String search) {
+    /** Filtros da listagem. Todos opcionais. {@code paid}: true só pagos e recebidos, false só pendentes. */
+    public record Filter(TransactionType type, Long categoryId, String search, Boolean paid) {
     }
 
     private final TransactionRepository transactions;
@@ -58,7 +59,14 @@ public class TransactionService {
         // A ordem é fixa na consulta. A ordenação que vier na URL é ignorada.
         Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         return transactions.findRows(userId, month.atDay(1), Months.endExclusive(month), filter.type(),
-                filter.categoryId(), likePattern(filter.search()), unsorted);
+                filter.categoryId(), likePattern(filter.search()), filter.paid(), unsorted);
+    }
+
+    /** Até {@code limit} pendências do mês (a pagar e a receber), das que vencem primeiro. */
+    @Transactional(readOnly = true)
+    public List<TransactionRow> pending(Long userId, YearMonth month, int limit) {
+        return transactions.findPendingRows(userId, month.atDay(1), Months.endExclusive(month),
+                PageRequest.of(0, limit));
     }
 
     @Transactional(readOnly = true)

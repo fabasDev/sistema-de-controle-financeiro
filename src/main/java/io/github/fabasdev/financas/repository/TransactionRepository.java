@@ -74,6 +74,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
               and (:type is null or t.type = :type)
               and (:categoryId is null or c.id = :categoryId)
               and (:search is null or lower(t.description) like :search escape '\\')
+              and (:paid is null or t.paid = :paid)
             order by t.date desc, t.id desc
             """,
             countQuery = """
@@ -82,10 +83,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
               and (:type is null or t.type = :type)
               and (:categoryId is null or c.id = :categoryId)
               and (:search is null or lower(t.description) like :search escape '\\')
+              and (:paid is null or t.paid = :paid)
             """)
     Page<TransactionRow> findRows(@Param("userId") Long userId, @Param("start") LocalDate start,
             @Param("end") LocalDate end, @Param("type") TransactionType type, @Param("categoryId") Long categoryId,
-            @Param("search") String search, Pageable pageable);
+            @Param("search") String search, @Param("paid") Boolean paid, Pageable pageable);
+
+    /** Pendências do intervalo (a pagar e a receber), da data mais próxima para a mais distante. */
+    @Query("""
+            select new io.github.fabasdev.financas.dto.TransactionRow(
+                t.id, t.type, t.date, t.description, t.amount, t.paid, c.name, c.icon,
+                case when t.recurring is not null then true else false end)
+            from Transaction t left join t.category c
+            where t.user.id = :userId and t.date >= :start and t.date < :end and t.paid = false
+            order by t.date, t.id
+            """)
+    List<TransactionRow> findPendingRows(@Param("userId") Long userId, @Param("start") LocalDate start,
+            @Param("end") LocalDate end, Pageable pageable);
 
     /** Gasto por categoria e mês no intervalo: [categoryId, ano, mês, total]. */
     @Query("""

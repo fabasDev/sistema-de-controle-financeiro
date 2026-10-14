@@ -90,6 +90,7 @@ public class TransactionController {
             @RequestParam(name = "tipo", required = false) TransactionType type,
             @RequestParam(name = "categoria", required = false) Long categoryId,
             @RequestParam(name = "busca", required = false) String search,
+            @RequestParam(name = "situacao", required = false) String status,
             Pageable pageable, Model model) {
         YearMonth month = MonthParam.parse(monthParam, clock);
         recurring.ensureMonth(me.getId(), month);
@@ -103,10 +104,12 @@ public class TransactionController {
         model.addAttribute("type", type);
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("search", trimmedSearch);
+        Boolean paid = paidFilter(status);
+        model.addAttribute("status", paid == null ? null : status);
         model.addAttribute("categories", categories.list(me.getId()));
         model.addAttribute("quick", categories.quickAddOptions(me.getId(), LocalDate.now(clock)));
         model.addAttribute("today", LocalDate.now(clock));
-        model.addAttribute("page", transactions.page(me.getId(), month, new Filter(type, categoryId, trimmedSearch),
+        model.addAttribute("page", transactions.page(me.getId(), month, new Filter(type, categoryId, trimmedSearch, paid),
                 pageable));
         return "transactions/list";
     }
@@ -186,11 +189,25 @@ public class TransactionController {
         return showForm(me, form, id, model);
     }
 
+    /**
+     * Marca como pago (ou recebido) e desmarca. {@code voltar=inicio} vem das pendências da visão
+     * geral; qualquer outro valor volta para a lista, com o filtro de situação se ele for válido.
+     */
     @PostMapping("/{id}/pago")
-    public String togglePaid(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id) {
+    public String togglePaid(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
+            @RequestParam(name = "voltar", defaultValue = "") String back,
+            @RequestParam(name = "situacao", required = false) String status, RedirectAttributes redirect) {
         Transaction t = transactions.get(me.getId(), id);
         transactions.togglePaid(me.getId(), id);
-        return "redirect:/lancamentos?mes=" + t.getMonth();
+        if ("inicio".equals(back)) {
+            // Na visão geral o lançamento some das pendências, então a mensagem diz o que aconteceu.
+            boolean income = t.getType() == TransactionType.INCOME;
+            String state = !t.isPaid() ? (income ? "marcado como recebido." : "marcado como pago.")
+                    : (income ? "voltou para a receber." : "voltou para a pagar.");
+            redirect.addFlashAttribute("success", "\"" + t.getDescription() + "\" " + state);
+            return "redirect:/?mes=" + t.getMonth();
+        }
+        return "redirect:/lancamentos?mes=" + t.getMonth() + (paidFilter(status) == null ? "" : "&situacao=" + status);
     }
 
     /** Sem JavaScript, apagar passa por esta página de confirmação. O "desfazer" chega na Fase 3. */
@@ -226,6 +243,15 @@ public class TransactionController {
         model.addAttribute("goals", goals.listEntities(me.getId()));
         model.addAttribute("types", TransactionType.values());
         return "transactions/form";
+    }
+
+    /** "pendente" e "pago" viram o filtro; qualquer outro valor é ignorado (sem erro). */
+    private static Boolean paidFilter(String status) {
+        return switch (status) {
+            case "pendente" -> false;
+            case "pago" -> true;
+            case null, default -> null;
+        };
     }
 
     private static TransactionData toData(TransactionForm form, BindingResult errors) {

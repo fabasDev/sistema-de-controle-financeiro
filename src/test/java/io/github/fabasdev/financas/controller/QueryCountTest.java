@@ -48,7 +48,7 @@ class QueryCountTest {
 
     static final List<String> PAGES = List.of("/", "/lancamentos", "/lancamentos/novo", "/contas-fixas",
             "/planejamento", "/metas", "/historico?meses=12", "/investimentos", "/api/assistente", "/comecar", "/simulador",
-            "/ajustes", "/ajustes/exportar");
+            "/ajustes", "/ajustes/exportar", "/lancamentos?situacao=pendente");
 
     @Autowired
     MockMvc mvc;

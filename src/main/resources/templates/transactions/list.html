@@ -40,6 +40,14 @@
                         th:selected="${c.id == categoryId}"></option>
             </select>
         </div>
+        <div class="field">
+            <label for="situacao">Situação</label>
+            <select id="situacao" name="situacao">
+                <option value="">Todas</option>
+                <option value="pendente" th:selected="${status == 'pendente'}">A pagar ou receber</option>
+                <option value="pago" th:selected="${status == 'pago'}">Pagos ou recebidos</option>
+            </select>
+        </div>
         <button type="submit" class="button-quiet">Filtrar</button>
     </form>
 
@@ -72,6 +80,7 @@
                 th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
             <td class="ledger-status">
                 <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
+                    <input th:if="${status}" type="hidden" name="situacao" th:value="${status}">
                     <button type="submit" class="button-quiet status-toggle" th:attr="aria-pressed=${t.paid}">
                         <svg th:replace="${t.paid} ? ~{fragments/icons :: circleCheck} : ~{fragments/icons :: circle}"></svg>
                         <span th:text="${t.paid} ? (${t.type.name() == 'INCOME'} ? 'Recebido' : 'Pago') : (${t.type.name() == 'INCOME'} ? 'A receber' : 'A pagar')">Pago</span>
@@ -88,10 +97,10 @@
 
     <nav th:if="${page.totalPages > 1}" aria-label="Páginas" class="pagination">
         <a th:if="${page.hasPrevious()}"
-           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},page=${page.number - 1},size=${page.size})}">Anterior</a>
+           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},situacao=${status},page=${page.number - 1},size=${page.size})}">Anterior</a>
         <span th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}"></span>
         <a th:if="${page.hasNext()}"
-           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},page=${page.number + 1},size=${page.size})}">Próxima</a>
+           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},situacao=${status},page=${page.number + 1},size=${page.size})}">Próxima</a>
     </nav>
 </main>
 </body>
