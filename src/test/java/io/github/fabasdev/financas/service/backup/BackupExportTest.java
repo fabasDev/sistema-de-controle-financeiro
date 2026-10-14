@@ -164,7 +164,7 @@ class BackupExportTest {
     void senhaFracaOuDiferenteEhRecusada() {
         assertThatThrownBy(() -> exporter.export(alice.getId(), "curta", "curta", randomIp()))
                 .isInstanceOf(InvalidInputException.class)
-                .hasMessageContaining("pelo menos 12 caracteres");
+                .hasMessageContaining("pelo menos " + io.github.fabasdev.financas.security.PasswordPolicy.MIN_LENGTH + " caracteres");
         assertThatThrownBy(() -> exporter.export(alice.getId(), PASSWORD, PASSWORD + "x", randomIp()))
                 .hasMessage("As senhas não são iguais.");
     }

@@ -72,6 +72,16 @@ class PagesRenderTest {
         }
     }
 
+    /** O texto de ajuda das telas de senha acompanha o mínimo do PasswordPolicy. */
+    @Test
+    void ajudaDaSenhaMostraOMinimoAtual() throws Exception {
+        String hint = "Pelo menos " + io.github.fabasdev.financas.security.PasswordPolicy.MIN_LENGTH + " caracteres.";
+        mvc.perform(get("/cadastro")).andExpect(content().string(containsString(hint)));
+        mvc.perform(get("/recuperar")).andExpect(content().string(containsString(hint)));
+        mvc.perform(get("/ajustes").with(user(me))).andExpect(content().string(containsString(hint)));
+        mvc.perform(get("/ajustes/exportar").with(user(me))).andExpect(content().string(containsString(hint)));
+    }
+
     @Test
     void investimentosComPerfilMostraACarteira() throws Exception {
         profiles.saveResult(me.getId(), RiskProfile.MODERATE, 15);

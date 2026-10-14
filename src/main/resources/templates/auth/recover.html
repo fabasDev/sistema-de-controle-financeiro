@@ -25,7 +25,7 @@
             <label for="password">Senha nova</label>
             <input id="password" name="password" type="password" autocomplete="new-password" required
                    th:attr="aria-invalid=${#fields.hasErrors('password')},aria-describedby=${#fields.hasErrors('password')} ? 'password-erro' : 'password-ajuda'">
-            <p id="password-ajuda" class="hint">Pelo menos 12 caracteres.</p>
+            <p id="password-ajuda" class="hint">Pelo menos 15 caracteres.</p>
             <p id="password-erro" class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
         </div>
         <div class="field">

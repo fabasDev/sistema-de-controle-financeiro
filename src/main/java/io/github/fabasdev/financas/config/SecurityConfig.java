@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -100,12 +101,18 @@ public class SecurityConfig {
     }
 
     /**
-     * BCrypt com o prefixo do algoritmo ({bcrypt}$2a$12$...). Se um dia o padrão mudar para Argon2,
-     * as senhas antigas continuam funcionando e são refeitas no próximo login.
+     * Argon2id, o primeiro da lista do Password Storage Cheat Sheet, com os parâmetros mínimos dele:
+     * 19 MiB de memória (o Spring passa o valor em KiB), 2 iterações e paralelismo 1. O hash leva o
+     * prefixo do algoritmo ({argon2}$argon2id$...). Os hashes antigos em BCrypt ({bcrypt}$2a$12$...)
+     * continuam valendo e são refeitos em Argon2id no próximo login (AppUserDetailsService).
      */
     @Bean
-    public PasswordEncoder passwordEncoder(@Value("${app.security.bcrypt-strength:12}") int strength) {
-        return new DelegatingPasswordEncoder("bcrypt", Map.of("bcrypt", new BCryptPasswordEncoder(strength)));
+    public PasswordEncoder passwordEncoder(@Value("${app.security.argon2-memory-kib:19456}") int memoryKib,
+            @Value("${app.security.argon2-iterations:2}") int iterations,
+            @Value("${app.security.bcrypt-strength:12}") int bcryptStrength) {
+        Argon2PasswordEncoder argon2 = new Argon2PasswordEncoder(16, 32, 1, memoryKib, iterations);
+        return new DelegatingPasswordEncoder("argon2",
+                Map.of("argon2", argon2, "bcrypt", new BCryptPasswordEncoder(bcryptStrength)));
     }
 
     @Bean

@@ -31,13 +31,35 @@ class SecurityRulesUnitTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"curta", "12345678901"})
-        void recusaMenosDe12Caracteres(String password) {
-            assertThat(policy.check(password, "ana")).isPresent();
+        @ValueSource(strings = {"curta", "12345678901234"})
+        void recusaMenosDe15Caracteres(String password) {
+            assertThat(policy.check(password, "ana")).hasValueSatisfying(m -> assertThat(m).contains("15 caracteres"));
+        }
+
+        @Test
+        void aceitaExatamente15Caracteres() {
+            assertThat("cafe com leite!").hasSize(PasswordPolicy.MIN_LENGTH);
+            assertThat(policy.check("cafe com leite!", "ana")).isEmpty();
+        }
+
+        /**
+         * O ASVS 5.0 (6.2.4) pede pelo menos 3000 senhas comuns que passem na regra de tamanho: uma
+         * senha da lista mais curta que o mínimo nunca seria conferida.
+         */
+        @Test
+        void listaDeSenhasComunsTemSoSenhasDoTamanhoMinimo() throws java.io.IOException {
+            java.util.List<String> lines;
+            try (var in = getClass().getResourceAsStream("/security/common-passwords.txt")) {
+                lines = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).lines()
+                        .filter(l -> !l.isEmpty()).toList();
+            }
+            assertThat(lines).hasSizeGreaterThanOrEqualTo(3000)
+                    .allSatisfy(l -> assertThat(l.codePointCount(0, l.length())).isGreaterThanOrEqualTo(PasswordPolicy.MIN_LENGTH));
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"qwerty123456", "1q2w3e4r5t6y", "Flamengo2024!", "iloveyou12345", "aaaaaaaaaaaaaa"})
+        @ValueSource(strings = {"1qaz2wsx3edc4rfv", "qazwsxedcrfvtgb", "123456789987654321", "Flamengo20242024!",
+                "iloveyou12345678", "aaaaaaaaaaaaaaa"})
         void recusaSenhasComuns(String password) {
             assertThat(policy.check(password, "ana")).hasValueSatisfying(m -> assertThat(m).contains("adivinhar"));
         }

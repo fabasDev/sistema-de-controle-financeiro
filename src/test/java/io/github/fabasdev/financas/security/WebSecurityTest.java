@@ -52,6 +52,31 @@ class WebSecurityTest {
                     .andExpect(authenticated());
         }
 
+        /**
+         * Conta criada antes da troca para Argon2id: o hash em BCrypt ainda vale e, no primeiro
+         * login com a senha certa, é refeito em Argon2id.
+         */
+        @Test
+        void senhaAntigaEmBcryptEntraEViraArgon2() throws Exception {
+            Account a = accounts.create();
+            var user = users.findByUsername(a.user().getUsername()).orElseThrow();
+            user.setPasswordHash("{bcrypt}" + new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(4)
+                    .encode(a.password()));
+            users.save(user);
+
+            mvc.perform(post("/login").with(csrf()).with(fromIp(randomIp()))
+                            .param("username", a.user().getUsername()).param("password", a.password()))
+                    .andExpect(redirectedUrl("/"))
+                    .andExpect(authenticated());
+
+            assertThat(users.findByUsername(a.user().getUsername()).orElseThrow().getPasswordHash())
+                    .startsWith("{argon2}$argon2id$");
+            // E continua entrando com a mesma senha.
+            mvc.perform(post("/login").with(csrf()).with(fromIp(randomIp()))
+                            .param("username", a.user().getUsername()).param("password", a.password()))
+                    .andExpect(authenticated());
+        }
+
         @Test
         void aceitaOUsuarioComMaiusculasEEspacos() throws Exception {
             Account a = accounts.create();
@@ -169,9 +194,9 @@ class WebSecurityTest {
                     .andExpect(redirectedUrl("/cadastro/codigo"))
                     .andExpect(flash().attributeExists("recoveryCode"));
             assertThat(users.findByUsername(username)).hasValueSatisfying(u -> {
-                assertThat(u.getPasswordHash()).startsWith("{bcrypt}");
+                assertThat(u.getPasswordHash()).startsWith("{argon2}$argon2id$");
                 assertThat(u.getPasswordHash()).doesNotContain(TestAccounts.PASSWORD);
-                assertThat(u.getRecoveryHash()).startsWith("{bcrypt}");
+                assertThat(u.getRecoveryHash()).startsWith("{argon2}$argon2id$");
             });
             // Sem o flash attribute (recarregou a página), o código não aparece de novo.
             mvc.perform(get("/cadastro/codigo")).andExpect(redirectedUrl("/login"));
@@ -192,8 +217,8 @@ class WebSecurityTest {
         void recusaSenhaComum() throws Exception {
             mvc.perform(post("/cadastro").with(csrf()).with(fromIp(randomIp()))
                             .param("username", "u" + UUID.randomUUID().toString().substring(0, 8))
-                            .param("password", "qwerty123456")
-                            .param("confirm", "qwerty123456"))
+                            .param("password", "1qaz2wsx3edc4rfv")
+                            .param("confirm", "1qaz2wsx3edc4rfv"))
                     .andExpect(status().isOk())
                     .andExpect(content().string(org.hamcrest.Matchers.containsString("fácil de adivinhar")));
         }

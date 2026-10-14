@@ -96,7 +96,8 @@ As fontes vieram do Fontsource 5.3.0 (subconjunto latin, que cobre o português)
 |---|---|
 | `spring-boot-starter-webmvc` | Rotas HTTP e servidor Tomcat embutido |
 | `spring-boot-starter-thymeleaf` | HTML gerado no servidor, com escape automático de saída |
-| `spring-boot-starter-security` | Login, BCrypt, CSRF e cabeçalhos de segurança |
+| `spring-boot-starter-security` | Login, hash de senha, CSRF e cabeçalhos de segurança |
+| `bcprov-jdk18on` (Bouncy Castle) | O Argon2id do Spring Security calcula o hash com ele |
 | `spring-boot-starter-data-jpa` | Repositórios, consultas parametrizadas e paginação |
 | `spring-boot-starter-validation` | Bean Validation nas entradas |
 | `spring-boot-starter-flyway` + `flyway-database-postgresql` | Migrações versionadas do banco |
@@ -113,10 +114,10 @@ Versões: Spring Boot 4.1.1 (que traz Spring Security 7.1.1, Hibernate 7.4.5, Th
 
 Referência: OWASP Top 10 e ASVS nível 1. Os detalhes de cada decisão estão nos commits e em `docs/auditoria-seguranca.md`.
 
-- **Senhas:** BCrypt (custo 12) via `DelegatingPasswordEncoder`. Mínimo de 12 caracteres e máximo de 72 bytes, o limite do BCrypt. A senha mais longa é recusada, nunca cortada. Não há regra de "maiúscula, número e símbolo". A senha não pode conter o nome de usuário nem estar na lista de senhas comuns (abaixo).
+- **Senhas:** Argon2id via `DelegatingPasswordEncoder`, com os mínimos do Password Storage Cheat Sheet (19 MiB de memória, 2 iterações, paralelismo 1). Senhas criadas antes, em BCrypt (custo 12), continuam valendo e são refeitas em Argon2id no primeiro login. Mínimo de 15 caracteres, porque o Authentication Cheat Sheet considera fraca uma senha menor sem segundo fator. Quem já tinha senha de 12 a 14 caracteres continua entrando; a regra vale ao criar ou trocar a senha. Máximo de 72 bytes, o limite do BCrypt, mantido enquanto existirem senhas antigas. A senha mais longa é recusada, nunca cortada. Não há regra de "maiúscula, número e símbolo". A senha não pode conter o nome de usuário nem estar na lista de senhas comuns (abaixo).
 - **Limite de tentativas** no servidor: por usuário+IP (5), por usuário (20) e por IP (50). A espera começa em 30 s e dobra até 15 min. Vale também para a recuperação de senha, a confirmação de senha em Ajustes e a importação de backup.
 - **Respostas iguais** no login e na recuperação para usuário inexistente e para senha errada, inclusive no tempo de resposta. O cadastro avisa quando o usuário já existe (decisão da Fase 1).
-- **Recuperação de senha** pelo código de recuperação (160 bits), guardado só como hash BCrypt. Cada código vale uma vez, e trocar a senha encerra as outras sessões.
+- **Recuperação de senha** pelo código de recuperação (160 bits), guardado só como hash (Argon2id). Cada código vale uma vez, e trocar a senha encerra as outras sessões.
 - **Sessão:** cookie `__Host-id` (HttpOnly, Secure, SameSite=Lax), id novo no login, expira com 30 min sem uso e 8 h depois de entrar. Sair apaga a sessão no servidor.
 - **CSRF** ligado em todo formulário. **Cabeçalhos:** CSP sem `unsafe-inline`, HSTS, `nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy` e `Permissions-Policy`.
 - **Cada usuário só acessa os próprios dados:** toda consulta filtra pelo dono, e um id de outra pessoa dá 404. O `AuthorizationTest` testa isso rota por rota.
@@ -125,7 +126,7 @@ Referência: OWASP Top 10 e ASVS nível 1. Os detalhes de cada decisão estão n
 
 ### Lista de senhas comuns
 
-`src/main/resources/security/common-passwords.txt` tem as 10.000 senhas mais usadas com 12 caracteres ou mais. Elas foram tiradas da lista `xato-net-10-million-passwords-1000000.txt` do [SecLists](https://github.com/danielmiessler/SecLists) (Daniel Miessler, **licença MIT**, cópia em `src/main/resources/security/SECLISTS-LICENSE.txt`). O ASVS 5.0 (6.2.4) pede pelo menos 3000 senhas que obedeçam à política de tamanho.
+`src/main/resources/security/common-passwords.txt` tem as 10.000 senhas mais usadas com 15 caracteres ou mais (o mínimo do app), todas em minúsculas. Elas foram tiradas da lista `xato-net-10-million-passwords-1000000.txt` do [SecLists](https://github.com/danielmiessler/SecLists) (Daniel Miessler, **licença MIT**, cópia em `src/main/resources/security/SECLISTS-LICENSE.txt`). O ASVS 5.0 (6.2.4) pede pelo menos 3000 senhas que obedeçam à política de tamanho.
 
 `common-password-bases.txt` junta as 1.000 senhas mais usadas da mesma lista, a lista em português `Portugese_Pwdb_common-password-list-top-150.txt` (também do SecLists) e as palavras que o app antigo bloqueava. Ela pega senhas como "flamengo2024!", que são uma palavra comum seguida de números.
 

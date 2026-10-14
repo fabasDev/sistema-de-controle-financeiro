@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * Regras de senha (decisão da Fase 1, ASVS 5.0 6.2.1, 6.2.4, 6.2.5 e 6.2.8):
  * <ul>
- *   <li>mínimo de 12 caracteres;</li>
+ *   <li>mínimo de 15 caracteres;</li>
  *   <li>máximo de 72 bytes em UTF-8, o limite do BCrypt. A senha é recusada, nunca cortada;</li>
  *   <li>nenhuma regra de composição (não exige maiúscula, número ou símbolo);</li>
  *   <li>não pode estar entre as senhas mais comuns nem conter o nome de usuário.</li>
@@ -26,13 +26,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordPolicy {
 
-    public static final int MIN_LENGTH = 12;
+    /** O Authentication Cheat Sheet da OWASP considera fraca a senha com menos de 15 caracteres sem segundo fator. */
+    public static final int MIN_LENGTH = 15;
     public static final int MAX_BYTES = 72;
 
     /** Números e símbolos no fim ("flamengo2024!") são tirados antes de comparar com as palavras-base. */
     private static final Pattern TRAILING_DIGITS_AND_SYMBOLS = Pattern.compile("[\\d\\p{Punct}\\s]+$");
 
-    /** 10.000 senhas com 12+ caracteres mais usadas (SecLists, licença MIT). */
+    /** 10.000 senhas com 15+ caracteres mais usadas (SecLists, licença MIT), todas acima do mínimo. */
     private final Set<String> common;
     /** Senhas curtas muito usadas e palavras do app antigo, para pegar "palavra + números". */
     private final Set<String> bases;
