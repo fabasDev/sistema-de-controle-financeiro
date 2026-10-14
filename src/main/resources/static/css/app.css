@@ -105,3 +105,12 @@ legend { font-weight: 600; }
 .chart-tooltip .key.line-invested { background: var(--series-2); }
 .chart-tooltip .key.line-real { background: var(--series-3); }
 [aria-busy="true"] .figures, [aria-busy="true"] .chart, [aria-busy="true"] table { opacity: .6; }
+.quiz fieldset { margin-bottom: .5rem; }
+.quiz label { display: flex; gap: .5rem; align-items: center; min-height: 44px; }
+.quiz-result { margin-top: 1rem; }
+.chat-log { display: grid; gap: .75rem; margin: 1rem 0; }
+.chat-message { padding: .5rem .75rem; border-left: 3px solid var(--chart-grid); }
+.chat-user { border-left-color: #0b5d3b; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: .5rem; align-items: end; }
+.chat-form label { grid-column: 1 / -1; }

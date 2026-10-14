@@ -24,19 +24,32 @@
             Seu perfil é <strong th:text="${profile.profile.label()}"></strong>
             <span th:if="${profile.score > 0}">(<span th:text="${profile.score}"></span> de <span th:text="${maxScore}"></span> pontos)</span>,
             definido em <span th:text="${@fmt.date(profile.takenOn)}"></span>.
-            <span th:if="${profile.expired}">Tem mais de 2 anos: vale refazer.</span>
+            <span th:if="${profile.expired}">Tem mais de 2 anos: vale refazer o questionário.</span>
         </p>
-        <p th:unless="${profile}">Você ainda não tem perfil. O questionário chega na próxima versão da tela; por enquanto, escolha o perfil que mais combina com você.</p>
-        <form th:action="@{/investimentos/perfil}" method="post" class="form">
-            <fieldset class="field">
-                <legend>Perfil</legend>
-                <label th:each="p : ${profiles}">
-                    <input type="radio" name="profile" th:value="${p}" th:checked="${profile != null and profile.profile == p}">
-                    <span th:text="${p.label()}"></span>
-                </label>
-            </fieldset>
-            <button type="submit">Salvar perfil</button>
-        </form>
+
+        <section id="questionario" aria-labelledby="questionario-titulo">
+            <h3 id="questionario-titulo" th:text="${profile} ? 'Refazer o questionário' : 'Descubra seu perfil'">Descubra seu perfil</h3>
+            <p class="small">São 8 perguntas. As respostas ficam no seu navegador: só o resultado é salvo.</p>
+            <!-- Preenchido por investments.js. Sem JavaScript, fica a escolha direta abaixo. -->
+            <div id="questionario-js">
+                <p class="small">O questionário precisa de JavaScript. Você pode escolher o perfil direto abaixo.</p>
+            </div>
+        </section>
+
+        <details>
+            <summary>Escolher o perfil direto</summary>
+            <form th:action="@{/investimentos/perfil}" method="post" class="form" id="perfil-form">
+                <input type="hidden" name="score" value="0">
+                <fieldset class="field">
+                    <legend>Perfil</legend>
+                    <label th:each="p : ${profiles}">
+                        <input type="radio" name="profile" th:value="${p}" required th:checked="${profile != null and profile.profile == p}">
+                        <span th:text="${p.label()}"></span>
+                    </label>
+                </fieldset>
+                <button type="submit">Salvar perfil</button>
+            </form>
+        </details>
     </section>
 
     <section th:if="${profile}" aria-labelledby="carteira-titulo">
@@ -58,6 +71,7 @@
                 <div class="field" th:each="c : ${assetClasses}">
                     <label th:for="'pct_' + ${c}" th:text="${c.label()} + ' (%)'"></label>
                     <input th:id="'pct_' + ${c}" th:name="'pct_' + ${c}" type="text" inputmode="decimal" maxlength="6"
+                           pattern="[0-9][0-9.,]*" data-msg-pattern-mismatch="Use um número de 0 a 100."
                            th:value="${profile.custom.containsKey(c)} ? ${@fmt.number(profile.custom.get(c))} : ''"
                            th:placeholder="${@fmt.number(profile.allocation.get(c))}">
                 </div>
@@ -66,6 +80,15 @@
             </form>
         </details>
     </section>
+
+    <section aria-labelledby="assistente-titulo">
+        <h2 id="assistente-titulo">Pergunte ao assistente</h2>
+        <p class="small">Respostas educativas montadas com os seus números, sem inteligência artificial externa. As perguntas não saem do navegador.</p>
+        <div id="assistente-js">
+            <p class="small">O assistente precisa de JavaScript.</p>
+        </div>
+    </section>
 </main>
+<script type="module" th:src="@{/js/investments.js}"></script>
 </body>
 </html>

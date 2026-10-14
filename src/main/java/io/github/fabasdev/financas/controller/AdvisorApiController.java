@@ -2,6 +2,7 @@ package io.github.fabasdev.financas.controller;
 
 import io.github.fabasdev.financas.controller.view.MonthParam;
 import io.github.fabasdev.financas.domain.BucketKind;
+import io.github.fabasdev.financas.domain.Money;
 import io.github.fabasdev.financas.dto.MonthSummary;
 import io.github.fabasdev.financas.dto.PlanItem;
 import io.github.fabasdev.financas.dto.Recommendation;
@@ -30,8 +31,10 @@ public class AdvisorApiController {
     public record CategoryAmount(String name, BucketKind kind, BigDecimal amount) {
     }
 
+    /** @param spentShare gasto / renda (0,4 = 40%), já calculado aqui para o navegador só exibir */
     public record AdvisorContext(YearMonth month, String displayName, int reserveMonths, Recommendation recommendation,
-            BigDecimal income, BigDecimal spent, List<CategoryAmount> topCategories, List<String> bucketsOverPlan,
+            BigDecimal income, BigDecimal spent, BigDecimal spentShare, List<CategoryAmount> topCategories,
+            List<String> bucketsOverPlan,
             String profile, Integer profileScore, boolean profileExpired, List<PlanItem> plan, int goalCount) {
     }
 
@@ -72,7 +75,7 @@ public class AdvisorApiController {
         long goalCount = goals.list(me.getId(), month).stream()
                 .filter(g -> g.kind() == io.github.fabasdev.financas.domain.GoalKind.GOAL).count();
         return new AdvisorContext(month, s.getDisplayName(), s.getReserveMonths(), rec, summary.income(),
-                summary.spent(), top, over,
+                summary.spent(), Money.ratio(summary.spent(), summary.income()), top, over,
                 profile.map(p -> p.profile().name()).orElse(null),
                 profile.map(ProfileService.ProfileView::score).orElse(null),
                 profile.map(ProfileService.ProfileView::expired).orElse(false),
