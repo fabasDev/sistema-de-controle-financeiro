@@ -172,8 +172,9 @@ function init() {
     const show = (i, fromKeyboard) => {
       if (!points.length) return
       const next = Math.max(0, Math.min(points.length - 1, i))
-      // Mesmo ano e mesmos dados: o tooltip já está certo, não precisa montar de novo.
-      if (next === index && shownPoints === points && !tooltip.hidden) return
+      // Mesmo ano e mesmos dados vindos do mouse: o tooltip já está certo, não precisa montar de novo.
+      // Pelo teclado ele sempre é remontado, para o leitor de tela anunciar o ano.
+      if (!fromKeyboard && next === index && shownPoints === points && !tooltip.hidden) return
       index = next
       shownPoints = points
       const { x } = geometry(points)
