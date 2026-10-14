@@ -17,6 +17,11 @@
 	<properties>
 		<java.version>25</java.version>
 		<dependency-check.version>13.0.0</dependency-check.version>
+		<!-- Correções de segurança que o Spring Boot 4.1.1 ainda não traz. O Tomcat 11.0.24 e o Jackson 3.1.5 que
+		     vêm com ele têm vulnerabilidades conhecidas (consulta na base OSV em 14/10/2026). Apague estas duas
+		     linhas quando uma versão nova do Spring Boot trouxer versões iguais ou maiores. -->
+		<tomcat.version>11.0.27</tomcat.version>
+		<jackson-bom.version>3.1.7</jackson-bom.version>
 	</properties>
 
 	<!-- O motivo de cada dependência também está no README. -->
