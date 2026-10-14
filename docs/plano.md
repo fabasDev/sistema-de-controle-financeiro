@@ -248,6 +248,8 @@ A medição veio primeiro: as 7 telas principais, antes e depois, com o mesmo Li
 **Verificação:**
 - `./mvnw verify` com 220 testes JUnit, 6 deles novos no `StaticResourcesTest` (URLs com versão, cache de 1 ano sem login, imports relativos do JS, fontes reescritas dentro do CSS, CSS comprimido e HTML não). Os 35 testes de JavaScript também passaram.
 - Fluxos no Chrome (390 e 1280 px): questionário completo, assistente, simulador digitando, tooltip com mouse e teclado, e as duas telas com JavaScript desligado. Sem erro de console, de CSP ou de rede.
+- Roteiro padrão do plano no perfil `dev` (banco em memória), clicando como uma pessoa: cadastrar, entrar, lançar, editar, apagar e desfazer (pelo `app.js` com versão no caminho), marcar como pago, ver o resumo e importar o backup antigo. Tudo passou.
+- `/security-review` sem achados. Ela apontou que o teste "HTML não é comprimido" passaria à toa se a página tivesse menos de 2 KB; o teste ganhou essa trava.
 - Cabeçalhos conferidos com `curl`, no perfil de produção e no `dev`.
 
 **Pendências:**
