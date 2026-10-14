@@ -249,24 +249,23 @@
   .auth-main { padding-block: var(--space-7); }
 
   /*
-   * Visão geral na tela larga: números e tabelas à esquerda, lançamento rápido fixo à direita.
-   * Com o menu lateral (64rem ou mais), as duas colunas só cabem a partir de 76rem.
+   * Visão geral na tela larga: o mês e os três números ocupam a largura toda; embaixo, pendências
+   * e categorias à esquerda e, à direita, registrar um gasto, o resumo do mês e os potes. Com o
+   * menu lateral, as duas colunas só cabem a partir de 76rem. "dense" põe a coluna da esquerda na
+   * mesma linha da direita, que vem antes no HTML (no celular, registrar um gasto vem primeiro).
    */
   @media (min-width: 60rem) and (max-width: 63.99rem), (min-width: 76rem) {
     .home {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(19rem, 23rem);
-      column-gap: var(--space-7);
+      grid-auto-flow: row dense;
+      column-gap: var(--space-6);
       align-items: start;
     }
-    .home > * { grid-column: 1; }
-    .home > .quick-add {
-      grid-column: 2;
-      grid-row: 1 / span 12;
-      position: sticky;
-      inset-block-start: var(--space-4);
-      margin-block-start: 0;
-    }
+    .home > * { grid-column: 1 / -1; }
+    .home > .home-main { grid-column: 1; }
+    .home > .home-side { grid-column: 2; }
+    :is(.home-side, .home-main) > :first-child { margin-block-start: 0; }
   }
 }
 
@@ -313,8 +312,15 @@
    * O topo da visão geral, como uma página de livro-caixa: rótulo à esquerda, valor à direita,
    * uma linha de pauta entre os registros e o traço duplo da contabilidade sob o saldo.
    */
-  .headline { margin: 0 0 var(--space-5); max-inline-size: 30rem; }
+  .headline {
+    container: headline / inline-size;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 0 0 var(--space-5);
+  }
   .headline > div {
+    flex: 1 0 100%;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: baseline;
@@ -347,6 +353,20 @@
     font-size: var(--text-small);
   }
   .headline-balance.is-negative .figure-note { color: var(--negative); font-weight: 600; }
+
+  /*
+   * Com espaço (o próprio bloco com 34rem ou mais, medido por container query), os três números
+   * ficam lado a lado, cada um com o rótulo em cima, e o tamanho acompanha a largura do bloco.
+   * Base 0: as colunas dividem a largura e só quebram de linha se nem o mínimo de cada uma couber;
+   * quem encolhe é a nota, que quebra em mais linhas.
+   */
+  @container headline (min-width: 34rem) {
+    .headline > div { flex: 1 1 0; display: flex; flex-direction: column; padding: var(--space-2) var(--space-5) var(--space-2) 0; }
+    .headline > div + div { border-block-start: 0; border-inline-start: 1px solid var(--rule); padding-inline-start: var(--space-5); }
+    .headline .figure { align-self: flex-start; text-align: start; font-size: clamp(1.5rem, 4cqi, 2.25rem); }
+    .headline-balance .figure { font-size: clamp(2rem, 5.2cqi, 3rem); }
+    .headline .figure-note { max-inline-size: 16rem; }
+  }
 
   /* Pares rótulo/valor menores (resumo do mês, reserva, simulador). */
   .figures {
@@ -526,7 +546,7 @@
   }
   .table :is(th, td):first-child { padding-inline-start: 0; }
   .table :is(th, td):last-child { padding-inline-end: 0; }
-  .table thead th { border-block-end: 1px solid var(--ink); color: var(--ink-muted); font-size: var(--text-small); font-weight: 600; }
+  .table thead :is(th, td) { border-block-end: 1px solid var(--ink); color: var(--ink-muted); font-size: var(--text-small); font-weight: 600; }
   .table tbody th { font-weight: 600; }
   .table .num { text-align: end; white-space: nowrap; }
   .table tfoot :is(th, td) { border-block: 1px solid var(--ink); border-block-end: 3px double var(--ink); font-weight: 700; }
@@ -627,6 +647,33 @@
     .ledger .row-actions, .ledger .ledger-go { grid-area: actions; }
     .ledger .ledger-go { display: flex; align-items: center; justify-content: flex-end; }
   }
+
+  /*
+   * Pendências da visão geral, a partir de 40rem: a coluna é estreita, então cada pendência ocupa
+   * duas linhas (descrição e valor; data, categoria e o botão), como no celular.
+   */
+  @media (min-width: 40rem) {
+    .home-main .ledger :is(tbody, tr, td) { display: block; }
+    .home-main .ledger thead { display: none; }
+    .home-main .ledger tr {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "desc desc amount" "date cat status";
+      column-gap: var(--space-3);
+      align-items: center;
+      padding-block: var(--space-2);
+      border-block-end: 1px solid var(--rule);
+    }
+    .home-main .ledger.table td { padding: 0; border: 0; }
+    .home-main .ledger-desc { grid-area: desc; font-weight: 600; }
+    .home-main .ledger-amount { grid-area: amount; font-weight: 600; }
+    .home-main .ledger-date { grid-area: date; }
+    .home-main .ledger-cat { grid-area: cat; }
+    .home-main .ledger :is(.ledger-date, .ledger-cat) { color: var(--ink-muted); font-size: var(--text-small); }
+    .home-main .ledger-status { grid-area: status; margin-inline-end: calc(-1 * var(--space-2)); }
+  }
+  /* Resumo do mês na coluna da direita: valores encostados na borda direita. */
+  .home-side .figures { grid-template-columns: 1fr auto; }
 
   .filters { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-block: var(--space-4); }
   .filters .field { flex: 1 1 10rem; }

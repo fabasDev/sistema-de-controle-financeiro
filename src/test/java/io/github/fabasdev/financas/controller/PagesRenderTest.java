@@ -12,10 +12,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.fabasdev.financas.domain.RiskProfile;
+import io.github.fabasdev.financas.domain.TransactionType;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
+import io.github.fabasdev.financas.service.CategoryService;
 import io.github.fabasdev.financas.service.ProfileService;
+import io.github.fabasdev.financas.service.TransactionService;
 import io.github.fabasdev.financas.support.SampleData;
 import io.github.fabasdev.financas.support.TestAccounts;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,10 @@ class PagesRenderTest {
     ProfileService profiles;
     @Autowired
     io.github.fabasdev.financas.service.SettingsService settings;
+    @Autowired
+    CategoryService categories;
+    @Autowired
+    TransactionService transactions;
 
     AppUserPrincipal me;
     SampleData.Ids ids;
@@ -102,6 +111,26 @@ class PagesRenderTest {
                 .andExpect(content().string(containsString("<rect class=\"plan-bar-fill\" height=\"4\" width=\"100\">")))
                 .andExpect(content().string(containsString("<rect class=\"plan-bar-fill\" height=\"4\" width=\"0\">")))
                 .andExpect(content().string(not(containsString("% do planejado"))));
+    }
+
+    /**
+     * Visão geral em duas colunas (registrar um gasto vem antes das pendências no HTML, para o
+     * celular). A coluna "Limite" dos gastos por categoria só aparece se alguma categoria tiver limite.
+     */
+    @Test
+    void visaoGeralMostraLimiteSoQuandoHa() throws Exception {
+        String html = mvc.perform(get("/").with(user(me))).andReturn().getResponse().getContentAsString();
+        org.assertj.core.api.Assertions.assertThat(html.indexOf("<div class=\"home-side\">"))
+                .isPositive().isLessThan(html.indexOf("<div class=\"home-main\">"));
+        org.assertj.core.api.Assertions.assertThat(html).doesNotContain(">Limite</th>");
+
+        Long limited = categories.create(me.getId(), new CategoryService.CategoryData("Lazer", "Tag", ids.bucket(),
+                new BigDecimal("50"), null)).getId();
+        transactions.create(me.getId(), new TransactionService.TransactionData(TransactionType.EXPENSE,
+                LocalDate.now(), "Cinema", new BigDecimal("80"), limited, null, true, false, null));
+        mvc.perform(get("/").with(user(me)))
+                .andExpect(content().string(containsString(">Limite</th>")))
+                .andExpect(content().string(containsString("passou do limite")));
     }
 
     @Test

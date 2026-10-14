@@ -50,100 +50,107 @@
         ou <a th:href="@{/contas-fixas/nova}">cadastre o salário como conta fixa</a> para ver quanto dá para investir.</span>
     </p>
 
-    <section th:replace="~{fragments/quick-add :: form('inicio')}"></section>
+    <!-- Coluna da direita na tela larga: registrar um gasto, o resumo do mês e os potes. No celular, segue a ordem normal. -->
+    <div class="home-side">
+        <section th:replace="~{fragments/quick-add :: form('inicio')}"></section>
 
-    <p th:unless="${summary.hasData}" class="empty">
-        Nenhum lançamento neste mês ainda. Comece pelo formulário acima.
-    </p>
+        <p th:unless="${summary.hasData}" class="empty">
+            Nenhum lançamento neste mês ainda. Comece pelo formulário acima.
+        </p>
 
-    <section th:if="${summary.hasData}" aria-labelledby="mes-titulo">
-        <h2 id="mes-titulo">Este mês</h2>
-        <dl class="figures">
-            <dt>Receitas</dt><dd class="value" th:text="${@fmt.money(summary.income)}"></dd>
-            <dt>Guardado</dt><dd class="value" th:text="${@fmt.money(summary.saved)}"></dd>
-            <dt>A pagar</dt><dd class="value" th:text="${@fmt.money(summary.unpaid)}"></dd>
-            <dt>Para a reserva</dt><dd class="value" th:text="${@fmt.money(rec.toReserve)}"></dd>
-        </dl>
-    </section>
+        <section th:if="${summary.hasData}" aria-labelledby="mes-titulo">
+            <h2 id="mes-titulo">Este mês</h2>
+            <dl class="figures">
+                <dt>Receitas</dt><dd class="value" th:text="${@fmt.money(summary.income)}"></dd>
+                <dt>Guardado</dt><dd class="value" th:text="${@fmt.money(summary.saved)}"></dd>
+                <dt>A pagar</dt><dd class="value" th:text="${@fmt.money(summary.unpaid)}"></dd>
+                <dt>Para a reserva</dt><dd class="value" th:text="${@fmt.money(rec.toReserve)}"></dd>
+            </dl>
+        </section>
 
-    <!-- O que ainda falta pagar ou receber no mês, do vencimento mais próximo para o mais distante. -->
-    <section th:if="${summary.hasData}" aria-labelledby="pendencias-titulo">
-        <h2 id="pendencias-titulo">Pendências do mês</h2>
-        <p th:if="${#lists.isEmpty(pending)}" class="empty">Tudo em dia: nada a pagar ou a receber neste mês.</p>
-        <table th:unless="${#lists.isEmpty(pending)}" class="table ledger">
-            <thead>
-            <tr>
-                <th scope="col">Data</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Categoria</th>
-                <th scope="col" class="num">Valor</th>
-                <th scope="col"><span class="visually-hidden">Ação</span></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="t : ${pending}">
-                <td class="ledger-date" th:text="${@fmt.date(t.date)}"></td>
-                <td class="ledger-desc" th:text="${t.description}"></td>
-                <td class="ledger-cat" th:text="${t.type.name() == 'INCOME'} ? 'Receita' : (${t.categoryName} ?: 'Sem categoria')"></td>
-                <td class="value num ledger-amount" th:classappend="${t.type.name() == 'INCOME'} ? 'is-income'"
-                    th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
-                <td class="ledger-status">
-                    <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
-                        <input type="hidden" name="voltar" value="inicio">
-                        <button type="submit" class="button-quiet">
-                            <svg th:replace="~{fragments/icons :: circleCheck}"></svg>
-                            <span th:text="${t.type.name() == 'INCOME'} ? 'Marcar como recebido' : 'Marcar como pago'">Marcar como pago</span><span class="visually-hidden" th:text="': ' + ${t.description}"></span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <p th:if="${pendingMore}"><a class="link-standalone" th:href="@{/lancamentos(mes=${month},situacao='pendente')}">Ver todas as pendências</a></p>
-    </section>
+        <!--
+          Uma barra por pote responde "quanto do plano já usei?". A barra é só reforço (aria-hidden):
+          o texto ao lado diz o realizado, o planejado e a porcentagem. Passar do plano enche a barra
+          de vermelho, com ícone e "acima do plano", exceto no pote de futuro, onde passar é bom.
+        -->
+        <section aria-labelledby="potes-titulo">
+            <h2 id="potes-titulo">Planejado × realizado</h2>
+            <ul class="plan-list">
+                <li th:each="b : ${summary.buckets}" th:classappend="${b.overPlan()} ? 'is-over'">
+                    <p class="plan-line">
+                        <span class="plan-name" th:text="${b.name} + ' (' + ${@fmt.number(b.percent)} + '%)'">Necessidades (50%)</span>
+                        <span class="plan-figures"><span class="value plan-actual" th:text="${@fmt.money(b.actual)}">R$ 0,00</span>
+                            <span class="small">de <span class="value" th:text="${@fmt.money(b.planned)}">R$ 0,00</span></span></span>
+                    </p>
+                    <svg class="plan-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                        <rect class="plan-bar-track" width="100" height="4"></rect>
+                        <rect class="plan-bar-fill" th:attr="width=${b.barWidth()}" height="4"></rect>
+                    </svg>
+                    <p class="plan-note small">
+                        <span th:if="${b.usedPercent() != null}" th:text="${b.usedPercent()} + '% do planejado'">0% do planejado</span>
+                        <span th:if="${b.overPlan()}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> acima do plano</span>
+                    </p>
+                </li>
+            </ul>
+        </section>
+    </div>
 
-    <!--
-      Uma barra por pote responde "quanto do plano já usei?". A barra é só reforço (aria-hidden):
-      o texto ao lado diz o realizado, o planejado e a porcentagem. Passar do plano enche a barra
-      de vermelho, com ícone e "acima do plano", exceto no pote de futuro, onde passar é bom.
-    -->
-    <section aria-labelledby="potes-titulo">
-        <h2 id="potes-titulo">Planejado × realizado</h2>
-        <ul class="plan-list">
-            <li th:each="b : ${summary.buckets}" th:classappend="${b.overPlan()} ? 'is-over'">
-                <p class="plan-line">
-                    <span class="plan-name" th:text="${b.name} + ' (' + ${@fmt.number(b.percent)} + '%)'">Necessidades (50%)</span>
-                    <span class="plan-figures"><span class="value plan-actual" th:text="${@fmt.money(b.actual)}">R$ 0,00</span>
-                        <span class="small">de <span class="value" th:text="${@fmt.money(b.planned)}">R$ 0,00</span></span></span>
-                </p>
-                <svg class="plan-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-                    <rect class="plan-bar-track" width="100" height="4"></rect>
-                    <rect class="plan-bar-fill" th:attr="width=${b.barWidth()}" height="4"></rect>
-                </svg>
-                <p class="plan-note small">
-                    <span th:if="${b.usedPercent() != null}" th:text="${b.usedPercent()} + '% do planejado'">0% do planejado</span>
-                    <span th:if="${b.overPlan()}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> acima do plano</span>
-                </p>
-            </li>
-        </ul>
-    </section>
+    <!-- Coluna da esquerda na tela larga: o que falta pagar e os gastos por categoria. -->
+    <div class="home-main">
+        <!-- O que ainda falta pagar ou receber no mês, do vencimento mais próximo para o mais distante. -->
+        <section th:if="${summary.hasData}" aria-labelledby="pendencias-titulo">
+            <h2 id="pendencias-titulo">Pendências do mês</h2>
+            <p th:if="${#lists.isEmpty(pending)}" class="empty">Tudo em dia: nada a pagar ou a receber neste mês.</p>
+            <table th:unless="${#lists.isEmpty(pending)}" class="table ledger">
+                <thead>
+                <tr>
+                    <th scope="col">Data</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col" class="num">Valor</th>
+                    <th scope="col"><span class="visually-hidden">Ação</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${pending}">
+                    <td class="ledger-date" th:text="${@fmt.date(t.date)}"></td>
+                    <td class="ledger-desc" th:text="${t.description}"></td>
+                    <td class="ledger-cat" th:text="${t.type.name() == 'INCOME'} ? 'Receita' : (${t.categoryName} ?: 'Sem categoria')"></td>
+                    <td class="value num ledger-amount" th:classappend="${t.type.name() == 'INCOME'} ? 'is-income'"
+                        th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
+                    <td class="ledger-status">
+                        <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
+                            <input type="hidden" name="voltar" value="inicio">
+                            <button type="submit" class="button-quiet">
+                                <svg th:replace="~{fragments/icons :: circleCheck}"></svg>
+                                <span th:text="${t.type.name() == 'INCOME'} ? 'Marcar como recebido' : 'Marcar como pago'">Marcar como pago</span><span class="visually-hidden" th:text="': ' + ${t.description}"></span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <p th:if="${pendingMore}"><a class="link-standalone" th:href="@{/lancamentos(mes=${month},situacao='pendente')}">Ver todas as pendências</a></p>
+        </section>
 
-    <section th:unless="${#lists.isEmpty(summary.categories)}" aria-labelledby="cat-titulo">
-        <h2 id="cat-titulo">Gastos por categoria</h2>
-        <table class="table">
-            <thead><tr><th scope="col">Categoria</th><th scope="col" class="num">Gasto</th><th scope="col" class="num">Limite</th></tr></thead>
-            <tbody>
-            <tr th:each="c : ${summary.categories}">
-                <th scope="row" th:text="${c.name}"></th>
-                <td class="value num" th:text="${@fmt.money(c.actual)}"></td>
-                <td class="value num">
-                    <span th:text="${c.budget} ? ${@fmt.money(c.budget)} : '—'"></span>
-                    <span th:if="${c.budget != null and c.actual.compareTo(c.budget) > 0}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> passou do limite</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
+        <section th:unless="${#lists.isEmpty(summary.categories)}" aria-labelledby="cat-titulo">
+            <h2 id="cat-titulo">Gastos por categoria</h2>
+            <!-- A coluna "Limite" só aparece se alguma categoria tiver limite; sem isso ela seria só traços. -->
+            <table class="table" th:with="anyBudget=${!#lists.isEmpty(summary.categories.?[budget != null])}">
+                <thead><tr><th scope="col">Categoria</th><th scope="col" class="num">Gasto</th><th scope="col" class="num" th:if="${anyBudget}">Limite</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${summary.categories}">
+                    <th scope="row" th:text="${c.name}"></th>
+                    <td class="value num" th:text="${@fmt.money(c.actual)}"></td>
+                    <td class="value num" th:if="${anyBudget}">
+                        <span th:text="${c.budget} ? ${@fmt.money(c.budget)} : '—'"></span>
+                        <span th:if="${c.budget != null and c.actual.compareTo(c.budget) > 0}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> passou do limite</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
 </main>
 </body>
 </html>
