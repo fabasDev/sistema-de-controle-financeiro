@@ -8,7 +8,7 @@
     <p>As categorias dele vão para o primeiro pote da lista. Os lançamentos não mudam.</p>
     <form th:action="@{/planejamento/potes/{id}/excluir(id=${bucket.id})}" method="post">
         <button type="submit" class="button-danger">Remover</button>
-        <a th:href="@{/planejamento}">Cancelar</a>
+        <a class="link-standalone" th:href="@{/planejamento}">Cancelar</a>
     </form>
 </main>
 </body>

@@ -9,7 +9,7 @@
     <p>Os lançamentos futuros ainda não pagos somem. Os que já aconteceram continuam no histórico.</p>
     <form th:action="@{/contas-fixas/{id}/excluir(id=${entry.id})}" method="post">
         <button type="submit" class="button-danger">Apagar</button>
-        <a th:href="@{/contas-fixas}">Cancelar</a>
+        <a class="link-standalone" th:href="@{/contas-fixas}">Cancelar</a>
     </form>
 </main>
 </body>

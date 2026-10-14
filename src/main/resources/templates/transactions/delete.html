@@ -15,7 +15,7 @@
     </p>
     <form th:action="@{/lancamentos/{id}/excluir(id=${transaction.id})}" method="post">
         <button type="submit" class="button-danger">Apagar</button>
-        <a th:href="@{/lancamentos(mes=${transaction.month})}">Cancelar</a>
+        <a class="link-standalone" th:href="@{/lancamentos(mes=${transaction.month})}">Cancelar</a>
     </form>
 </main>
 </body>

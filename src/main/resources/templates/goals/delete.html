@@ -8,7 +8,7 @@
     <p>Os lançamentos ligados a ela continuam, só deixam de contar para esta meta.</p>
     <form th:action="@{/metas/{id}/excluir(id=${goal.id})}" method="post">
         <button type="submit" class="button-danger">Apagar</button>
-        <a th:href="@{/metas}">Cancelar</a>
+        <a class="link-standalone" th:href="@{/metas}">Cancelar</a>
     </form>
 </main>
 </body>

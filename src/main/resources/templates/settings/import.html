@@ -19,7 +19,7 @@
             <p>Avisos:</p>
             <ul><li th:each="w : ${result.warnings}" th:text="${w}"></li></ul>
         </th:block>
-        <p><a th:href="@{/}">Ver a visão geral</a></p>
+        <p><a class="link-standalone" th:href="@{/}">Ver a visão geral</a></p>
     </section>
 
     <p th:if="${error}" class="notice notice-error" role="alert" th:text="${error}"></p>
@@ -43,7 +43,7 @@
             <label><input type="checkbox" name="confirmo" value="sim" required> Entendo que os dados atuais serão substituídos</label>
             <p>
                 <button type="submit" class="button-primary">Importar</button>
-                <a th:href="@{/ajustes}">Cancelar</a>
+                <a class="link-standalone" th:href="@{/ajustes}">Cancelar</a>
             </p>
         </form>
     </th:block>

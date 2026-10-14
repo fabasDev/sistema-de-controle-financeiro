@@ -8,7 +8,7 @@
     <p>Se ela já tiver lançamentos ou contas fixas, é só arquivada: some dos formulários, mas o histórico continua certo.</p>
     <form th:action="@{/planejamento/categorias/{id}/excluir(id=${category.id})}" method="post">
         <button type="submit" class="button-danger">Apagar</button>
-        <a th:href="@{/planejamento}">Cancelar</a>
+        <a class="link-standalone" th:href="@{/planejamento}">Cancelar</a>
     </form>
 </main>
 </body>
