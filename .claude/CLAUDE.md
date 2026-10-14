@@ -77,7 +77,7 @@ Fazer:
 - Hierarquia por tamanho, peso e espaço, não por caixas.
 - Textos curtos, escritos como uma pessoa falaria.
 
-Direção visual escolhida: (preencher depois da Fase 4)
+Direção visual escolhida (Fase 4): livro-caixa sóbrio, com papel claro levemente esverdeado, tinta azul-escura, um verde de destaque e vermelho só para valor negativo. Os números são o protagonista: todo valor em Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Texto em Atkinson Hyperlegible Next, ícones do Lucide sempre ao lado de texto. Tokens em `src/main/resources/static/css/tokens.css`; detalhes em `docs/plano.md` ("Como a Fase 4 ficou").
 
 ## Materiais de consulta
 

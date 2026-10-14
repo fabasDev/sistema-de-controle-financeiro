@@ -58,6 +58,22 @@ Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
 
 Sem JavaScript, tudo continua funcionando: formulários vão para o servidor e apagar passa por uma página de confirmação. O JavaScript (módulos em `src/main/resources/static/js`, sem dependência nem build) só melhora a experiência.
 
+## Visual
+
+Direção "livro-caixa sóbrio": papel claro, tinta escura, um verde de destaque e os valores em fonte de números impressos. Segue o tema claro ou escuro do sistema. Cor, tipografia e espaçamento ficam em `src/main/resources/static/css/tokens.css`; o resto do CSS só usa esses nomes. O plano de design e a verificação estão em `docs/plano.md` ("Como a Fase 4 ficou").
+
+### Fontes e ícones de terceiros
+
+Tudo é servido pelo próprio app, sem chamar outro site:
+
+| O quê | Onde | Licença |
+|---|---|---|
+| Fonte Besley (títulos e valores) | `static/fonts/besley-latin-wght.woff2` | SIL Open Font License 1.1, em `static/fonts/BESLEY-OFL.txt` |
+| Fonte Atkinson Hyperlegible Next (texto) | `static/fonts/atkinson-hyperlegible-next-latin-wght.woff2` | SIL Open Font License 1.1, em `static/fonts/ATKINSON-HYPERLEGIBLE-NEXT-OFL.txt` |
+| Ícones Lucide (lucide-static 1.56.0) | `templates/fragments/icons.html` | ISC, em `templates/fragments/LUCIDE-LICENSE.txt` |
+
+As fontes vieram do Fontsource 5.3.0 (subconjunto latin, que cobre o português).
+
 ## Dependências e por que cada uma está aqui
 
 | Dependência | Para quê |
@@ -109,8 +125,10 @@ src/main/java/io/github/fabasdev/financas/
   config/       Spring Security e relógio (fuso America/Sao_Paulo)
 src/main/resources/
   db/migration/ V1 (tabelas) e V2 (regras 50/30/20, 70/20/10, 6 potes e 80/20)
-  templates/    HTML das telas
-  static/js/    melhorias em JavaScript (simulador, questionário, assistente, validação de formulário)
+  templates/    HTML das telas (fragments/icons.html: ícones Lucide)
+  static/css/   tokens.css (cor, tipografia, espaçamento) e app.css
+  static/fonts/ fontes Besley e Atkinson Hyperlegible Next, com as licenças
+  static/js/    melhorias em JavaScript (simulador, questionário, assistente, validação de formulário, menu)
 src/test/js/    testes do JavaScript (node --test)
 legacy-web/     app React antigo (até a migração terminar)
 docs/           plano, auditoria e medições

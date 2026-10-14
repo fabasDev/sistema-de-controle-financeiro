@@ -151,6 +151,67 @@ O limite de login será código próprio, sem biblioteca extra.
 - Fonte de títulos com personalidade + fonte de números com `tabular-nums`, hospedadas localmente. Ícones só do Lucide (SVG estático, mesma biblioteca que já usamos).
 - Registrar a direção escolhida no CLAUDE.md.
 
+### Como a Fase 4 ficou (14/10/2026)
+A skill `frontend-design` não estava instalada; o `SKILL.md` foi lido direto de github.com/anthropics/skills. A direção aprovada virou este plano, revisado contra a lista de "padrões de IA" da própria skill antes de escrever o CSS.
+
+**Direção (duas linhas):** livro-caixa sóbrio, com papel claro levemente esverdeado, tinta azul-escura, um verde de destaque e vermelho só para valor negativo. Os números são o protagonista: todo valor em Besley com algarismos tabulares, e o saldo do mês leva o traço duplo da contabilidade.
+
+**Cores** (`static/css/tokens.css`, com o tema escuro pelos mesmos nomes):
+
+| Nome | Claro | Escuro | Uso |
+|---|---|---|---|
+| papel | `#f3f5f1` | `#172124` | fundo |
+| tinta | `#1b2a33` | `#e2e8e3` | texto e números |
+| lápis | `#4b5b61` | `#a7b4ae` | rótulos e texto de apoio |
+| pauta | `#c5cfc8` | `#34443f` | linha entre registros |
+| verde | `#17603f` | `#7ccb9f` | ação principal, links, "posso investir" |
+| tinta vermelha | `#a3322b` | `#f08a7e` | saldo negativo e erro, sempre com texto |
+
+**Tipos:** Besley (serifa estilo Clarendon, a dos livros contábeis e impressos antigos) nos títulos e em todo valor; Atkinson Hyperlegible Next (sucessora da Atkinson Hyperlegible, do Braille Institute, desenhada para leitura fácil) no texto. Testei a Atkinson nos números, mas o zero dela é cortado (Ø) e deixava as tabelas com cara de código. A fonte não tem zero alternativo.
+
+**Layout:** alinhado à esquerda, sem caixas. No celular:
+
+```
+Finanças                 [≡ Menu] [Sair]
+Outubro de 2026
+‹ Setembro de 2026   Novembro de 2026 ›
+Gastei                       R$ 3.828,98
+────────────────────────────────────────
+Sobra                       R$ 1.671,02
+                            ═══════════
+Posso investir                R$ 390,00
+Estimativa educativa, não é recomendação.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Registrar um gasto
+[Valor      ] [Categoria  ▾]
+```
+
+Na tela larga, números e tabelas ficam à esquerda e o lançamento rápido, fixo numa coluna à direita.
+
+**Princípios:**
+- O único elemento ousado é o topo com os números grandes; o resto fica quieto.
+- Linhas só onde um livro-caixa teria: entre registros, sob o cabeçalho da tabela e o traço duplo sob totais.
+- Hierarquia por tamanho, peso e espaço. Sem cartões, sombras ou degradês.
+
+**Revisão contra os padrões genéricos da skill (o que mudou):**
+- O topo era uma grade de três "cartões" iguais (`auto-fit`), o padrão "número grande com rótulo pequeno". Virou uma coluna de livro-caixa com pesos diferentes: "Sobra" maior e com traço duplo, "Posso investir" em verde.
+- O papel creme quente (`#F4F1EA`) é o primeiro item da lista de clichês. Por isso o papel é frio e esverdeado, como o papel pautado de contabilidade.
+- As setas "←" e "→" coladas no texto dos links de mês viraram ícones. Os separadores "—" e "·" no meio de frases viraram um formato só.
+- As linhas finas aparecem só onde carregam informação, não por decoração.
+
+**Outras decisões:**
+- **Ícones:** só do Lucide e sempre ao lado de um texto. Nenhum botão depende só do ícone, então o tooltip previsto na Fase 3 não foi necessário. Um tooltip acessível (WCAG 1.4.13) precisaria de polyfill ou de JS próprio.
+- **Navegação no celular:** dentro de "Menu" (`<details>`, funciona sem JS; com JS, Esc fecha). A página atual tem `aria-current`.
+- **Tabelas no celular:** as listas com ações viram um bloco por registro. As tabelas largas de números rolam dentro de uma região que recebe foco.
+- **Gráficos:** as cores vêm dos tokens e foram validadas com o script da skill dataviz no papel claro e no escuro.
+
+**Verificação:**
+- Lighthouse 13.5.0 deu 100 em acessibilidade nas 18 telas testadas (só tema claro).
+- No tema escuro, o contraste foi medido por um script próprio (texto, bordas de campo e de botão): tudo passa.
+- Fotos em 390 e 1280 px, nos dois temas: sem rolagem horizontal, sem erro de console e sem violação de CSP.
+
+**Pendência:** o gráfico do histórico é um SVG de largura fixa e encolhe no celular. A letra dos eixos aumenta nessa largura, mas continua pequena. A tabela logo abaixo tem os mesmos números.
+
 ## Fase 5: desempenho da renderização
 - Lighthouse no app novo, comparado com a linha de base da Fase 0. Relato só valores medidos.
 - Scripts com `defer`, CSS mínimo e cache dos assets estáticos (`spring.web.resources.cache`).
