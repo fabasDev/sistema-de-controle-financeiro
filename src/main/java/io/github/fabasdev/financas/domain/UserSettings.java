@@ -71,7 +71,7 @@ public class UserSettings {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private Theme theme = Theme.SYSTEM;
+    private Theme theme = Theme.DEFAULT;
 
     protected UserSettings() {
     }

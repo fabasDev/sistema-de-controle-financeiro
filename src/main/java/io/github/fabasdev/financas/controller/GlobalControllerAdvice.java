@@ -39,8 +39,8 @@ public class GlobalControllerAdvice {
     }
 
     /**
-     * Tema escolhido em Ajustes: "light", "dark" ou null (segue o aparelho). Sem login, como nas
-     * telas de entrar e de cadastro, a página segue o aparelho.
+     * Tema escolhido em Ajustes: "dark", "light" ou "system" (segue o aparelho). Sem login, como nas
+     * telas de entrar e de cadastro, fica null, e o tokens.css usa o escuro padrão.
      */
     @ModelAttribute("theme")
     public String theme(@AuthenticationPrincipal AppUserPrincipal principal, HttpServletRequest request) {

@@ -29,7 +29,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** Escolha de tema em Ajustes: claro, escuro ou o do aparelho. */
+/** Escolha de tema em Ajustes: escuro (padrão), claro ou o do aparelho. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -52,31 +52,42 @@ class ThemeTest {
     }
 
     @Test
-    void semEscolhaAPaginaSegueOAparelho() throws Exception {
+    void semEscolhaOTemaEOEscuro() throws Exception {
+        assertThat(settings.get(me.getId()).getTheme()).isEqualTo(Theme.DARK);
         mvc.perform(get("/").session(session).with(user(me)))
-                .andExpect(content().string(containsString("<html lang=\"pt-BR\">")))
-                .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"light dark\">")));
+                .andExpect(content().string(containsString("<html lang=\"pt-BR\" data-theme=\"dark\">")))
+                .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"dark\">")));
+        mvc.perform(get("/ajustes").session(session).with(user(me)))
+                .andExpect(content().string(containsString("value=\"DARK\" checked")));
     }
 
     /** A mesma sessão já mostra o tema novo: a troca atualiza o tema guardado nela. */
     @Test
-    void escolherEscuroValeNaHoraEEmTodasAsTelas() throws Exception {
+    void escolherClaroValeNaHoraEEmTodasAsTelas() throws Exception {
         mvc.perform(get("/").session(session).with(user(me)));
 
-        mvc.perform(post("/ajustes/tema").param("tema", "DARK").session(session).with(user(me)).with(csrf()))
+        mvc.perform(post("/ajustes/tema").param("tema", "LIGHT").session(session).with(user(me)).with(csrf()))
                 .andExpect(redirectedUrl("/ajustes"))
                 .andExpect(flash().attribute("success", "Tema salvo."));
 
         for (String page : new String[] {"/", "/lancamentos", "/ajustes", "/privacidade"}) {
             mvc.perform(get(page).session(session).with(user(me)))
-                    .andExpect(content().string(containsString("<html lang=\"pt-BR\" data-theme=\"dark\">")))
-                    .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"dark\">")));
+                    .andExpect(content().string(containsString("<html lang=\"pt-BR\" data-theme=\"light\">")))
+                    .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"light\">")));
         }
         mvc.perform(get("/ajustes").session(session).with(user(me)))
-                .andExpect(content().string(containsString("value=\"DARK\" checked")));
+                .andExpect(content().string(containsString("value=\"LIGHT\" checked")));
         // Em outra sessão (outro aparelho), o tema vem do banco.
         mvc.perform(get("/").with(user(me)))
-                .andExpect(content().string(containsString("data-theme=\"dark\"")));
+                .andExpect(content().string(containsString("data-theme=\"light\"")));
+    }
+
+    @Test
+    void automaticoDeixaOAparelhoEscolher() throws Exception {
+        settings.updateTheme(me.getId(), Theme.SYSTEM);
+        mvc.perform(get("/").with(user(me)))
+                .andExpect(content().string(containsString("<html lang=\"pt-BR\" data-theme=\"system\">")))
+                .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"light dark\">")));
     }
 
     @Test
@@ -84,7 +95,7 @@ class ThemeTest {
         mvc.perform(post("/ajustes/tema").param("tema", "roxo").with(user(me)).with(csrf()))
                 .andExpect(redirectedUrl("/ajustes"))
                 .andExpect(flash().attribute("error", "Escolha um dos temas."));
-        assertThat(settings.get(me.getId()).getTheme()).isEqualTo(Theme.SYSTEM);
+        assertThat(settings.get(me.getId()).getTheme()).isEqualTo(Theme.DARK);
         mvc.perform(post("/ajustes/tema").param("tema", "LIGHT").with(user(me)))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isForbidden());
     }
@@ -98,23 +109,23 @@ class ThemeTest {
     }
 
     @Test
-    void telasSemLoginSeguemOAparelho() throws Exception {
-        settings.updateTheme(me.getId(), Theme.DARK);
+    void telasSemLoginUsamOEscuro() throws Exception {
+        settings.updateTheme(me.getId(), Theme.LIGHT);
         mvc.perform(get("/login"))
                 .andExpect(content().string(not(containsString("data-theme"))))
-                .andExpect(content().string(containsString("content=\"light dark\"")));
+                .andExpect(content().string(containsString("<meta name=\"color-scheme\" content=\"dark\">")));
     }
 
-    /** O escuro aparece em dois blocos do tokens.css (aparelho no escuro e escolha "Escuro"): têm de ser iguais. */
+    /** O claro aparece em dois blocos do tokens.css (escolha "Claro" e "Automático" com o aparelho no claro): têm de ser iguais. */
     @Test
-    void osDoisBlocosDoTemaEscuroTemOsMesmosValores() throws IOException {
+    void osDoisBlocosDoTemaClaroTemOsMesmosValores() throws IOException {
         String css;
         try (InputStream in = getClass().getResourceAsStream("/static/css/tokens.css")) {
             css = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
-        String bySystem = block(css, ":root:not([data-theme=\"light\"]) {");
-        String byChoice = block(css, ":root[data-theme=\"dark\"] {\n  --");
-        assertThat(bySystem).contains("--paper:").isEqualTo(byChoice);
+        String byChoice = block(css, ":root[data-theme=\"light\"] {");
+        String bySystem = block(css, ":root[data-theme=\"system\"] {");
+        assertThat(byChoice).contains("--paper:").isEqualTo(bySystem);
     }
 
     /** As declarações do bloco que começa em {@code start}, sem espaços, uma por linha. */

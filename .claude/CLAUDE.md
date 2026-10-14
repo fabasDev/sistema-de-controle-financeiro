@@ -77,7 +77,7 @@ Fazer:
 - Hierarquia por tamanho, peso e espaço, não por caixas.
 - Textos curtos, escritos como uma pessoa falaria.
 
-Direção visual escolhida (Fase 4): livro-caixa sóbrio, com papel claro levemente esverdeado, tinta azul-escura, um verde de destaque e vermelho só para valor negativo. Os números são o protagonista: todo valor em Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Texto em Atkinson Hyperlegible Next, ícones do Lucide sempre ao lado de texto. Tokens em `src/main/resources/static/css/tokens.css`; detalhes em `docs/plano.md` ("Como a Fase 4 ficou").
+Direção visual escolhida (14/10/2026, no lugar do livro-caixa esverdeado da Fase 4): noite azul. Fundo azul-marinho escuro por padrão, texto claro, um azul-céu de destaque e vermelho só para valor negativo; o claro (papel frio, tinta azul-marinho, destaque azul-cobalto) fica como escolha em Ajustes. Os números continuam o protagonista: todo valor em Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Hierarquia por espaço, sem caixas. Texto em Atkinson Hyperlegible Next, ícones do Lucide sempre ao lado de texto. Tokens em `src/main/resources/static/css/tokens.css`; detalhes em `docs/plano.md` ("Noite azul").
 
 ## Materiais de consulta
 

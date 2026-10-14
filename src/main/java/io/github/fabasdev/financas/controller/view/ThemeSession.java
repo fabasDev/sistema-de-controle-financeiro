@@ -31,7 +31,7 @@ public class ThemeSession {
         if (session != null && session.getAttribute(ATTRIBUTE + userId) instanceof Theme cached) {
             return cached;
         }
-        Theme theme = settings.findThemeByUserId(userId).orElse(Theme.SYSTEM);
+        Theme theme = settings.findThemeByUserId(userId).orElse(Theme.DEFAULT);
         if (session != null) {
             session.setAttribute(ATTRIBUTE + userId, theme);
         }

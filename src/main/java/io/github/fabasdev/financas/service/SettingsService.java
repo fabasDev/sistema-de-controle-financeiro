@@ -60,7 +60,7 @@ public class SettingsService {
     @Transactional
     public void resetData(Long userId) {
         // Lido por consulta, sem carregar a entidade: ela é apagada e criada de novo logo abaixo.
-        Theme theme = settings.findThemeByUserId(userId).orElse(Theme.SYSTEM);
+        Theme theme = settings.findThemeByUserId(userId).orElse(Theme.DEFAULT);
         eraser.eraseFinancialData(userId);
         settings.deleteAllByUserId(userId);
         settings.flush();

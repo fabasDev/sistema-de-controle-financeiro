@@ -1,7 +1,8 @@
 /*
  * Tokens do visual: cor, tipografia e espaçamento num arquivo só (CLAUDE.md, "Visual").
- * Direção: livro-caixa sóbrio. Papel claro levemente esverdeado, tinta azul-escura,
- * um verde de destaque e vermelho só para valor negativo, como no livro de contas.
+ * Direção: noite azul. Fundo azul-marinho escuro por padrão, texto claro, um azul-céu de
+ * destaque e vermelho só para valor negativo. O claro (papel frio, tinta azul-marinho e
+ * destaque azul-cobalto) é escolha em Ajustes. Os números seguem como num livro-caixa.
  * O app.css usa só estes nomes; para mudar o visual, mude aqui.
  */
 
@@ -26,25 +27,26 @@
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
-  /* Cor, tema claro. Contraste conferido (WCAG AA): tinta 13,4:1, lápis 6,5:1, verde 6,9:1,
-     vermelho 6,3:1 e borda de campo 4,1:1 sobre o papel. */
-  --paper: #f3f5f1;         /* fundo: papel de livro-caixa */
-  --paper-raised: #fcfdfb;  /* campos de formulário e balões */
-  --ink: #1b2a33;           /* tinta: texto e números */
-  --ink-muted: #4b5b61;     /* lápis: rótulos e texto de apoio */
-  --rule: #c5cfc8;          /* pauta: linhas entre registros (decorativas) */
-  --rule-strong: #6b7a75;   /* borda de campo e botão (3:1 ou mais) */
-  --accent: #17603f;        /* verde: ação principal, links e "posso investir" */
-  --on-accent: #ffffff;
-  --negative: #a3322b;      /* tinta vermelha: saldo negativo e erros, sempre com texto */
+  /* Cor, tema padrão: noite azul. Contraste conferido (WCAG AA) sobre o fundo: texto 15,3:1,
+     texto de apoio 8,4:1, azul-céu 8,9:1, vermelho 7,8:1 e borda de campo 4,9:1. */
+  --paper: #0c1b33;         /* fundo: azul-marinho */
+  --paper-raised: #132744;  /* campos de formulário e balões */
+  --ink: #edf2fa;           /* texto e números */
+  --ink-muted: #a8b6cd;     /* rótulos e texto de apoio */
+  --rule: #233a5c;          /* linhas entre registros (decorativas) */
+  --rule-strong: #7a8aa8;   /* borda de campo e botão (3:1 ou mais) */
+  --accent: #7cc0ff;        /* azul-céu: ação principal, links e "posso investir" */
+  --on-accent: #06182e;
+  --negative: #ff8f87;      /* vermelho: saldo negativo e erros, sempre com texto */
 
-  /* Séries dos gráficos, validadas com o script da skill dataviz (validate_palette.js)
-     sobre o papel: ordem fixa azul, ocre, verde. */
-  --series-1: #1a588f;
-  --series-2: #bd821a;
-  --series-3: #196632;
+  /* Séries dos gráficos, ordem fixa azul, âmbar, verde. Conferidas sobre o fundo: 3:1 ou mais e
+     diferença CIEDE2000 de 10 ou mais entre elas também com os três tipos de daltonismo
+     simulados (Machado et al., 2009). O azul do gráfico é outro, para não parecer link. */
+  --series-1: #5aa9f5;
+  --series-2: #e0a548;
+  --series-3: #9be3b0;
 
   /* Tipografia. Besley (serifa inspirada na Clarendon de Robert Besley) nos títulos e em todo
      valor em dinheiro, como algarismos impressos numa coluna de livro-caixa.
@@ -80,43 +82,45 @@
   --page-width: 72rem;
 }
 
-/* Tema escolhido em Ajustes (data-theme no <html>). Sem o atributo, vale o do aparelho.
-   O color-scheme faz campos, barras de rolagem e o fundo do navegador seguirem a escolha. */
-:root[data-theme="light"] { color-scheme: light; }
-:root[data-theme="dark"] { color-scheme: dark; }
-
-/* Tema escuro: os mesmos nomes com outros valores. Vale quando o aparelho está no escuro (e a
-   pessoa não escolheu o claro) ou quando ela escolheu o escuro. Os dois blocos têm os mesmos
-   valores; o ThemeTokensTest confere isso.
-   Contraste: tinta 13,2:1, lápis 7,7:1, verde 8,5:1, vermelho 6,8:1, borda 4,7:1. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #172124;
-    --paper-raised: #1e2a2e;
-    --ink: #e2e8e3;
-    --ink-muted: #a7b4ae;
-    --rule: #34443f;
-    --rule-strong: #7d8c86;
-    --accent: #7ccb9f;
-    --on-accent: #10201a;
-    --negative: #f08a7e;
-    --series-1: #5894d0;
-    --series-2: #bd821a;
-    --series-3: #5aa26b;
-  }
+/*
+ * Tema escolhido em Ajustes (data-theme no <html>): "dark" e as telas sem login (sem o atributo)
+ * ficam no padrão acima; "light" usa o claro; "system" usa o claro só com o aparelho no claro.
+ * O color-scheme faz campos, barras de rolagem e o fundo do navegador seguirem o tema.
+ *
+ * Tema claro: os mesmos nomes com outros valores. Os dois blocos têm os mesmos valores; o
+ * ThemeTest confere isso. Contraste sobre o papel: tinta 14,8:1, texto de apoio 6,7:1,
+ * azul-cobalto 7,4:1, vermelho 6,0:1 e borda de campo 4,2:1.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --paper: #f4f6f9;         /* papel frio, quase branco */
+  --paper-raised: #ffffff;
+  --ink: #13213a;           /* tinta azul-marinho */
+  --ink-muted: #4a5770;
+  --rule: #d3d9e3;
+  --rule-strong: #6a768c;
+  --accent: #1f4e9c;        /* azul-cobalto */
+  --on-accent: #ffffff;
+  --negative: #b02a2a;
+  --series-1: #2a64b8;
+  --series-2: #b7791f;
+  --series-3: #1c6b45;
 }
 
-:root[data-theme="dark"] {
-  --paper: #172124;
-  --paper-raised: #1e2a2e;
-  --ink: #e2e8e3;
-  --ink-muted: #a7b4ae;
-  --rule: #34443f;
-  --rule-strong: #7d8c86;
-  --accent: #7ccb9f;
-  --on-accent: #10201a;
-  --negative: #f08a7e;
-  --series-1: #5894d0;
-  --series-2: #bd821a;
-  --series-3: #5aa26b;
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+    --paper: #f4f6f9;
+    --paper-raised: #ffffff;
+    --ink: #13213a;
+    --ink-muted: #4a5770;
+    --rule: #d3d9e3;
+    --rule-strong: #6a768c;
+    --accent: #1f4e9c;
+    --on-accent: #ffffff;
+    --negative: #b02a2a;
+    --series-1: #2a64b8;
+    --series-2: #b7791f;
+    --series-3: #1c6b45;
+  }
 }

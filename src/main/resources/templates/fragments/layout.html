@@ -3,9 +3,9 @@
 <head th:fragment="head(title)">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Tema claro ou escuro: o escolhido em Ajustes (theme) ou, sem escolha, o do aparelho. Vem antes
-         do CSS para o navegador já pintar o fundo na cor certa, sem clarão. -->
-    <meta name="color-scheme" th:content="${theme} ?: 'light dark'">
+    <!-- Tema: o escolhido em Ajustes (theme) ou, sem login, o escuro padrão. "system" deixa o aparelho
+         decidir. Vem antes do CSS para o navegador já pintar o fundo na cor certa, sem clarão. -->
+    <meta name="color-scheme" th:content="${theme == 'light'} ? 'light' : (${theme == 'system'} ? 'light dark' : 'dark')">
     <title th:text="${title} + ' · Finanças'">Finanças</title>
     <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
     <!-- Token CSRF para os pedidos feitos pelo JavaScript (fetch). -->

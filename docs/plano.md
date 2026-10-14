@@ -152,6 +152,8 @@ O limite de login será código próprio, sem biblioteca extra.
 - Registrar a direção escolhida no CLAUDE.md.
 
 ### Como a Fase 4 ficou (14/10/2026)
+> As cores abaixo foram trocadas pela "Noite azul", a seu pedido, no fim do mesmo dia (seção no fim deste arquivo). Tipos, princípios e o layout dos números continuam.
+
 A skill `frontend-design` não estava instalada; o `SKILL.md` foi lido direto de github.com/anthropics/skills. A direção aprovada virou este plano, revisado contra a lista de "padrões de IA" da própria skill antes de escrever o CSS.
 
 **Direção (duas linhas):** livro-caixa sóbrio, com papel claro levemente esverdeado, tinta azul-escura, um verde de destaque e vermelho só para valor negativo. Os números são o protagonista: todo valor em Besley com algarismos tabulares, e o saldo do mês leva o traço duplo da contabilidade.
@@ -279,3 +281,33 @@ Detalhes em `docs/entrega-final.md`, seção "Pendências resolvidas depois do r
 - **Gráfico do histórico no celular:** desenho próprio para a tela estreita (`88dd19a`, `fe0faba`).
 - **PostgreSQL de verdade:** migrações e roteiros testados no PostgreSQL 18.6. O banco de produção deve ser criado com `ICU_LOCALE 'pt-BR'`, para a busca igualar maiúsculas acentuadas.
 - **Dependências:** o Dependency-Check não roda sem a chave da NVD (a 13.0.0 recusa, e a 12.2.2 levou erro 429 em 27%). A conferência foi feita na base OSV e achou falhas no Tomcat 11.0.24 e no Jackson 3.1.5, corrigidas fixando Tomcat 11.0.27 e Jackson 3.1.7 (`48dd63a`). A checagem do plano continua pendente da chave.
+
+## Noite azul: cores novas e ajustes de uso (14/10/2026)
+Você achou que as cores do livro-caixa esverdeado não ficaram boas, preferiu tons de azul mais escuro e pediu para usar as skills `ui-ux-pro-max` e `ui-styling`.
+- A `ui-styling` é feita para React com shadcn e Tailwind. Usar ela aqui traria um build em Node para um app Thymeleaf, então só os princípios dela foram usados (tokens, contraste, tema escuro coerente).
+- A sugestão de sistema visual da `ui-ux-pro-max` para finanças era glassmorphism com uma fonte manuscrita. O CLAUDE.md proíbe glassmorphism, então essa parte ficou de fora. As paletas de azul-marinho e as regras de experiência dela entraram.
+- Três paletas foram aplicadas nas telas de verdade (trocando só o `tokens.css`) e comparadas lado a lado: "Tinta azul", "Faixa marinho" e "Noite azul". Você escolheu a **Noite azul**, manteve a Besley nos valores e a regra de hierarquia sem caixas.
+
+**Direção (duas linhas):** noite azul. Fundo azul-marinho escuro por padrão, texto claro, um azul-céu de destaque e vermelho só para valor negativo; o claro (papel frio, tinta azul-marinho, destaque azul-cobalto) é escolha em Ajustes. Os números continuam o protagonista, em Besley com algarismos tabulares e o traço duplo sob o saldo.
+
+**Cores** (`static/css/tokens.css`):
+
+| Nome | Escuro (padrão) | Claro | Uso |
+|---|---|---|---|
+| `--paper` | `#0c1b33` | `#f4f6f9` | fundo |
+| `--paper-raised` | `#132744` | `#ffffff` | campos e balões |
+| `--ink` | `#edf2fa` | `#13213a` | texto e números |
+| `--ink-muted` | `#a8b6cd` | `#4a5770` | rótulos e texto de apoio |
+| `--rule` | `#233a5c` | `#d3d9e3` | linha entre registros |
+| `--rule-strong` | `#7a8aa8` | `#6a768c` | borda de campo e botão |
+| `--accent` | `#7cc0ff` | `#1f4e9c` | ação principal, links, "posso investir" |
+| `--negative` | `#ff8f87` | `#b02a2a` | saldo negativo e erro, sempre com texto |
+| séries | `#5aa9f5` `#e0a548` `#9be3b0` | `#2a64b8` `#b7791f` `#1c6b45` | gráficos |
+
+- Contraste (WCAG AA) medido por script nos dois temas: texto 15,3:1 e 14,8:1, texto de apoio 8,4:1 e 6,7:1, destaque 8,9:1 e 7,4:1, vermelho 7,8:1 e 6,0:1, borda de campo 4,9:1 e 4,2:1.
+- As skills `frontend-design` e `dataviz` não estavam instaladas. As séries foram conferidas por um script próprio: 3:1 ou mais sobre o fundo e diferença CIEDE2000 de 10 ou mais entre elas também com os três tipos de daltonismo simulados (Machado et al., 2009). O verde da primeira tentativa se confundia com o azul na tritanopia e foi trocado.
+
+**Tema escuro como padrão:**
+- O enum `Theme` passou a ter `DARK` como padrão (`Theme.DEFAULT`). As telas sem login usam o escuro.
+- "Automático" virou `data-theme="system"`: o `tokens.css` usa o claro só quando o aparelho está no claro.
+- A migração V4 muda o padrão da coluna para `DARK` e passa para `DARK` as contas em `SYSTEM`. Elas só tinham `SYSTEM` porque era o padrão da V3: a escolha de tema é do mesmo dia e o app ainda não estava no ar.
