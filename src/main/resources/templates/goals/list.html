@@ -45,21 +45,21 @@
 
     <section aria-labelledby="metas-titulo">
         <h2 id="metas-titulo">Suas metas</h2>
-        <p><a class="button-primary" th:href="@{/metas/nova}">Nova meta</a></p>
+        <p><a class="button-primary" th:href="@{/metas/nova}"><svg th:replace="~{fragments/icons :: plus}"></svg> Nova meta</a></p>
         <p th:unless="${hasOwnGoals}" class="empty">
             Além da reserva, você ainda não tem metas. Crie uma com valor e prazo (uma viagem, um curso) e o app mostra quanto guardar por mês.
         </p>
-        <table class="table">
+        <table class="table table-stack">
             <thead><tr><th scope="col">Meta</th><th scope="col" class="num">Guardado</th><th scope="col" class="num">Alvo</th><th scope="col">Por mês até o prazo</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
             <tbody>
             <tr th:each="g : ${goals}">
-                <td th:text="${g.name}"></td>
-                <td class="value num" th:text="${@fmt.money(g.plan.balance)}"></td>
-                <td class="value num" th:text="${g.reserve} ? 'calculado' : (${g.target.signum() > 0} ? ${@fmt.money(g.target)} : 'sem alvo')"></td>
-                <td th:text="${g.plan.done} ? 'Concluída' : (${g.plan.monthlyNeeded} ? ${@fmt.money(g.plan.monthlyNeeded)} + ' por ' + ${g.plan.monthsLeft} + ' mês(es)' : '—')"></td>
-                <td>
-                    <a th:href="@{/metas/{id}/editar(id=${g.id})}">Editar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
-                    <a data-delete th:unless="${g.reserve}" th:href="@{/metas/{id}/excluir(id=${g.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
+                <th scope="row" th:text="${g.name}"></th>
+                <td class="value num" data-label="Guardado" th:text="${@fmt.money(g.plan.balance)}"></td>
+                <td class="value num" data-label="Alvo" th:text="${g.reserve} ? 'calculado' : (${g.target.signum() > 0} ? ${@fmt.money(g.target)} : 'sem alvo')"></td>
+                <td data-label="Por mês até o prazo" th:text="${g.plan.done} ? 'Concluída' : (${g.plan.monthlyNeeded} ? ${@fmt.money(g.plan.monthlyNeeded)} + ' por ' + ${g.plan.monthsLeft} + ' mês(es)' : '—')"></td>
+                <td class="row-actions">
+                    <a th:href="@{/metas/{id}/editar(id=${g.id})}"><svg th:replace="~{fragments/icons :: pencil}"></svg> Editar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
+                    <a data-delete th:unless="${g.reserve}" th:href="@{/metas/{id}/excluir(id=${g.id})}"><svg th:replace="~{fragments/icons :: trash}"></svg> Apagar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
                 </td>
             </tr>
             </tbody>

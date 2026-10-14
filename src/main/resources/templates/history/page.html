@@ -37,6 +37,7 @@
         </svg>
     </figure>
 
+    <div class="table-scroll" role="region" aria-label="Entradas × saídas por mês" tabindex="0">
     <table class="table">
         <caption class="small">Entradas × saídas por mês</caption>
         <thead><tr><th scope="col">Mês</th><th scope="col" class="num">Entrou</th><th scope="col" class="num">Gastou</th><th scope="col" class="num">Guardou</th><th scope="col" class="num">Sobrou</th><th scope="col" class="num">Poupança</th></tr></thead>
@@ -51,8 +52,10 @@
         </tr>
         </tbody>
     </table>
+    </div>
 
-    <table th:unless="${#lists.isEmpty(categories)}" class="table">
+    <div th:unless="${#lists.isEmpty(categories)}" class="table-scroll" role="region" aria-label="Gasto por categoria" tabindex="0">
+    <table class="table">
         <caption class="small">Gasto por categoria</caption>
         <thead>
         <tr>
@@ -69,6 +72,7 @@
         </tr>
         </tbody>
     </table>
+    </div>
     <p th:if="${#lists.isEmpty(categories)}" class="empty">Sem gastos neste período.</p>
 </main>
 </body>

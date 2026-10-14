@@ -10,7 +10,7 @@
 
     <!-- Sem JavaScript: "Simular" manda o formulário e a página volta com o resultado.
          Com JavaScript (simulator.js): o resultado atualiza sozinho enquanto você digita. -->
-    <form th:action="@{/simulador}" method="get" class="form" id="simulador" data-api="/api/simulacao">
+    <form th:action="@{/simulador}" method="get" class="form form-grid" id="simulador" data-api="/api/simulacao">
         <div class="field">
             <label for="inicial">Valor inicial (R$)</label>
             <input id="inicial" name="inicial" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="${values.inicial}">
@@ -49,7 +49,8 @@
     </form>
 
     <div th:if="${!#lists.isEmpty(errors)}" class="notice notice-error" role="alert">
-        <p th:each="e : ${errors}" th:text="${e}"></p>
+        <svg th:replace="~{fragments/icons :: circleAlert}"></svg>
+        <div><p th:each="e : ${errors}" th:text="${e}"></p></div>
     </div>
 
     <section th:if="${result}" id="resultado" aria-labelledby="resultado-titulo">
@@ -86,6 +87,7 @@
             <p id="sim-grafico-ajuda" class="small">Passe o mouse ou use as setas do teclado no gráfico para ver cada ano.</p>
         </figure>
 
+        <div class="table-scroll" role="region" aria-label="Ano a ano" tabindex="0">
         <table class="table" id="sim-tabela">
             <caption class="small">Ano a ano</caption>
             <thead><tr><th scope="col">Ano</th><th scope="col" class="num">Investido</th><th scope="col" class="num">Total</th><th scope="col" class="num">Valores de hoje</th></tr></thead>
@@ -98,6 +100,7 @@
             </tr>
             </tbody>
         </table>
+        </div>
     </section>
 </main>
 <script type="module" th:src="@{/js/simulator.js}"></script>

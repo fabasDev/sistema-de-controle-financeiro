@@ -9,7 +9,8 @@
 
     <form th:action="@{/comecar}" th:object="${form}" method="post" class="form">
         <div class="notice notice-error" role="alert" th:if="${#fields.hasGlobalErrors()}">
-            <p th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+            <svg th:replace="~{fragments/icons :: circleAlert}"></svg>
+            <div><p th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p></div>
         </div>
 
         <div class="field">
@@ -35,9 +36,9 @@
 
         <fieldset class="field">
             <legend>Como quer dividir sua renda?</legend>
-            <label th:each="p : ${presets}">
+            <label th:each="p : ${presets}" class="choice">
                 <input type="radio" name="presetId" th:value="${p.id}" th:checked="${p.id == form.presetId}" required>
-                <strong th:text="${p.name}"></strong>: <span th:text="${p.description}"></span>
+                <span><strong th:text="${p.name}"></strong> <span class="hint" th:text="${p.description}"></span></span>
             </label>
             <p class="field-error" th:if="${#fields.hasErrors('presetId')}" th:errors="*{presetId}"></p>
         </fieldset>

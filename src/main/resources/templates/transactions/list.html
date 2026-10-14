@@ -5,9 +5,9 @@
 <header th:replace="~{fragments/layout :: appHeader}"></header>
 <main id="conteudo" class="page">
     <nav class="month-nav" aria-label="Mês">
-        <a th:href="@{/lancamentos(mes=${previousMonth})}" th:text="'← ' + ${@fmt.month(previousMonth)}">Anterior</a>
         <h1 th:text="'Lançamentos de ' + ${@fmt.month(month)}">Lançamentos</h1>
-        <a th:href="@{/lancamentos(mes=${nextMonth})}" th:text="${@fmt.month(nextMonth)} + ' →'">Próximo</a>
+        <a class="month-prev" th:href="@{/lancamentos(mes=${previousMonth})}"><svg th:replace="~{fragments/icons :: chevronLeft}"></svg> <span th:text="${@fmt.month(previousMonth)}">Anterior</span></a>
+        <a class="month-next" th:href="@{/lancamentos(mes=${nextMonth})}"><span th:text="${@fmt.month(nextMonth)}">Próximo</span> <svg th:replace="~{fragments/icons :: chevronRight}"></svg></a>
     </nav>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
@@ -40,14 +40,15 @@
                         th:selected="${c.id == categoryId}"></option>
             </select>
         </div>
-        <button type="submit">Filtrar</button>
+        <button type="submit" class="button-quiet">Filtrar</button>
     </form>
 
     <p th:if="${page.totalElements == 0}" class="empty">
         Nada por aqui neste mês com esses filtros. Registre um gasto no formulário acima ou limpe os filtros.
     </p>
 
-    <table th:if="${page.totalElements > 0}" class="table">
+    <!-- No celular cada lançamento vira um bloco de três linhas (ver .ledger no app.css). -->
+    <table th:if="${page.totalElements > 0}" class="table ledger">
         <caption class="small" th:text="${page.totalElements} + ' lançamento(s)'"></caption>
         <thead>
         <tr>
@@ -61,23 +62,25 @@
         </thead>
         <tbody>
         <tr th:each="t : ${page.content}">
-            <td th:text="${@fmt.date(t.date)}"></td>
-            <td>
+            <td class="ledger-date" th:text="${@fmt.date(t.date)}"></td>
+            <td class="ledger-desc">
                 <span th:text="${t.description}"></span>
                 <span th:if="${t.fromRecurring}" class="small">(conta fixa)</span>
             </td>
-            <td th:text="${t.categoryName} ?: '—'"></td>
-            <td class="value num" th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
-            <td>
+            <td class="ledger-cat" th:text="${t.categoryName} ?: 'Sem categoria'"></td>
+            <td class="value num ledger-amount" th:classappend="${t.type.name() == 'INCOME'} ? 'is-income'"
+                th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
+            <td class="ledger-status">
                 <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
-                    <button type="submit"
-                            th:text="${t.paid} ? (${t.type.name() == 'INCOME'} ? 'Recebido' : 'Pago') : (${t.type.name() == 'INCOME'} ? 'A receber' : 'A pagar')"
-                            th:attr="aria-pressed=${t.paid}">Pago</button>
+                    <button type="submit" class="button-quiet status-toggle" th:attr="aria-pressed=${t.paid}">
+                        <svg th:replace="${t.paid} ? ~{fragments/icons :: circleCheck} : ~{fragments/icons :: circle}"></svg>
+                        <span th:text="${t.paid} ? (${t.type.name() == 'INCOME'} ? 'Recebido' : 'Pago') : (${t.type.name() == 'INCOME'} ? 'A receber' : 'A pagar')">Pago</span>
+                    </button>
                 </form>
             </td>
-            <td>
-                <a th:href="@{/lancamentos/{id}/editar(id=${t.id})}">Editar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
-                <a data-delete th:href="@{/lancamentos/{id}/excluir(id=${t.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
+            <td class="row-actions">
+                <a th:href="@{/lancamentos/{id}/editar(id=${t.id})}"><svg th:replace="~{fragments/icons :: pencil}"></svg> Editar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
+                <a data-delete th:href="@{/lancamentos/{id}/excluir(id=${t.id})}"><svg th:replace="~{fragments/icons :: trash}"></svg> Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
             </td>
         </tr>
         </tbody>

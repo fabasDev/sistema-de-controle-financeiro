@@ -7,13 +7,13 @@
     <h1>Contas fixas e parcelas</h1>
     <p>Entram sozinhas em cada mês como "a pagar" (ou "a receber") até você marcar como pagas.</p>
     <div th:replace="~{fragments/layout :: flash}"></div>
-    <p><a class="button-primary" th:href="@{/contas-fixas/nova}">Nova conta fixa</a></p>
+    <p><a class="button-primary" th:href="@{/contas-fixas/nova}"><svg th:replace="~{fragments/icons :: plus}"></svg> Nova conta fixa</a></p>
 
     <p th:if="${#lists.isEmpty(entries)}" class="empty">
         Nenhuma conta fixa ainda. Cadastre o salário e contas como aluguel e internet para o mês já começar preenchido.
     </p>
 
-    <table th:unless="${#lists.isEmpty(entries)}" class="table">
+    <table th:unless="${#lists.isEmpty(entries)}" class="table table-stack">
         <thead>
         <tr>
             <th scope="col">Conta</th>
@@ -25,17 +25,17 @@
         </thead>
         <tbody>
         <tr th:each="r : ${entries}">
-            <td>
+            <th scope="row">
                 <span th:text="${r.description}"></span>
                 <span class="small" th:text="${r.type.name() == 'INCOME'} ? '(receita)' : (${r.category} ? '(' + ${r.category.name} + ')' : '')"></span>
-                <span th:unless="${r.active}" class="small">· pausada</span>
-            </td>
-            <td th:text="${r.dayOfMonth}"></td>
-            <td th:text="${r.endMonth} ? ('de ' + ${@fmt.month(r.startMonth)} + ' até ' + ${@fmt.month(r.endMonth)}) : ('desde ' + ${@fmt.month(r.startMonth)})"></td>
-            <td class="value num" th:text="${@fmt.money(r.amount)}"></td>
-            <td>
-                <a th:href="@{/contas-fixas/{id}/editar(id=${r.id})}">Editar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
-                <a data-delete th:href="@{/contas-fixas/{id}/excluir(id=${r.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
+                <span th:unless="${r.active}" class="small">(pausada)</span>
+            </th>
+            <td data-label="Dia" th:text="${r.dayOfMonth}"></td>
+            <td data-label="Período" th:text="${r.endMonth} ? ('de ' + ${@fmt.month(r.startMonth)} + ' até ' + ${@fmt.month(r.endMonth)}) : ('desde ' + ${@fmt.month(r.startMonth)})"></td>
+            <td class="value num" data-label="Valor" th:text="${@fmt.money(r.amount)}"></td>
+            <td class="row-actions">
+                <a th:href="@{/contas-fixas/{id}/editar(id=${r.id})}"><svg th:replace="~{fragments/icons :: pencil}"></svg> Editar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
+                <a data-delete th:href="@{/contas-fixas/{id}/excluir(id=${r.id})}"><svg th:replace="~{fragments/icons :: trash}"></svg> Apagar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
             </td>
         </tr>
         </tbody>

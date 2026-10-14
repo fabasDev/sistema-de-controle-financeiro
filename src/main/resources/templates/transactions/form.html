@@ -5,7 +5,7 @@
 <header th:replace="~{fragments/layout :: appHeader}"></header>
 <main id="conteudo" class="page">
     <h1 th:text="${editingId} ? 'Editar lançamento' : 'Novo lançamento'">Novo lançamento</h1>
-    <p th:if="${fromRecurring}" class="notice">Este lançamento vem de uma conta fixa. A alteração vale só para este mês.</p>
+    <p th:if="${fromRecurring}" class="notice"><svg th:replace="~{fragments/icons :: info}"></svg> <span>Este lançamento vem de uma conta fixa. A alteração vale só para este mês.</span></p>
 
     <form th:action="${editingId} ? @{/lancamentos/{id}(id=${editingId})} : @{/lancamentos}" th:object="${form}"
           method="post" class="form">

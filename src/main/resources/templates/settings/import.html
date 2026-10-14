@@ -6,8 +6,8 @@
 <main id="conteudo" class="page">
     <h1>Importar o backup do app antigo</h1>
 
-    <section th:if="${result}" class="notice notice-success" role="status" aria-labelledby="ok-titulo">
-        <h2 id="ok-titulo">Backup importado</h2>
+    <section th:if="${result}" class="notice notice-success notice-block" role="status" aria-labelledby="ok-titulo">
+        <h2 id="ok-titulo"><svg th:replace="~{fragments/icons :: circleCheck}"></svg> Backup importado</h2>
         <ul>
             <li th:text="${result.transactions} + ' lançamento(s)'"></li>
             <li th:text="${result.recurring} + ' conta(s) fixa(s)'"></li>
@@ -22,7 +22,7 @@
         <p><a class="link-standalone" th:href="@{/}">Ver a visão geral</a></p>
     </section>
 
-    <p th:if="${error}" class="notice notice-error" role="alert" th:text="${error}"></p>
+    <p th:if="${error}" class="notice notice-error" role="alert"><svg th:replace="~{fragments/icons :: circleAlert}"></svg> <span th:text="${error}"></span></p>
 
     <th:block th:unless="${result}">
         <ol>

@@ -5,13 +5,13 @@
 <main id="conteudo" class="auth-main">
     <h1>Entrar</h1>
 
-    <p th:if="${param.erro}" class="notice notice-error" role="alert">Usuário ou senha incorretos.</p>
+    <p th:if="${param.erro}" class="notice notice-error" role="alert"><svg th:replace="~{fragments/icons :: circleAlert}"></svg> <span>Usuário ou senha incorretos.</span></p>
     <p th:if="${param.bloqueado}" class="notice notice-error" role="alert">
-        Muitas tentativas. Espere alguns minutos e tente de novo.
+        <svg th:replace="~{fragments/icons :: circleAlert}"></svg> <span>Muitas tentativas. Espere alguns minutos e tente de novo.</span>
     </p>
-    <p th:if="${param.saiu}" class="notice" role="status">Você saiu da sua conta.</p>
-    <p th:if="${param.expirou}" class="notice" role="status">Sua sessão expirou. Entre de novo.</p>
-    <p th:if="${param.excluida}" class="notice" role="status">Sua conta e todos os dados foram apagados.</p>
+    <p th:if="${param.saiu}" class="notice" role="status"><svg th:replace="~{fragments/icons :: info}"></svg> <span>Você saiu da sua conta.</span></p>
+    <p th:if="${param.expirou}" class="notice" role="status"><svg th:replace="~{fragments/icons :: info}"></svg> <span>Sua sessão expirou. Entre de novo.</span></p>
+    <p th:if="${param.excluida}" class="notice" role="status"><svg th:replace="~{fragments/icons :: info}"></svg> <span>Sua conta e todos os dados foram apagados.</span></p>
 
     <form th:action="@{/login}" method="post" class="form">
         <div class="field">

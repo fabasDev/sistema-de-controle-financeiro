@@ -7,7 +7,7 @@
     <h1>Ajustes</h1>
     <div th:replace="~{fragments/layout :: flash}"></div>
 
-    <section th:if="${newRecoveryCode}" aria-labelledby="codigo-novo" class="notice">
+    <section th:if="${newRecoveryCode}" aria-labelledby="codigo-novo" class="notice notice-block">
         <h2 id="codigo-novo">Seu novo código de recuperação</h2>
         <p class="recovery-code"><code th:text="${newRecoveryCode}"></code></p>
         <p>Ele aparece só agora. O código anterior deixou de valer.</p>

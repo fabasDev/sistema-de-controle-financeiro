@@ -3,16 +3,16 @@
 <head th:replace="~{fragments/layout :: head('Visão geral')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: appHeader}"></header>
-<main id="conteudo" class="page">
+<main id="conteudo" class="page home">
     <nav class="month-nav" aria-label="Mês">
-        <a th:href="@{/(mes=${previousMonth})}" th:text="'← ' + ${@fmt.month(previousMonth)}">Mês anterior</a>
         <h1 th:text="${@fmt.month(month)}">Outubro de 2026</h1>
-        <a th:href="@{/(mes=${nextMonth})}" th:text="${@fmt.month(nextMonth)} + ' →'">Próximo mês</a>
+        <a class="month-prev" th:href="@{/(mes=${previousMonth})}"><svg th:replace="~{fragments/icons :: chevronLeft}"></svg> <span th:text="${@fmt.month(previousMonth)}">Mês anterior</span></a>
+        <a class="month-next" th:href="@{/(mes=${nextMonth})}"><span th:text="${@fmt.month(nextMonth)}">Próximo mês</span> <svg th:replace="~{fragments/icons :: chevronRight}"></svg></a>
     </nav>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
-    <section th:unless="${onboarded}" class="notice" aria-labelledby="comecar-titulo">
+    <section th:unless="${onboarded}" class="invite" aria-labelledby="comecar-titulo">
         <h2 id="comecar-titulo">Primeira vez por aqui?</h2>
         <p>Conte sua renda, suas contas fixas e quanto já guardou. Em um minuto o app já mostra quanto sobra e quanto dá para investir.</p>
         <div class="actions">
@@ -21,27 +21,33 @@
         </div>
     </section>
 
-    <!-- As três perguntas do topo, nesta ordem: quanto gastei, quanto sobra, quanto posso investir. -->
+    <!--
+      As três perguntas do topo, nesta ordem: quanto gastei, quanto sobra, quanto posso investir.
+      Como num livro-caixa: rótulo à esquerda, valor alinhado à direita e traço duplo sob o saldo.
+    -->
     <dl class="headline">
-        <div>
+        <div class="headline-spent">
             <dt>Gastei</dt>
-            <dd class="value" th:text="${@fmt.money(summary.spent)}">R$ 0,00</dd>
+            <dd class="figure" th:text="${@fmt.money(summary.spent)}">R$ 0,00</dd>
         </div>
-        <div>
+        <div class="headline-balance" th:classappend="${summary.balance.signum() < 0} ? 'is-negative'">
             <dt>Sobra</dt>
-            <dd class="value" th:text="${@fmt.money(summary.balance)}">R$ 0,00</dd>
-            <dd class="small" th:if="${summary.balance.signum() < 0}">Saiu mais do que entrou.</dd>
+            <dd class="figure" th:text="${@fmt.money(summary.balance)}">R$ 0,00</dd>
+            <dd class="figure-note" th:if="${summary.balance.signum() < 0}">
+                <svg th:replace="~{fragments/icons :: triangleAlert}"></svg> Saiu mais do que entrou.
+            </dd>
         </div>
-        <div>
+        <div class="headline-invest">
             <dt>Posso investir</dt>
-            <dd class="value" th:text="${@fmt.money(rec.toInvest)}" aria-describedby="aviso-estimativa">R$ 0,00</dd>
-            <dd class="small" id="aviso-estimativa">Estimativa educativa, não é recomendação.</dd>
+            <dd class="figure" th:text="${@fmt.money(rec.toInvest)}" aria-describedby="aviso-estimativa">R$ 0,00</dd>
+            <dd class="figure-note" id="aviso-estimativa">Estimativa educativa, não é recomendação.</dd>
         </div>
     </dl>
 
     <p th:if="${rec.income.signum() == 0}" class="notice">
-        Ainda não sei a sua renda deste mês. <a th:href="@{/lancamentos/novo(tipo=INCOME)}">Registre uma receita</a>
-        ou <a th:href="@{/contas-fixas/nova}">cadastre o salário como conta fixa</a> para ver quanto dá para investir.
+        <svg th:replace="~{fragments/icons :: info}"></svg>
+        <span>Ainda não sei a sua renda deste mês. <a th:href="@{/lancamentos/novo(tipo=INCOME)}">Registre uma receita</a>
+        ou <a th:href="@{/contas-fixas/nova}">cadastre o salário como conta fixa</a> para ver quanto dá para investir.</span>
     </p>
 
     <section th:replace="~{fragments/quick-add :: form('inicio')}"></section>
@@ -70,7 +76,7 @@
                 <td class="value num" th:text="${@fmt.money(b.planned)}"></td>
                 <td class="value num">
                     <span th:text="${@fmt.money(b.actual)}"></span>
-                    <span th:if="${b.kind.name() != 'FUTURE' and b.actual.compareTo(b.planned) > 0}" class="small">acima do plano</span>
+                    <span th:if="${b.kind.name() != 'FUTURE' and b.actual.compareTo(b.planned) > 0}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> acima do plano</span>
                 </td>
             </tr>
             </tbody>
@@ -87,7 +93,7 @@
                 <td class="value num" th:text="${@fmt.money(c.actual)}"></td>
                 <td class="value num">
                     <span th:text="${c.budget} ? ${@fmt.money(c.budget)} : '—'"></span>
-                    <span th:if="${c.budget != null and c.actual.compareTo(c.budget) > 0}" class="small">passou do limite</span>
+                    <span th:if="${c.budget != null and c.actual.compareTo(c.budget) > 0}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> passou do limite</span>
                 </td>
             </tr>
             </tbody>

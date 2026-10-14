@@ -31,6 +31,20 @@ document.addEventListener('click', (event) => {
   form.submit()
 })
 
+// Menu do celular (<details>): Esc fecha e devolve o foco ao botão "Menu"; clicar fora também fecha.
+const menu = document.querySelector('.nav-narrow')
+if (menu) {
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && menu.open) {
+      menu.open = false
+      menu.querySelector('summary').focus()
+    }
+  })
+  document.addEventListener('click', (event) => {
+    if (menu.open && !menu.contains(event.target)) menu.open = false
+  })
+}
+
 // Voltar pelo histórico do navegador pode trazer a página com o botão ainda desativado.
 window.addEventListener('pageshow', () => {
   for (const button of document.querySelectorAll('button[disabled]:not([data-keep-disabled])')) {

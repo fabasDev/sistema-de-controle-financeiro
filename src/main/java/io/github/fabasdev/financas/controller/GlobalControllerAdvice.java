@@ -2,6 +2,7 @@ package io.github.fabasdev.financas.controller;
 
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.NotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
@@ -22,6 +23,12 @@ public class GlobalControllerAdvice {
     @ModelAttribute("currentUsername")
     public String currentUsername(@AuthenticationPrincipal AppUserPrincipal principal) {
         return principal == null ? null : principal.getUsername();
+    }
+
+    /** Caminho da página (sem o contexto), para o menu marcar onde o usuário está. Só é comparado, nunca exibido. */
+    @ModelAttribute("currentPath")
+    public String currentPath(HttpServletRequest request) {
+        return request.getRequestURI().substring(request.getContextPath().length());
     }
 
     /** Registro inexistente ou de outro usuário: mesma resposta 404 nos dois casos. */

@@ -61,8 +61,9 @@ public final class HistoryChart {
 
         List<Bar> bars = new ArrayList<>();
         List<XLabel> labels = new ArrayList<>();
-        // Com 24 meses não cabe o nome de todos: mostra um a cada três.
-        int labelEvery = rows.size() > 12 ? 3 : 1;
+        // Não cabe o nome de todos os meses (o gráfico encolhe no celular): com 12 meses mostra
+        // um a cada dois; com 24, um a cada três.
+        int labelEvery = rows.size() > 12 ? 3 : rows.size() > 6 ? 2 : 1;
         for (int i = 0; i < rows.size(); i++) {
             HistoryRow r = rows.get(i);
             int center = LEFT + groupWidth * i + groupWidth / 2;

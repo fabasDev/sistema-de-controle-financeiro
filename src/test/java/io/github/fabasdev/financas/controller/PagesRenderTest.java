@@ -1,6 +1,7 @@
 package io.github.fabasdev.financas.controller;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -76,6 +77,19 @@ class PagesRenderTest {
         mvc.perform(get("/investimentos").with(user(me)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Carteira sugerida")));
+    }
+
+    @Test
+    void menuMarcaAPaginaAtual() throws Exception {
+        // Na própria página: aria-current="page"; numa tela dentro da seção: "true"; nas outras, nada.
+        mvc.perform(get("/metas").with(user(me)))
+                .andExpect(content().string(containsString("href=\"/metas\" aria-current=\"page\"")))
+                .andExpect(content().string(not(containsString("href=\"/\" aria-current"))));
+        mvc.perform(get("/metas/nova").with(user(me)))
+                .andExpect(content().string(containsString("href=\"/metas\" aria-current=\"true\"")));
+        mvc.perform(get("/").with(user(me)))
+                .andExpect(content().string(containsString("href=\"/\" aria-current=\"page\"")))
+                .andExpect(content().string(not(containsString("href=\"/metas\" aria-current"))));
     }
 
     @Test
