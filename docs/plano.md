@@ -269,3 +269,6 @@ Relatório curto por fase, pendências e o que você precisa fazer à mão:
 - HTTPS/certificado;
 - exportar o backup no app antigo e importar no novo;
 - apagar `legacy-web/` quando estiver satisfeito.
+
+### Como a Entrega final ficou (14/10/2026)
+O relatório por fase, os três itens que o app antigo faz e o novo ainda não (por isso o `legacy-web/` continua) e o passo a passo à mão estão em `docs/entrega-final.md`.

@@ -2,7 +2,7 @@
 
 App para registrar os gastos do mês e ver quanto sobra e quanto faz sentido investir. A sugestão de investimento é uma **estimativa educativa**, não recomendação financeira.
 
-Versão em Java (Spring Boot + Thymeleaf), em migração na branch `melhorias-java`. O app React antigo continua em `legacy-web/` até a versão nova ter tudo o que ele tinha. O plano está em `docs/plano.md` e a auditoria de segurança em `docs/auditoria-seguranca.md`.
+Versão em Java (Spring Boot + Thymeleaf), completa na branch `melhorias-java`. O app React antigo continua em `legacy-web/` porque ainda faz três coisas que o novo não faz, listadas em `docs/entrega-final.md`. Esse arquivo também traz o resumo de cada fase e o passo a passo para colocar o app no ar. O plano está em `docs/plano.md` e a auditoria de segurança em `docs/auditoria-seguranca.md`.
 
 ## Como rodar
 
@@ -28,12 +28,12 @@ No Windows, use `mvnw.cmd` no lugar de `./mvnw` se não estiver no Git Bash.
 
 ### Configuração de produção
 
-Os segredos vêm de variáveis de ambiente, nunca do código. A lista está em `.env.example`:
+Os segredos vêm de variáveis de ambiente, nunca do código. A lista está em `.env.example`. O app não lê o `.env` sozinho: defina as variáveis no sistema ou no serviço que roda o app.
 
 - `DB_URL`, `DB_USER`, `DB_PASSWORD`: banco PostgreSQL. Sem elas o app não sobe, de propósito.
 - `NVD_API_KEY`: só para o Dependency-Check.
 
-O cookie de sessão é `Secure`, então em produção o app precisa estar atrás de HTTPS. Se houver um proxy (Nginx, por exemplo), configure `server.forward-headers-strategy`. Sem isso, o limite de tentativas enxerga o IP do proxy em vez do IP de quem acessa.
+O cookie de sessão é `Secure`, então em produção o app precisa estar atrás de HTTPS. Sem isso, o login não funciona. Se houver um proxy (Nginx, por exemplo), configure `server.forward-headers-strategy=native`. Sem isso, o limite de tentativas enxerga o IP do proxy em vez do IP de quem acessa. O passo a passo (banco, variáveis, HTTPS e `java -jar`) está em `docs/entrega-final.md`.
 
 ### Trazer os dados do app antigo
 
