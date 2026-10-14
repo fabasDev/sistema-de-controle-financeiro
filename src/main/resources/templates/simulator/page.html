@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Simulador')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Simulador de juros compostos</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <p th:replace="~{fragments/layout :: disclaimer}"></p>
+
+    <form th:action="@{/simulador}" method="get" class="form" id="simulador">
+        <div class="field">
+            <label for="inicial">Valor inicial (R$)</label>
+            <input id="inicial" name="inicial" type="text" inputmode="decimal" maxlength="20" th:value="${values.inicial}">
+        </div>
+        <div class="field">
+            <label for="mensal">Aporte mensal (R$)</label>
+            <input id="mensal" name="mensal" type="text" inputmode="decimal" maxlength="20" th:value="${values.mensal}">
+        </div>
+        <div class="field">
+            <label for="taxa">Rentabilidade (% ao ano)</label>
+            <input id="taxa" name="taxa" type="text" inputmode="decimal" maxlength="8" th:value="${values.taxa}">
+        </div>
+        <div class="field">
+            <label for="anos">Anos</label>
+            <input id="anos" name="anos" type="number" inputmode="numeric" min="1" max="50" th:value="${values.anos}">
+        </div>
+        <div class="field">
+            <label for="inflacao">Inflação (% ao ano)</label>
+            <input id="inflacao" name="inflacao" type="text" inputmode="decimal" maxlength="8" th:value="${values.inflacao}">
+        </div>
+        <div class="field">
+            <label for="aumento">Aumento do aporte a cada ano (%)</label>
+            <input id="aumento" name="aumento" type="text" inputmode="decimal" maxlength="8" th:value="${values.aumento}">
+        </div>
+        <div class="field">
+            <label for="meta">Meta de patrimônio (R$) <span class="small">(opcional)</span></label>
+            <input id="meta" name="meta" type="text" inputmode="decimal" maxlength="20" th:value="${values.meta}">
+        </div>
+        <p>
+            <button type="submit" class="button-primary">Simular</button>
+            <button type="submit" th:formaction="@{/simulador/salvar}" formmethod="post">Salvar estes valores</button>
+        </p>
+    </form>
+
+    <div th:if="${!#lists.isEmpty(errors)}" class="notice notice-error" role="alert">
+        <p th:each="e : ${errors}" th:text="${e}"></p>
+    </div>
+
+    <section th:if="${result}" aria-labelledby="resultado-titulo">
+        <h2 id="resultado-titulo">Resultado</h2>
+        <dl class="figures">
+            <dt>Total no fim</dt><dd class="value" th:text="${@fmt.money(last.total)}"></dd>
+            <dt>Em valores de hoje</dt><dd class="value" th:text="${@fmt.money(last.real)}"></dd>
+            <dt>Total investido</dt><dd class="value" th:text="${@fmt.money(last.invested)}"></dd>
+            <dt>Ganho com juros</dt><dd class="value" th:text="${@fmt.money(last.total.subtract(last.invested))}"></dd>
+            <th:block th:if="${result.requiredMonthly != null}">
+                <dt>Chega na meta em</dt>
+                <dd th:text="${result.monthsToTarget != null} ? ${@fmt.duration(result.monthsToTarget)} : 'mais de 100 anos'"></dd>
+                <dt>Aporte para chegar no prazo</dt><dd class="value" th:text="${@fmt.money(result.requiredMonthly)} + ' por mês'"></dd>
+            </th:block>
+        </dl>
+
+        <table class="table">
+            <caption class="small">Ano a ano</caption>
+            <thead><tr><th scope="col">Ano</th><th scope="col" class="num">Investido</th><th scope="col" class="num">Total</th><th scope="col" class="num">Valores de hoje</th></tr></thead>
+            <tbody>
+            <tr th:each="pt : ${yearly}">
+                <td th:text="${pt.month / 12}"></td>
+                <td class="value num" th:text="${@fmt.money(pt.invested)}"></td>
+                <td class="value num" th:text="${@fmt.money(pt.total)}"></td>
+                <td class="value num" th:text="${@fmt.money(pt.real)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

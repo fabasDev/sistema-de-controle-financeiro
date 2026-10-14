@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Apagar meta')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Apagar a meta <span th:text="${goal.name}"></span>?</h1>
+    <p>Os lançamentos ligados a ela continuam, só deixam de contar para esta meta.</p>
+    <form th:action="@{/metas/{id}/excluir(id=${goal.id})}" method="post">
+        <button type="submit" class="button-danger">Apagar</button>
+        <a th:href="@{/metas}">Cancelar</a>
+    </form>
+</main>
+</body>
+</html>

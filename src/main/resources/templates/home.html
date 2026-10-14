@@ -49,7 +49,7 @@
             <thead><tr><th scope="col">Pote</th><th scope="col" class="num">Planejado</th><th scope="col" class="num">Realizado</th></tr></thead>
             <tbody>
             <tr th:each="b : ${summary.buckets}">
-                <th scope="row" th:text="${b.name} + ' (' + ${#numbers.formatDecimal(b.percent, 1, 0)} + '%)'"></th>
+                <th scope="row" th:text="${b.name} + ' (' + ${@fmt.number(b.percent)} + '%)'"></th>
                 <td class="value num" th:text="${@fmt.money(b.planned)}"></td>
                 <td class="value num" th:text="${@fmt.money(b.actual)}"></td>
             </tr>

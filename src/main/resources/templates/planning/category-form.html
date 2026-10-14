@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${editingId} ? 'Editar categoria' : 'Nova categoria')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1 th:text="${editingId} ? 'Editar categoria' : 'Nova categoria'">Nova categoria</h1>
+    <form th:action="${editingId} ? @{/planejamento/categorias/{id}(id=${editingId})} : @{/planejamento/categorias}"
+          th:object="${form}" method="post" class="form" novalidate>
+        <div class="field">
+            <label for="name">Nome</label>
+            <input id="name" name="name" type="text" maxlength="60" th:value="*{name}" required th:attr="aria-invalid=${#fields.hasErrors('name')}">
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        </div>
+        <div class="field">
+            <label for="bucketId">Pote</label>
+            <select id="bucketId" name="bucketId" th:attr="aria-invalid=${#fields.hasErrors('bucketId')}">
+                <option value="">Escolha…</option>
+                <option th:each="b : ${buckets}" th:value="${b.id}" th:text="${b.name}" th:selected="${b.id == form.bucketId}"></option>
+            </select>
+            <p class="field-error" th:if="${#fields.hasErrors('bucketId')}" th:errors="*{bucketId}"></p>
+        </div>
+        <div class="field">
+            <label for="budget">Limite mensal (R$) <span class="small">(opcional)</span></label>
+            <input id="budget" name="budget" type="text" inputmode="decimal" maxlength="20" th:value="*{budget}" th:attr="aria-invalid=${#fields.hasErrors('budget')}">
+            <p class="field-error" th:if="${#fields.hasErrors('budget')}" th:errors="*{budget}"></p>
+        </div>
+        <div class="field">
+            <label for="goalId">Meta que recebe os lançamentos <span class="small">(opcional)</span></label>
+            <select id="goalId" name="goalId">
+                <option value="">Nenhuma</option>
+                <option th:each="g : ${goals}" th:value="${g.id}" th:text="${g.name}" th:selected="${g.id == form.goalId}"></option>
+            </select>
+            <p class="field-error" th:if="${#fields.hasErrors('goalId')}" th:errors="*{goalId}"></p>
+        </div>
+        <div class="field">
+            <label for="icon">Ícone <span class="small">(nome do ícone Lucide)</span></label>
+            <input id="icon" name="icon" type="text" maxlength="40" th:value="*{icon}" required th:attr="aria-invalid=${#fields.hasErrors('icon')}">
+            <p class="field-error" th:if="${#fields.hasErrors('icon')}" th:errors="*{icon}"></p>
+        </div>
+        <p>
+            <button type="submit" class="button-primary">Salvar</button>
+            <a th:href="@{/planejamento}">Cancelar</a>
+        </p>
+    </form>
+</main>
+</body>
+</html>

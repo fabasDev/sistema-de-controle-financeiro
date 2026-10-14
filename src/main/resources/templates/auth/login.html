@@ -11,6 +11,7 @@
     </p>
     <p th:if="${param.saiu}" class="notice" role="status">Você saiu da sua conta.</p>
     <p th:if="${param.expirou}" class="notice" role="status">Sua sessão expirou. Entre de novo.</p>
+    <p th:if="${param.excluida}" class="notice" role="status">Sua conta e todos os dados foram apagados.</p>
 
     <form th:action="@{/login}" method="post" class="form">
         <div class="field">

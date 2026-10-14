@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Metas')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Metas</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section aria-labelledby="reserva-titulo">
+        <h2 id="reserva-titulo">Reserva de emergência</h2>
+        <dl class="figures">
+            <dt>Guardado</dt><dd class="value" th:text="${@fmt.money(rec.reserve.balance)}"></dd>
+            <dt>Meta</dt><dd class="value" th:text="${@fmt.money(rec.reserve.target)}"></dd>
+            <dt>Falta</dt><dd class="value" th:text="${@fmt.money(rec.reserve.gap)}"></dd>
+            <dt>Custo mensal</dt><dd><span class="value" th:text="${@fmt.money(rec.reserve.monthlyCost)}"></span> <span class="small" th:text="'(' + ${rec.reserve.basis} + ')'"></span></dd>
+            <dt th:if="${rec.monthsToReserve}">No ritmo sugerido</dt><dd th:if="${rec.monthsToReserve}" th:text="${@fmt.duration(rec.monthsToReserve)}"></dd>
+        </dl>
+
+        <form th:action="@{/metas/reserva}" th:object="${reserveForm}" method="post" class="form" novalidate>
+            <div class="field">
+                <label for="months">Meses de custo de vida na reserva</label>
+                <input id="months" name="months" type="number" inputmode="numeric" min="1" max="60" th:value="*{months}" required>
+                <p class="field-error" th:if="${#fields.hasErrors('months')}" th:errors="*{months}"></p>
+            </div>
+            <div class="field">
+                <label for="base">O custo de vida conta</label>
+                <select id="base" name="base">
+                    <option th:each="b : ${bases}" th:value="${b}" th:text="${b.label()}" th:selected="${b == reserveForm.base}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="manualCost">Custo mensal (R$), se for "valor definido por você"</label>
+                <input id="manualCost" name="manualCost" type="text" inputmode="decimal" maxlength="20" th:value="*{manualCost}">
+                <p class="field-error" th:if="${#fields.hasErrors('manualCost')}" th:errors="*{manualCost}"></p>
+            </div>
+            <div class="field">
+                <label for="priority">% do "Futuro" que vai para a reserva até ela ficar completa</label>
+                <input id="priority" name="priority" type="text" inputmode="decimal" maxlength="10" th:value="*{priority}" required>
+                <p class="field-error" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></p>
+            </div>
+            <button type="submit">Salvar reserva</button>
+        </form>
+    </section>
+
+    <section aria-labelledby="metas-titulo">
+        <h2 id="metas-titulo">Suas metas</h2>
+        <p><a class="button-primary" th:href="@{/metas/nova}">Nova meta</a></p>
+        <table class="table">
+            <thead><tr><th scope="col">Meta</th><th scope="col" class="num">Guardado</th><th scope="col" class="num">Alvo</th><th scope="col">Por mês até o prazo</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
+            <tbody>
+            <tr th:each="g : ${goals}">
+                <td th:text="${g.name}"></td>
+                <td class="value num" th:text="${@fmt.money(g.plan.balance)}"></td>
+                <td class="value num" th:text="${g.reserve} ? 'calculado' : (${g.target.signum() > 0} ? ${@fmt.money(g.target)} : 'sem alvo')"></td>
+                <td th:text="${g.plan.done} ? 'Concluída' : (${g.plan.monthlyNeeded} ? ${@fmt.money(g.plan.monthlyNeeded)} + ' por ' + ${g.plan.monthsLeft} + ' mês(es)' : '—')"></td>
+                <td>
+                    <a th:href="@{/metas/{id}/editar(id=${g.id})}">Editar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
+                    <a th:unless="${g.reserve}" th:href="@{/metas/{id}/excluir(id=${g.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

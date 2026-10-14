@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Remover pote')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Remover o pote <span th:text="${bucket.name}"></span>?</h1>
+    <p>As categorias dele vão para o primeiro pote da lista. Os lançamentos não mudam.</p>
+    <form th:action="@{/planejamento/potes/{id}/excluir(id=${bucket.id})}" method="post">
+        <button type="submit" class="button-danger">Remover</button>
+        <a th:href="@{/planejamento}">Cancelar</a>
+    </form>
+</main>
+</body>
+</html>

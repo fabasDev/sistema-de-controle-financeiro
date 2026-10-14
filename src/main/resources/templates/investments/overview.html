@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Investimentos')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Investimentos</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <p th:replace="~{fragments/layout :: disclaimer}"></p>
+
+    <section aria-labelledby="mes-titulo">
+        <h2 id="mes-titulo">Este mês</h2>
+        <dl class="figures">
+            <dt>Separar para o futuro</dt><dd class="value" th:text="${@fmt.money(rec.futurePlanned)}"></dd>
+            <dt>Para a reserva</dt><dd class="value" th:text="${@fmt.money(rec.toReserve)}"></dd>
+            <dt>Para investir</dt><dd class="value" th:text="${@fmt.money(rec.toInvest)}"></dd>
+            <dt>Já guardado</dt><dd class="value" th:text="${@fmt.money(rec.savedThisMonth)}"></dd>
+        </dl>
+    </section>
+
+    <section aria-labelledby="perfil-titulo">
+        <h2 id="perfil-titulo">Perfil de investidor</h2>
+        <p th:if="${profile}">
+            Seu perfil é <strong th:text="${profile.profile.label()}"></strong>
+            <span th:if="${profile.score > 0}">(<span th:text="${profile.score}"></span> de <span th:text="${maxScore}"></span> pontos)</span>,
+            definido em <span th:text="${@fmt.date(profile.takenOn)}"></span>.
+            <span th:if="${profile.expired}">Tem mais de 2 anos: vale refazer.</span>
+        </p>
+        <p th:unless="${profile}">Você ainda não tem perfil. O questionário chega na próxima versão da tela; por enquanto, escolha o perfil que mais combina com você.</p>
+        <form th:action="@{/investimentos/perfil}" method="post" class="form">
+            <fieldset class="field">
+                <legend>Perfil</legend>
+                <label th:each="p : ${profiles}">
+                    <input type="radio" name="profile" th:value="${p}" th:checked="${profile != null and profile.profile == p}">
+                    <span th:text="${p.label()}"></span>
+                </label>
+            </fieldset>
+            <button type="submit">Salvar perfil</button>
+        </form>
+    </section>
+
+    <section th:if="${profile}" aria-labelledby="carteira-titulo">
+        <h2 id="carteira-titulo">Carteira sugerida</h2>
+        <table class="table">
+            <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Fatia</th><th scope="col" class="num">Neste mês</th></tr></thead>
+            <tbody>
+            <tr th:each="i : ${plan}">
+                <td th:text="${i.assetClass.label()}"></td>
+                <td class="value num" th:text="${@fmt.number(i.percent)} + '%'"></td>
+                <td class="value num" th:text="${@fmt.money(i.amount)}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <details>
+            <summary>Ajustar os percentuais</summary>
+            <form th:action="@{/investimentos/carteira}" method="post" class="form">
+                <div class="field" th:each="c : ${assetClasses}">
+                    <label th:for="'pct_' + ${c}" th:text="${c.label()} + ' (%)'"></label>
+                    <input th:id="'pct_' + ${c}" th:name="'pct_' + ${c}" type="text" inputmode="decimal" maxlength="6"
+                           th:value="${profile.custom.containsKey(c)} ? ${@fmt.number(profile.custom.get(c))} : ''"
+                           th:placeholder="${@fmt.number(profile.allocation.get(c))}">
+                </div>
+                <p class="hint">Campo vazio usa o padrão do perfil.</p>
+                <button type="submit">Salvar carteira</button>
+            </form>
+        </details>
+    </section>
+</main>
+</body>
+</html>

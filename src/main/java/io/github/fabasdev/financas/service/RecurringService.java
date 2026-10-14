@@ -138,7 +138,7 @@ public class RecurringService {
 
     private static void validate(RecurringData data) {
         if (data.endMonth() != null && data.endMonth().isBefore(data.startMonth())) {
-            throw new InvalidInputException("endMonth", "O último mês não pode ser antes do primeiro.");
+            throw new InvalidInputException("installments", "O último mês não pode ser antes do primeiro.");
         }
     }
 }

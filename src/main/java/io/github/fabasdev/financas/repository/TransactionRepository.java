@@ -1,11 +1,15 @@
 package io.github.fabasdev.financas.repository;
 
 import io.github.fabasdev.financas.domain.Transaction;
+import io.github.fabasdev.financas.domain.TransactionType;
+import io.github.fabasdev.financas.dto.TransactionRow;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -55,6 +59,44 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> sumPaidExpensesByGoal(@Param("userId") Long userId);
 
     boolean existsByCategoryId(Long categoryId);
+
+    /**
+     * Listagem paginada do mês, com filtros opcionais. A ordem é sempre data mais recente primeiro
+     * (e id, para desempate), e usa o índice (user_id, entry_date DESC, id DESC).
+     * A busca chega já com os curingas do LIKE escapados.
+     */
+    @Query(value = """
+            select new io.github.fabasdev.financas.dto.TransactionRow(
+                t.id, t.type, t.date, t.description, t.amount, t.paid, c.name, c.icon,
+                case when t.recurring is not null then true else false end)
+            from Transaction t left join t.category c
+            where t.user.id = :userId and t.date >= :start and t.date < :end
+              and (:type is null or t.type = :type)
+              and (:categoryId is null or c.id = :categoryId)
+              and (:search is null or lower(t.description) like :search escape '\\')
+            order by t.date desc, t.id desc
+            """,
+            countQuery = """
+            select count(t) from Transaction t left join t.category c
+            where t.user.id = :userId and t.date >= :start and t.date < :end
+              and (:type is null or t.type = :type)
+              and (:categoryId is null or c.id = :categoryId)
+              and (:search is null or lower(t.description) like :search escape '\\')
+            """)
+    Page<TransactionRow> findRows(@Param("userId") Long userId, @Param("start") LocalDate start,
+            @Param("end") LocalDate end, @Param("type") TransactionType type, @Param("categoryId") Long categoryId,
+            @Param("search") String search, Pageable pageable);
+
+    /** Gasto por categoria e mês no intervalo: [categoryId, ano, mês, total]. */
+    @Query("""
+            select c.id, year(t.date), month(t.date), sum(t.amount)
+            from Transaction t left join t.category c
+            where t.user.id = :userId and t.date >= :start and t.date < :end
+              and t.type = io.github.fabasdev.financas.domain.TransactionType.EXPENSE
+            group by c.id, year(t.date), month(t.date)
+            """)
+    List<Object[]> expensesByCategoryAndMonth(@Param("userId") Long userId, @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
 
     /** Contas fixas que já têm lançamento no mês. */
     @Query("""

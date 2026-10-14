@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${editingId} ? 'Editar lançamento' : 'Novo lançamento')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1 th:text="${editingId} ? 'Editar lançamento' : 'Novo lançamento'">Novo lançamento</h1>
+    <p th:if="${fromRecurring}" class="notice">Este lançamento vem de uma conta fixa. A alteração vale só para este mês.</p>
+
+    <form th:action="${editingId} ? @{/lancamentos/{id}(id=${editingId})} : @{/lancamentos}" th:object="${form}"
+          method="post" class="form" novalidate>
+        <p class="field-error" th:if="${#fields.hasGlobalErrors()}" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+
+        <fieldset class="field">
+            <legend>Tipo</legend>
+            <label><input type="radio" name="type" value="EXPENSE" th:checked="*{type?.name() == 'EXPENSE'}"> Despesa</label>
+            <label><input type="radio" name="type" value="INCOME" th:checked="*{type?.name() == 'INCOME'}"> Receita</label>
+            <p class="field-error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
+        </fieldset>
+
+        <div class="field">
+            <label for="amount">Valor (R$)</label>
+            <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" maxlength="20"
+                   th:value="*{amount}" required placeholder="0,00"
+                   th:attr="aria-invalid=${#fields.hasErrors('amount')},aria-describedby=${#fields.hasErrors('amount')} ? 'amount-erro' : null">
+            <p id="amount-erro" class="field-error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+        </div>
+
+        <div class="field">
+            <label for="date">Data</label>
+            <input id="date" name="date" type="date" th:value="*{date}" required
+                   th:attr="aria-invalid=${#fields.hasErrors('date')},aria-describedby=${#fields.hasErrors('date')} ? 'date-erro' : null">
+            <p id="date-erro" class="field-error" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+        </div>
+
+        <div class="field">
+            <label for="categoryId">Categoria <span class="small">(obrigatória na despesa)</span></label>
+            <select id="categoryId" name="categoryId"
+                    th:attr="aria-invalid=${#fields.hasErrors('categoryId')},aria-describedby=${#fields.hasErrors('categoryId')} ? 'categoryId-erro' : null">
+                <option value="">Escolha…</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                        th:selected="${c.id == form.categoryId}"></option>
+            </select>
+            <p id="categoryId-erro" class="field-error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></p>
+        </div>
+
+        <div class="field">
+            <label for="description">Descrição <span class="small">(opcional)</span></label>
+            <input id="description" name="description" type="text" maxlength="200" th:value="*{description}">
+            <p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p>
+        </div>
+
+        <div class="field">
+            <label for="goalId">Meta <span class="small">(opcional, para aportes)</span></label>
+            <select id="goalId" name="goalId">
+                <option value="">Nenhuma (ou a da categoria)</option>
+                <option th:each="g : ${goals}" th:value="${g.id}" th:text="${g.name}" th:selected="${g.id == form.goalId}"></option>
+            </select>
+            <p class="field-error" th:if="${#fields.hasErrors('goalId')}" th:errors="*{goalId}"></p>
+        </div>
+
+        <label><input type="checkbox" name="paid" value="true" th:checked="*{paid}"> Já foi pago (ou recebido)</label>
+
+        <fieldset th:unless="${editingId}" class="field">
+            <legend>Repetir</legend>
+            <label><input type="checkbox" name="repeat" value="true" th:checked="*{repeat}"> Repetir todo mês</label>
+            <label for="installments">Número de parcelas <span class="small">(vazio = sem fim)</span></label>
+            <input id="installments" name="installments" type="number" inputmode="numeric" min="2" max="360"
+                   th:value="*{installments}">
+            <p class="field-error" th:if="${#fields.hasErrors('installments')}" th:errors="*{installments}"></p>
+        </fieldset>
+
+        <p>
+            <button type="submit" class="button-primary">Salvar</button>
+            <a th:href="@{/lancamentos}">Cancelar</a>
+        </p>
+    </form>
+</main>
+</body>
+</html>

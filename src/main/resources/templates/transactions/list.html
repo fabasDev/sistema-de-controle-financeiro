@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Lançamentos')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <nav class="month-nav" aria-label="Mês">
+        <a th:href="@{/lancamentos(mes=${previousMonth})}" th:text="'← ' + ${@fmt.month(previousMonth)}">Anterior</a>
+        <h1 th:text="'Lançamentos de ' + ${@fmt.month(month)}">Lançamentos</h1>
+        <a th:href="@{/lancamentos(mes=${nextMonth})}" th:text="${@fmt.month(nextMonth)} + ' →'">Próximo</a>
+    </nav>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <p>
+        <a class="button-primary" th:href="@{/lancamentos/novo}">Novo gasto</a>
+        <a th:href="@{/lancamentos/novo(tipo=INCOME)}">Nova receita</a>
+    </p>
+
+    <!-- Filtros por GET: ficam na URL e sobrevivem a editar e voltar. -->
+    <form th:action="@{/lancamentos}" method="get" class="filters">
+        <input type="hidden" name="mes" th:value="${month}">
+        <div class="field">
+            <label for="busca">Buscar</label>
+            <input id="busca" name="busca" type="search" maxlength="100" th:value="${search}">
+        </div>
+        <div class="field">
+            <label for="tipo">Tipo</label>
+            <select id="tipo" name="tipo">
+                <option value="">Todos</option>
+                <option value="EXPENSE" th:selected="${type?.name() == 'EXPENSE'}">Despesas</option>
+                <option value="INCOME" th:selected="${type?.name() == 'INCOME'}">Receitas</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="categoria">Categoria</label>
+            <select id="categoria" name="categoria">
+                <option value="">Todas</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                        th:selected="${c.id == categoryId}"></option>
+            </select>
+        </div>
+        <button type="submit">Filtrar</button>
+    </form>
+
+    <p th:if="${page.totalElements == 0}" class="empty">
+        Nada por aqui neste mês com esses filtros. <a th:href="@{/lancamentos/novo}">Registrar um gasto</a>
+    </p>
+
+    <table th:if="${page.totalElements > 0}" class="table">
+        <caption class="small" th:text="${page.totalElements} + ' lançamento(s)'"></caption>
+        <thead>
+        <tr>
+            <th scope="col">Data</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Categoria</th>
+            <th scope="col" class="num">Valor</th>
+            <th scope="col">Situação</th>
+            <th scope="col"><span class="visually-hidden">Ações</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${page.content}">
+            <td th:text="${@fmt.date(t.date)}"></td>
+            <td>
+                <span th:text="${t.description}"></span>
+                <span th:if="${t.fromRecurring}" class="small">(conta fixa)</span>
+            </td>
+            <td th:text="${t.categoryName} ?: '—'"></td>
+            <td class="value num" th:text="(${t.type.name() == 'INCOME'} ? '+ ' : '− ') + ${@fmt.money(t.amount)}"></td>
+            <td>
+                <form th:action="@{/lancamentos/{id}/pago(id=${t.id})}" method="post" class="inline">
+                    <button type="submit"
+                            th:text="${t.paid} ? (${t.type.name() == 'INCOME'} ? 'Recebido' : 'Pago') : (${t.type.name() == 'INCOME'} ? 'A receber' : 'A pagar')"
+                            th:attr="aria-pressed=${t.paid}">Pago</button>
+                </form>
+            </td>
+            <td>
+                <a th:href="@{/lancamentos/{id}/editar(id=${t.id})}">Editar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
+                <a th:href="@{/lancamentos/{id}/excluir(id=${t.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav th:if="${page.totalPages > 1}" aria-label="Páginas" class="pagination">
+        <a th:if="${page.hasPrevious()}"
+           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},page=${page.number - 1},size=${page.size})}">Anterior</a>
+        <span th:text="'Página ' + ${page.number + 1} + ' de ' + ${page.totalPages}"></span>
+        <a th:if="${page.hasNext()}"
+           th:href="@{/lancamentos(mes=${month},tipo=${type},categoria=${categoryId},busca=${search},page=${page.number + 1},size=${page.size})}">Próxima</a>
+    </nav>
+</main>
+</body>
+</html>

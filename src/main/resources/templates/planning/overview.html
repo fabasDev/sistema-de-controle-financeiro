@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Planejamento')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Planejamento</h1>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section aria-labelledby="regra-titulo">
+        <h2 id="regra-titulo">Regra de distribuição da renda</h2>
+        <form th:action="@{/planejamento/regra}" method="post" class="form">
+            <fieldset class="field">
+                <legend>Regras prontas</legend>
+                <label th:each="p : ${presets}">
+                    <input type="radio" name="presetId" th:value="${p.id}" th:checked="${p.id == presetId}">
+                    <strong th:text="${p.name}"></strong> — <span th:text="${p.description}"></span>
+                </label>
+            </fieldset>
+            <button type="submit">Aplicar regra</button>
+        </form>
+        <p th:if="${presetId == 'custom'}" class="small">Você está usando uma regra personalizada.</p>
+
+        <table class="table">
+            <thead><tr><th scope="col">Pote</th><th scope="col">Tipo</th><th scope="col" class="num">% da renda</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
+            <tbody>
+            <tr th:each="b : ${buckets}">
+                <td th:text="${b.name}"></td>
+                <td th:text="${b.kind.label()}"></td>
+                <td class="value num" th:text="${@fmt.number(b.percent)} + '%'"></td>
+                <td>
+                    <a th:href="@{/planejamento/potes/{id}/editar(id=${b.id})}">Editar<span class="visually-hidden" th:text="' ' + ${b.name}"></span></a>
+                    <a th:if="${#lists.size(buckets) > 1}" th:href="@{/planejamento/potes/{id}/excluir(id=${b.id})}">Remover<span class="visually-hidden" th:text="' ' + ${b.name}"></span></a>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr><th scope="row" colspan="2">Total</th><td class="value num" th:text="${@fmt.number(total)} + '%'"></td><td></td></tr>
+            </tfoot>
+        </table>
+        <p th:if="${!totalIs100}" class="notice notice-error" role="status">
+            Os potes somam <span th:text="${@fmt.number(total)}"></span>%, não 100%.
+        </p>
+        <form th:action="@{/planejamento/potes/normalizar}" method="post" class="inline">
+            <button type="submit">Ajustar para somar 100%</button>
+        </form>
+        <form th:if="${#lists.size(buckets) < maxBuckets}" th:action="@{/planejamento/potes}" method="post" class="inline">
+            <button type="submit">Adicionar pote</button>
+        </form>
+    </section>
+
+    <section aria-labelledby="cat-titulo">
+        <h2 id="cat-titulo">Categorias</h2>
+        <p><a class="button-primary" th:href="@{/planejamento/categorias/nova}">Nova categoria</a></p>
+        <table class="table">
+            <thead><tr><th scope="col">Categoria</th><th scope="col">Pote</th><th scope="col" class="num">Limite mensal</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
+            <tbody>
+            <tr th:each="c : ${categories}">
+                <td>
+                    <span th:text="${c.name}"></span>
+                    <span th:if="${c.archived}" class="small">(arquivada)</span>
+                </td>
+                <td th:text="${c.bucket.name}"></td>
+                <td class="value num" th:text="${c.budget} ? ${@fmt.money(c.budget)} : '—'"></td>
+                <td>
+                    <a th:href="@{/planejamento/categorias/{id}/editar(id=${c.id})}">Editar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></a>
+                    <a th:unless="${c.archived}" th:href="@{/planejamento/categorias/{id}/excluir(id=${c.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></a>
+                    <form th:if="${c.archived}" th:action="@{/planejamento/categorias/{id}/reativar(id=${c.id})}" method="post" class="inline">
+                        <button type="submit">Reativar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

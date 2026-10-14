@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${editingId} ? 'Editar meta' : 'Nova meta')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1 th:text="${editingId} ? 'Editar meta' : 'Nova meta'">Nova meta</h1>
+    <form th:action="${editingId} ? @{/metas/{id}(id=${editingId})} : @{/metas}" th:object="${form}" method="post" class="form" novalidate>
+        <div class="field">
+            <label for="name">Nome</label>
+            <input id="name" name="name" type="text" maxlength="60" th:value="*{name}" required th:attr="aria-invalid=${#fields.hasErrors('name')}">
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        </div>
+        <input th:if="${isReserve}" type="hidden" name="kind" value="RESERVE">
+        <div class="field" th:unless="${isReserve}">
+            <label for="kind">Tipo</label>
+            <select id="kind" name="kind">
+                <option th:each="k : ${kinds}" th:value="${k}" th:text="${k.label()}" th:selected="${k == form.kind}"></option>
+            </select>
+            <p class="field-error" th:if="${#fields.hasErrors('kind')}" th:errors="*{kind}"></p>
+        </div>
+        <div class="field" th:unless="${isReserve}">
+            <label for="target">Valor-alvo (R$) <span class="small">(vazio = sem alvo)</span></label>
+            <input id="target" name="target" type="text" inputmode="decimal" maxlength="20" th:value="*{target}">
+            <p class="field-error" th:if="${#fields.hasErrors('target')}" th:errors="*{target}"></p>
+        </div>
+        <div class="field" th:unless="${isReserve}">
+            <label for="deadline">Prazo <span class="small">(opcional)</span></label>
+            <input id="deadline" name="deadline" type="month" th:value="*{deadline}">
+            <p class="field-error" th:if="${#fields.hasErrors('deadline')}" th:errors="*{deadline}"></p>
+        </div>
+        <div class="field">
+            <label for="initialBalance">Quanto já tinha guardado antes do app (R$)</label>
+            <input id="initialBalance" name="initialBalance" type="text" inputmode="decimal" maxlength="20" th:value="*{initialBalance}">
+            <p class="field-error" th:if="${#fields.hasErrors('initialBalance')}" th:errors="*{initialBalance}"></p>
+        </div>
+        <div class="field">
+            <label for="icon">Ícone <span class="small">(nome do ícone Lucide)</span></label>
+            <input id="icon" name="icon" type="text" maxlength="40" th:value="*{icon}" required>
+            <p class="field-error" th:if="${#fields.hasErrors('icon')}" th:errors="*{icon}"></p>
+        </div>
+        <p>
+            <button type="submit" class="button-primary">Salvar</button>
+            <a th:href="@{/metas}">Cancelar</a>
+        </p>
+    </form>
+</main>
+</body>
+</html>

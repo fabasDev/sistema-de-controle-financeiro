@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Apagar lançamento')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Apagar lançamento?</h1>
+    <p>
+        <strong th:text="${transaction.description}"></strong>,
+        <span class="value" th:text="${@fmt.money(transaction.amount)}"></span>
+        em <span th:text="${@fmt.date(transaction.date)}"></span>.
+    </p>
+    <p th:if="${transaction.recurring != null}">
+        Ele vem de uma conta fixa. Só este mês é apagado, e a conta não recria o lançamento.
+    </p>
+    <form th:action="@{/lancamentos/{id}/excluir(id=${transaction.id})}" method="post">
+        <button type="submit" class="button-danger">Apagar</button>
+        <a th:href="@{/lancamentos(mes=${transaction.month})}">Cancelar</a>
+    </form>
+</main>
+</body>
+</html>

@@ -39,6 +39,16 @@ public class ViewFormats {
         return format.format(value);
     }
 
+    /** Número em pt-BR com até 2 casas: 12,5 / 50. */
+    public String number(BigDecimal value) {
+        if (value == null) {
+            return "";
+        }
+        NumberFormat format = NumberFormat.getNumberInstance(PT_BR);
+        format.setMaximumFractionDigits(2);
+        return format.format(value);
+    }
+
     /** Recebe uma razão (0,25) e devolve "25%" (até uma casa decimal). */
     public String percent(BigDecimal ratio) {
         if (ratio == null) {

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Histórico')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Histórico</h1>
+    <nav aria-label="Período">
+        <a th:each="n : ${ {6, 12, 24} }" th:href="@{/historico(meses=${n})}" th:text="${n} + ' meses'"
+           th:attr="aria-current=${n == count} ? 'page' : null"></a>
+    </nav>
+
+    <table class="table">
+        <caption class="small">Entradas × saídas por mês</caption>
+        <thead><tr><th scope="col">Mês</th><th scope="col" class="num">Entrou</th><th scope="col" class="num">Gastou</th><th scope="col" class="num">Guardou</th><th scope="col" class="num">Sobrou</th><th scope="col" class="num">Poupança</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${rows}">
+            <th scope="row" th:text="${@fmt.month(r.month)}"></th>
+            <td class="value num" th:text="${@fmt.money(r.income)}"></td>
+            <td class="value num" th:text="${@fmt.money(r.spent)}"></td>
+            <td class="value num" th:text="${@fmt.money(r.saved)}"></td>
+            <td class="value num" th:text="${@fmt.money(r.balance)}"></td>
+            <td class="value num" th:text="${@fmt.percent(r.savingsRate)}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table th:unless="${#lists.isEmpty(categories)}" class="table">
+        <caption class="small">Gasto por categoria</caption>
+        <thead>
+        <tr>
+            <th scope="col">Categoria</th>
+            <th scope="col" class="num" th:each="m : ${months}" th:text="${@fmt.month(m)}"></th>
+            <th scope="col" class="num">Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${categories}">
+            <th scope="row" th:text="${c.name}"></th>
+            <td class="value num" th:each="v : ${c.values}" th:text="${@fmt.money(v)}"></td>
+            <td class="value num" th:text="${@fmt.money(c.total)}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(categories)}" class="empty">Sem gastos neste período.</p>
+</main>
+</body>
+</html>
