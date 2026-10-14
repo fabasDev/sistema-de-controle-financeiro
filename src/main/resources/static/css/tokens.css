@@ -41,6 +41,11 @@
   --on-accent: #06182e;
   --negative: #ff8f87;      /* vermelho: saldo negativo e erros, sempre com texto */
 
+  /* Menu lateral, um tom abaixo do fundo: texto de apoio 9,0:1 e azul-céu 9,5:1. */
+  --sidebar-bg: #081428;
+  /* Fundo suave do destaque (item atual do menu, passar o mouse). Azul-céu sobre ele, no menu: 7,3:1. */
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+
   /* Séries dos gráficos, ordem fixa azul, âmbar, verde. Conferidas sobre o fundo: 3:1 ou mais e
      diferença CIEDE2000 de 10 ou mais entre elas também com os três tipos de daltonismo
      simulados (Machado et al., 2009). O azul do gráfico é outro, para não parecer link. */
@@ -76,9 +81,11 @@
   --space-6: 2rem;
   --space-7: 3rem;
 
-  --radius: 4px;
+  --radius: 4px;             /* campos */
+  --radius-button: 10px;
   --target: 44px;            /* alvo de toque mínimo (WCAG 2.5.5) */
   --tab-bar: 3.5rem;         /* altura da barra de navegação do celular */
+  --sidebar: 15rem;          /* largura do menu lateral da tela larga */
   --measure: 40rem;          /* largura de leitura (~75 caracteres) */
   --page-width: 72rem;
 }
@@ -90,7 +97,8 @@
  *
  * Tema claro: os mesmos nomes com outros valores. Os dois blocos têm os mesmos valores; o
  * ThemeTest confere isso. Contraste sobre o papel: tinta 14,8:1, texto de apoio 6,7:1,
- * azul-cobalto 7,4:1, vermelho 6,0:1 e borda de campo 4,2:1.
+ * azul-cobalto 7,4:1, vermelho 6,0:1 e borda de campo 4,2:1. No menu, o texto de apoio fica em
+ * 6,2:1 e o azul-cobalto sobre o fundo suave, em 5,9:1.
  */
 :root[data-theme="light"] {
   color-scheme: light;
@@ -106,6 +114,8 @@
   --series-1: #2a64b8;
   --series-2: #b7791f;
   --series-3: #1c6b45;
+  --sidebar-bg: #e9eef5;
+  --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 @media (prefers-color-scheme: light) {
@@ -123,5 +133,7 @@
     --series-1: #2a64b8;
     --series-2: #b7791f;
     --series-3: #1c6b45;
+    --sidebar-bg: #e9eef5;
+    --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 }

@@ -23,16 +23,16 @@
 <body>
 
 <!--
-  Cabeçalho das telas logadas. Na tela larga a navegação aparece inteira no topo. No celular ela
-  vira uma barra fixa embaixo, perto do polegar: as três telas mais usadas e "Mais" (<details>,
-  funciona sem JavaScript), que abre as outras. Só uma das duas existe de cada vez para o leitor
-  de tela, porque a outra fica com display: none.
+  Cabeçalho das telas logadas. Na tela larga ele vira um menu fixo à esquerda, com as telas em
+  três grupos. No celular a navegação é uma barra fixa embaixo, perto do polegar: as três telas
+  mais usadas e "Mais" (<details>, funciona sem JavaScript), que abre as outras. Só uma das duas
+  existe de cada vez para o leitor de tela, porque a outra fica com display: none.
 -->
 <header th:fragment="appHeader" class="app-header">
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-    <p class="wordmark">Finanças</p>
+    <p class="wordmark"><svg th:replace="~{fragments/icons :: wallet}"></svg> Finanças</p>
     <nav class="nav-wide" aria-label="Principal">
-        <ul th:replace="~{fragments/layout :: navList}"></ul>
+        <div th:replace="~{fragments/layout :: navList}"></div>
     </nav>
     <form th:action="@{/logout}" method="post" class="logout">
         <button type="submit" class="button-quiet"><svg th:replace="~{fragments/icons :: logOut}"></svg> Sair</button>
@@ -51,12 +51,12 @@
                         <svg th:replace="~{fragments/icons :: ellipsis}"></svg> Mais
                     </summary>
                     <ul class="nav-list tab-sheet">
-                        <li th:replace="~{fragments/layout :: navItem('/contas-fixas', 'Contas fixas')}"></li>
-                        <li th:replace="~{fragments/layout :: navItem('/planejamento', 'Planejamento')}"></li>
-                        <li th:replace="~{fragments/layout :: navItem('/investimentos', 'Investimentos')}"></li>
-                        <li th:replace="~{fragments/layout :: navItem('/simulador', 'Simulador')}"></li>
-                        <li th:replace="~{fragments/layout :: navItem('/historico', 'Histórico')}"></li>
-                        <li th:replace="~{fragments/layout :: navItem('/ajustes', 'Ajustes')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/contas-fixas', 'Contas fixas', 'repeat')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/planejamento', 'Planejamento', 'chartPie')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/investimentos', 'Investimentos', 'trendingUp')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/simulador', 'Simulador', 'calculator')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/historico', 'Histórico', 'chartColumn')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/ajustes', 'Ajustes', 'settings')}"></li>
                     </ul>
                 </details>
             </li>
@@ -64,22 +64,34 @@
     </nav>
 </header>
 
-<ul th:fragment="navList" class="nav-list">
-    <li th:replace="~{fragments/layout :: navItem('/', 'Visão geral')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/lancamentos', 'Lançamentos')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/contas-fixas', 'Contas fixas')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/planejamento', 'Planejamento')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/metas', 'Metas')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/investimentos', 'Investimentos')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/simulador', 'Simulador')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/historico', 'Histórico')}"></li>
-    <li th:replace="~{fragments/layout :: navItem('/ajustes', 'Ajustes')}"></li>
-</ul>
+<!-- Menu da tela larga: as telas em grupos, cada lista com o nome do grupo em cima. -->
+<div th:fragment="navList" class="nav-groups">
+    <p class="nav-group" id="menu-mes">O mês</p>
+    <ul class="nav-list" aria-labelledby="menu-mes">
+        <li th:replace="~{fragments/layout :: navItem('/', 'Visão geral', 'house')}"></li>
+        <li th:replace="~{fragments/layout :: navItem('/lancamentos', 'Lançamentos', 'list')}"></li>
+        <li th:replace="~{fragments/layout :: navItem('/contas-fixas', 'Contas fixas', 'repeat')}"></li>
+    </ul>
+    <p class="nav-group" id="menu-planejar">Planejar</p>
+    <ul class="nav-list" aria-labelledby="menu-planejar">
+        <li th:replace="~{fragments/layout :: navItem('/planejamento', 'Planejamento', 'chartPie')}"></li>
+        <li th:replace="~{fragments/layout :: navItem('/metas', 'Metas', 'target')}"></li>
+        <li th:replace="~{fragments/layout :: navItem('/historico', 'Histórico', 'chartColumn')}"></li>
+    </ul>
+    <p class="nav-group" id="menu-investir">Investir</p>
+    <ul class="nav-list" aria-labelledby="menu-investir">
+        <li th:replace="~{fragments/layout :: navItem('/investimentos', 'Investimentos', 'trendingUp')}"></li>
+        <li th:replace="~{fragments/layout :: navItem('/simulador', 'Simulador', 'calculator')}"></li>
+    </ul>
+    <ul class="nav-list nav-end">
+        <li th:replace="~{fragments/layout :: navItem('/ajustes', 'Ajustes', 'settings')}"></li>
+    </ul>
+</div>
 
-<!-- Item do menu. A página atual ganha aria-current="page"; as telas dentro da seção (editar, novo...), "true". -->
-<li th:fragment="navItem(path, label)">
-    <a th:href="@{${path}}" th:text="${label}"
-       th:attr="aria-current=${currentPath == path} ? 'page' : (${path != '/' and currentPath != null and #strings.startsWith(currentPath, path + '/')} ? 'true' : null)"></a>
+<!-- Item do menu, com ícone. A página atual ganha aria-current="page"; as telas dentro da seção (editar, novo...), "true". -->
+<li th:fragment="navItem(path, label, icon)">
+    <a th:href="@{${path}}"
+       th:attr="aria-current=${currentPath == path} ? 'page' : (${path != '/' and currentPath != null and #strings.startsWith(currentPath, path + '/')} ? 'true' : null)"><svg th:replace="~{fragments/icons :: __${icon}__}"></svg> <span th:text="${label}">Visão geral</span></a>
 </li>
 
 <!-- Item da barra de baixo: ícone em cima, nome embaixo. A tela atual é marcada como no navItem. -->
