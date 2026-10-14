@@ -102,21 +102,30 @@
         <p th:if="${pendingMore}"><a class="link-standalone" th:href="@{/lancamentos(mes=${month},situacao='pendente')}">Ver todas as pendências</a></p>
     </section>
 
+    <!--
+      Uma barra por pote responde "quanto do plano já usei?". A barra é só reforço (aria-hidden):
+      o texto ao lado diz o realizado, o planejado e a porcentagem. Passar do plano enche a barra
+      de vermelho, com ícone e "acima do plano", exceto no pote de futuro, onde passar é bom.
+    -->
     <section aria-labelledby="potes-titulo">
         <h2 id="potes-titulo">Planejado × realizado</h2>
-        <table class="table">
-            <thead><tr><th scope="col">Pote</th><th scope="col" class="num">Planejado</th><th scope="col" class="num">Realizado</th></tr></thead>
-            <tbody>
-            <tr th:each="b : ${summary.buckets}">
-                <th scope="row" th:text="${b.name} + ' (' + ${@fmt.number(b.percent)} + '%)'"></th>
-                <td class="value num" th:text="${@fmt.money(b.planned)}"></td>
-                <td class="value num">
-                    <span th:text="${@fmt.money(b.actual)}"></span>
-                    <span th:if="${b.kind.name() != 'FUTURE' and b.actual.compareTo(b.planned) > 0}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> acima do plano</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <ul class="plan-list">
+            <li th:each="b : ${summary.buckets}" th:classappend="${b.overPlan()} ? 'is-over'">
+                <p class="plan-line">
+                    <span class="plan-name" th:text="${b.name} + ' (' + ${@fmt.number(b.percent)} + '%)'">Necessidades (50%)</span>
+                    <span class="plan-figures"><span class="value plan-actual" th:text="${@fmt.money(b.actual)}">R$ 0,00</span>
+                        <span class="small">de <span class="value" th:text="${@fmt.money(b.planned)}">R$ 0,00</span></span></span>
+                </p>
+                <svg class="plan-bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                    <rect class="plan-bar-track" width="100" height="4"></rect>
+                    <rect class="plan-bar-fill" th:attr="width=${b.barWidth()}" height="4"></rect>
+                </svg>
+                <p class="plan-note small">
+                    <span th:if="${b.usedPercent() != null}" th:text="${b.usedPercent()} + '% do planejado'">0% do planejado</span>
+                    <span th:if="${b.overPlan()}" class="over"><svg th:replace="~{fragments/icons :: triangleAlert}"></svg> acima do plano</span>
+                </p>
+            </li>
+        </ul>
     </section>
 
     <section th:unless="${#lists.isEmpty(summary.categories)}" aria-labelledby="cat-titulo">

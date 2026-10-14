@@ -90,6 +90,20 @@ class PagesRenderTest {
                 .andExpect(content().string(containsString("Carteira sugerida")));
     }
 
+    /**
+     * Planejado × realizado: uma barra por pote. Sem renda no mês nada foi planejado: o pote com gasto
+     * fica com a barra cheia e "acima do plano", os outros vazios, e não há porcentagem.
+     */
+    @Test
+    void visaoGeralMostraUmaBarraPorPote() throws Exception {
+        mvc.perform(get("/").with(user(me)))
+                .andExpect(content().string(containsString("<ul class=\"plan-list\">")))
+                .andExpect(content().string(containsString("<li class=\"is-over\">")))
+                .andExpect(content().string(containsString("<rect class=\"plan-bar-fill\" height=\"4\" width=\"100\">")))
+                .andExpect(content().string(containsString("<rect class=\"plan-bar-fill\" height=\"4\" width=\"0\">")))
+                .andExpect(content().string(not(containsString("% do planejado"))));
+    }
+
     @Test
     void menuMarcaAPaginaAtual() throws Exception {
         // Na própria página: aria-current="page"; numa tela dentro da seção: "true"; nas outras, nada.

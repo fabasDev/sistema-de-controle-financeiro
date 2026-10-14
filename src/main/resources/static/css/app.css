@@ -438,6 +438,28 @@
   }
 
   .empty { color: var(--ink-muted); padding-block: var(--space-3); }
+
+  /* Planejado × realizado: nome e valores numa linha, a barra embaixo e a porcentagem por escrito. */
+  .plan-list { list-style: none; margin: var(--space-3) 0 var(--space-5); padding: 0; max-inline-size: 36rem; }
+  .plan-list > li { padding-block: var(--space-3); border-block-end: 1px solid var(--rule); }
+  .plan-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 var(--space-3);
+    margin: 0 0 var(--space-2);
+    max-inline-size: none;
+  }
+  .plan-name { font-weight: 600; }
+  .plan-figures { margin-inline-start: auto; text-align: end; }
+  .plan-actual { font-size: var(--text-lead); font-weight: 600; }
+  .plan-bar { display: block; inline-size: 100%; block-size: 0.5rem; }
+  .plan-bar-track { fill: var(--rule); }
+  .plan-bar-fill { fill: var(--accent); }
+  .is-over .plan-bar-fill { fill: var(--negative); }
+  .plan-note { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); margin: var(--space-1) 0 0; }
+  .plan-note .over { display: inline; }
   .over { display: block; color: var(--negative); font-size: var(--text-small); font-weight: 600; }
   .over .icon { inline-size: 1em; block-size: 1em; vertical-align: -0.125em; }
 

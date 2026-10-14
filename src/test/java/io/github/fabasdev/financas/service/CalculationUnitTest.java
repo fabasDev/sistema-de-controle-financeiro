@@ -3,10 +3,12 @@ package io.github.fabasdev.financas.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.fabasdev.financas.domain.AssetClass;
+import io.github.fabasdev.financas.domain.BucketKind;
 import io.github.fabasdev.financas.domain.Money;
 import io.github.fabasdev.financas.domain.Months;
 import io.github.fabasdev.financas.domain.RiskProfile;
 import io.github.fabasdev.financas.dto.GoalPlan;
+import io.github.fabasdev.financas.dto.MonthSummary.BucketSummary;
 import io.github.fabasdev.financas.dto.PlanItem;
 import io.github.fabasdev.financas.dto.Simulation;
 import java.math.BigDecimal;
@@ -23,6 +25,59 @@ import org.junit.jupiter.params.provider.CsvSource;
  * e de advisor.test.ts (carteiras).
  */
 class CalculationUnitTest {
+
+    /** A barra de "Planejado × realizado" da visão geral. */
+    @Nested
+    class PlanejadoRealizado {
+
+        private BucketSummary bucket(BucketKind kind, String planned, String actual) {
+            return new BucketSummary(1L, 0, "Pote", kind, new BigDecimal("50"), new BigDecimal(planned), new BigDecimal(actual));
+        }
+
+        /** Os números da visão geral com os dados de exemplo: R$ 3.929,35 de R$ 3.250,00. */
+        @Test
+        void acimaDoPlanoEncheABarraEAvisa() {
+            BucketSummary b = bucket(BucketKind.NEEDS, "3250.00", "3929.35");
+            assertThat(b.usedPercent()).isEqualTo(121);
+            assertThat(b.barWidth()).isEqualTo(100);
+            assertThat(b.overPlan()).isTrue();
+        }
+
+        @Test
+        void abaixoDoPlanoArredondaParaInteiro() {
+            BucketSummary b = bucket(BucketKind.WANTS, "1950.00", "187.99");
+            assertThat(b.usedPercent()).isEqualTo(10);
+            assertThat(b.barWidth()).isEqualTo(10);
+            assertThat(b.overPlan()).isFalse();
+        }
+
+        @Test
+        void exatamenteNoPlanoNaoEAcima() {
+            BucketSummary b = bucket(BucketKind.NEEDS, "1000.00", "1000.00");
+            assertThat(b.usedPercent()).isEqualTo(100);
+            assertThat(b.overPlan()).isFalse();
+        }
+
+        /** No pote de futuro, guardar mais que o planejado é bom: sem aviso. */
+        @Test
+        void futuroAcimaDoPlanoNaoEAlerta() {
+            BucketSummary b = bucket(BucketKind.FUTURE, "1300.00", "1500.00");
+            assertThat(b.usedPercent()).isEqualTo(115);
+            assertThat(b.overPlan()).isFalse();
+        }
+
+        /** Mês sem renda: nada planejado. Qualquer gasto já passa do plano, e a barra fica cheia como o aviso diz. */
+        @Test
+        void semValorPlanejadoNaoHaPorcentagem() {
+            BucketSummary spent = bucket(BucketKind.WANTS, "0.00", "50.00");
+            assertThat(spent.usedPercent()).isNull();
+            assertThat(spent.barWidth()).isEqualTo(100);
+            assertThat(spent.overPlan()).isTrue();
+            BucketSummary empty = bucket(BucketKind.WANTS, "0.00", "0.00");
+            assertThat(empty.barWidth()).isZero();
+            assertThat(empty.overPlan()).isFalse();
+        }
+    }
 
     @Nested
     class ParseBrl {
