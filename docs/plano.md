@@ -226,6 +226,35 @@ Na tela larga, números e tabelas ficam à esquerda e o lançamento rápido, fix
 - Atualização pontual do DOM com `DocumentFragment`, `debounce` na busca e `throttle` em scroll/resize.
 - Animações só com `transform`/`opacity` e respeito a `prefers-reduced-motion`.
 
+### Como a Fase 5 ficou (14/10/2026)
+A medição veio primeiro: as 7 telas principais, antes e depois, com o mesmo Lighthouse da Fase 0. Os números estão em `docs/lighthouse-depois.md`. O que estava pior era Investimentos (nota 79, CLS 0,436), e boa parte da fase foi para isso.
+
+**O que mudou:**
+- **Cache dos arquivos estáticos:** CSS e fontes levam o hash do conteúdo no nome e ficam 1 ano no cache. O JavaScript não pode usar o hash, porque os módulos se importam por caminho relativo (`./lib/http.js`); a própria documentação do Spring indica a versão no caminho para esse caso. Por isso a URL é `/js/v4220…/app.js`, e a versão é um resumo de todos os `.js` (`StaticResourcesConfig`). O caminho continua em `/js/`, então a regra pública do `SecurityConfig` não mudou. No perfil `dev`, o navegador sempre confere se o arquivo mudou.
+- **Compressão** só de CSS, JS e SVG. HTML e JSON ficam de fora por causa do BREACH (token CSRF ao lado de texto digitado).
+- **Espaço reservado:** o questionário é montado dentro de um `<details>` fechado ("Responder as perguntas"); o gráfico do simulador já vem com o tamanho certo e a pauta vazia enquanto carrega; a linha "Calculando…" tem altura fixa. Quem decide o que aparece sem JavaScript é o CSS (`@media (scripting: none)`), não o script, para a página já nascer com o layout final.
+- **Preload só da Besley**, a fonte dos títulos, que aparece no topo de toda tela. Medi com e sem: com ele o CLS ficou em 0 em 6 das 7 telas (no Histórico, 0,002) e o FCP caiu de 0,1 a 0,2 s. A Atkinson (texto) não ganhou preload.
+- **Tooltip do simulador:** o `pointermove` desenha no máximo uma vez por quadro (`requestAnimationFrame`) e não remonta o tooltip se o ano não mudou.
+- **`prefers-reduced-motion`:** o app não tem animação; ficou uma regra no CSS para uma animação futura respeitar a preferência.
+
+**Itens do plano que não precisaram de mudança:**
+- **`defer` nos scripts:** os scripts já são `type="module"`, que o navegador carrega sem bloquear a página, como o `defer`.
+- **`font-display: swap`:** já estava nas duas fontes desde a Fase 4.
+- **CSS mínimo:** procurei classes sem uso no `app.css` e não achei nenhuma.
+- **`DocumentFragment`:** o JavaScript já insere tudo de uma vez com `replaceChildren(...)`, que tem o mesmo efeito.
+- **`debounce` na busca:** a busca de Lançamentos é um formulário com botão "Filtrar", sem nada rodando enquanto se digita. O simulador já esperava 400 ms.
+- **`throttle` em scroll/resize:** não há nenhum desses eventos no app. O único evento de alta frequência era o `pointermove` do gráfico (acima).
+
+**Verificação:**
+- `./mvnw verify` com 220 testes JUnit, 6 deles novos no `StaticResourcesTest` (URLs com versão, cache de 1 ano sem login, imports relativos do JS, fontes reescritas dentro do CSS, CSS comprimido e HTML não). Os 35 testes de JavaScript também passaram.
+- Fluxos no Chrome (390 e 1280 px): questionário completo, assistente, simulador digitando, tooltip com mouse e teclado, e as duas telas com JavaScript desligado. Sem erro de console, de CSP ou de rede.
+- Cabeçalhos conferidos com `curl`, no perfil de produção e no `dev`.
+
+**Pendências:**
+- `favicon.svg` e `robots.txt` ficam 1 ano no cache sem versão no nome. Se um deles mudar, é preciso trocar o nome do arquivo.
+- O SEO do `/cadastro` e das telas logadas fica em 54 porque o `robots.txt` bloqueia a indexação, de propósito. Também falta `meta description`.
+- Só medido no Chrome e em `localhost`.
+
 ## Verificação (ao fim de cada fase)
 - `./mvnw verify`, que roda os testes JUnit, incluindo autorização entre usuários, contagem de queries e cálculos portados.
 - `./mvnw spring-boot:run` com perfil `dev` (H2) e o fluxo testado no navegador: cadastrar, lançar, editar, apagar e desfazer, ver o resumo e importar o backup antigo.

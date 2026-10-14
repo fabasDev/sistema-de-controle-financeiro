@@ -58,6 +58,17 @@ Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
 
 Sem JavaScript, tudo continua funcionando: formulários vão para o servidor e apagar passa por uma página de confirmação. O JavaScript (módulos em `src/main/resources/static/js`, sem dependência nem build) só melhora a experiência.
 
+## Desempenho
+
+- **Cache de 1 ano** para CSS, fontes e JavaScript. O endereço muda quando o arquivo muda, então ninguém fica com versão velha:
+  - CSS e fontes levam o hash do conteúdo no nome (`app-1f7c….css`);
+  - o JavaScript leva a versão no caminho (`/js/v4220…/app.js`), porque os módulos se importam por caminho relativo. A versão é um resumo de todos os `.js` (`StaticResourcesConfig`).
+  - `favicon.svg` e `robots.txt` também ficam 1 ano no cache, mas sem versão. Se mudar um deles, troque o nome do arquivo.
+- **Compressão (gzip)** só de CSS, JavaScript e SVG. HTML e JSON ficam de fora de propósito: eles trazem o token CSRF e dados da conta ao lado de texto digitado, o cenário do ataque BREACH.
+- As páginas HTML continuam com `Cache-Control: no-store`, para os dados financeiros não ficarem guardados no navegador.
+- No perfil `dev`, o navegador sempre confere se o CSS ou o JS mudou, então uma edição aparece ao recarregar.
+- As medições do Lighthouse, antes e depois, estão em `docs/lighthouse-depois.md`.
+
 ## Visual
 
 Direção "livro-caixa sóbrio": papel claro, tinta escura, um verde de destaque e os valores em fonte de números impressos. Segue o tema claro ou escuro do sistema. Cor, tipografia e espaçamento ficam em `src/main/resources/static/css/tokens.css`; o resto do CSS só usa esses nomes. O plano de design e a verificação estão em `docs/plano.md` ("Como a Fase 4 ficou").
@@ -122,7 +133,7 @@ src/main/java/io/github/fabasdev/financas/
   service/      regras: resumo do mês, sugestão de investimento, simulador, contas fixas, importação...
   controller/   telas (Thymeleaf), as APIs /api/simulacao e /api/assistente e o gráfico do histórico (SVG)
   security/     política de senha, limite de tentativas, filtros de sessão
-  config/       Spring Security e relógio (fuso America/Sao_Paulo)
+  config/       Spring Security, relógio (fuso America/Sao_Paulo) e cache do JavaScript
 src/main/resources/
   db/migration/ V1 (tabelas) e V2 (regras 50/30/20, 70/20/10, 6 potes e 80/20)
   templates/    HTML das telas (fragments/icons.html: ícones Lucide)
