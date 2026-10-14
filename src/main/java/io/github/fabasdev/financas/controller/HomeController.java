@@ -7,6 +7,7 @@ import io.github.fabasdev.financas.service.CategoryService;
 import io.github.fabasdev.financas.service.InvestmentSuggestionService;
 import io.github.fabasdev.financas.service.MonthSummaryService;
 import io.github.fabasdev.financas.service.RecurringService;
+import io.github.fabasdev.financas.service.SettingsService;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -24,14 +25,16 @@ public class HomeController {
     private final InvestmentSuggestionService suggestions;
     private final RecurringService recurring;
     private final CategoryService categories;
+    private final SettingsService settings;
     private final Clock clock;
 
     public HomeController(MonthSummaryService summaries, InvestmentSuggestionService suggestions,
-            RecurringService recurring, CategoryService categories, Clock clock) {
+            RecurringService recurring, CategoryService categories, SettingsService settings, Clock clock) {
         this.summaries = summaries;
         this.suggestions = suggestions;
         this.recurring = recurring;
         this.categories = categories;
+        this.settings = settings;
         this.clock = clock;
     }
 
@@ -47,6 +50,7 @@ public class HomeController {
         model.addAttribute("summary", summary);
         model.addAttribute("rec", suggestions.recommendation(me.getId(), month, summary));
         model.addAttribute("quick", categories.quickAddOptions(me.getId(), LocalDate.now(clock)));
+        model.addAttribute("onboarded", settings.get(me.getId()).isOnboarded());
         model.addAttribute("today", LocalDate.now(clock));
         return "home";
     }

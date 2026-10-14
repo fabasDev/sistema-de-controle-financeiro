@@ -45,7 +45,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class QueryCountTest {
 
     static final List<String> PAGES = List.of("/", "/lancamentos", "/lancamentos/novo", "/contas-fixas",
-            "/planejamento", "/metas", "/historico?meses=12", "/investimentos", "/api/assistente");
+            "/planejamento", "/metas", "/historico?meses=12", "/investimentos", "/api/assistente", "/comecar", "/simulador",
+            "/ajustes");
 
     @Autowired
     MockMvc mvc;

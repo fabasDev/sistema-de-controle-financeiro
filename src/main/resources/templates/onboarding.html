@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Configurar a conta')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Vamos organizar suas finanças</h1>
+    <p>Leva um minuto. Tudo aqui dá para mudar depois, e nenhum campo é obrigatório além da regra.</p>
+
+    <form th:action="@{/comecar}" th:object="${form}" method="post" class="form">
+        <div class="notice notice-error" role="alert" th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
+        </div>
+
+        <div class="field">
+            <label for="displayName">Como podemos te chamar? <span class="small">(opcional)</span></label>
+            <input id="displayName" name="displayName" type="text" maxlength="60" autocomplete="nickname" th:value="*{displayName}">
+        </div>
+
+        <fieldset class="field">
+            <legend>Quanto você recebe por mês?</legend>
+            <div class="field">
+                <label for="income">Renda mensal líquida (R$)</label>
+                <input id="income" name="income" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*"
+                       data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="*{income}">
+                <p class="field-error" th:if="${#fields.hasErrors('income')}" th:errors="*{income}"></p>
+            </div>
+            <div class="field">
+                <label for="incomeDay">Dia em que cai</label>
+                <input id="incomeDay" name="incomeDay" type="number" inputmode="numeric" min="1" max="31" required th:value="*{incomeDay}">
+                <p class="field-error" th:if="${#fields.hasErrors('incomeDay')}" th:errors="*{incomeDay}"></p>
+            </div>
+            <p class="hint">Vira uma conta fixa de receita, lançada todo mês.</p>
+        </fieldset>
+
+        <fieldset class="field">
+            <legend>Como quer dividir sua renda?</legend>
+            <label th:each="p : ${presets}">
+                <input type="radio" name="presetId" th:value="${p.id}" th:checked="${p.id == form.presetId}" required>
+                <strong th:text="${p.name}"></strong>: <span th:text="${p.description}"></span>
+            </label>
+            <p class="field-error" th:if="${#fields.hasErrors('presetId')}" th:errors="*{presetId}"></p>
+        </fieldset>
+
+        <fieldset class="field">
+            <legend>Quais são suas contas fixas? <span class="small">(deixe em branco o que não tiver)</span></legend>
+            <div class="field" th:each="b, i : ${bills}">
+                <label th:for="'conta-' + ${i.index}" th:text="${b.description} + ' (R$)'"></label>
+                <input th:id="'conta-' + ${i.index}" name="conta" type="text" inputmode="decimal" maxlength="20"
+                       pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56."
+                       th:value="${billValues[i.index]}">
+            </div>
+        </fieldset>
+
+        <fieldset class="field">
+            <legend>Reserva de emergência</legend>
+            <div class="field">
+                <label for="reserveBalance">Quanto você já tem guardado para emergências? (R$)</label>
+                <input id="reserveBalance" name="reserveBalance" type="text" inputmode="decimal" maxlength="20"
+                       pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="*{reserveBalance}">
+                <p class="field-error" th:if="${#fields.hasErrors('reserveBalance')}" th:errors="*{reserveBalance}"></p>
+            </div>
+            <p>Quantos meses de custo você quer ter guardado?</p>
+            <label th:each="m : ${reserveOptions}">
+                <input type="radio" name="reserveMonths" th:value="${m}" th:checked="${m == form.reserveMonths}" required>
+                <span th:text="${m} + ' meses'"></span>
+            </label>
+            <p class="hint">Recomendação comum: 6 meses para quem tem carteira assinada, 12 para autônomos ou renda variável.</p>
+        </fieldset>
+
+        <p><button type="submit" class="button-primary">Configurar minha conta</button></p>
+    </form>
+
+    <section aria-labelledby="outras-titulo">
+        <h2 id="outras-titulo">Ou, se preferir</h2>
+        <form th:action="@{/ajustes/exemplo}" method="post" class="inline">
+            <input type="hidden" name="confirmo" value="sim">
+            <button type="submit">Explorar com dados de exemplo</button>
+        </form>
+        <span class="small">6 meses fictícios. Dá para apagar depois em Ajustes.</span>
+        <form th:action="@{/comecar/pular}" method="post">
+            <button type="submit">Pular e configurar depois</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

@@ -63,7 +63,8 @@ class PagesRenderTest {
                 "/planejamento/categorias/" + ids.category() + "/excluir",
                 "/metas", "/metas/nova", "/metas/" + ids.goal() + "/editar", "/metas/" + ids.goal() + "/excluir",
                 "/investimentos", "/simulador", "/simulador?inicial=1000&mensal=100&taxa=10,5&anos=2&meta=5000",
-                "/simulador?taxa=abc", "/historico", "/historico?meses=24", "/ajustes", "/privacidade"};
+                "/simulador?taxa=abc", "/historico", "/historico?meses=24", "/ajustes", "/privacidade", "/comecar",
+                "/ajustes/importar"};
         for (String page : pages) {
             mvc.perform(get(page).with(user(me))).andExpect(status().isOk());
         }

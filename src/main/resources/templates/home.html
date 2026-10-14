@@ -12,6 +12,15 @@
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
+    <section th:unless="${onboarded}" class="notice" aria-labelledby="comecar-titulo">
+        <h2 id="comecar-titulo">Primeira vez por aqui?</h2>
+        <p>Conte sua renda, suas contas fixas e quanto já guardou. Em um minuto o app já mostra quanto sobra e quanto dá para investir.</p>
+        <div class="actions">
+            <a class="button-primary" th:href="@{/comecar}">Configurar em 1 minuto</a>
+            <form th:action="@{/comecar/pular}" method="post" class="inline"><button type="submit">Agora não</button></form>
+        </div>
+    </section>
+
     <!-- As três perguntas do topo, nesta ordem: quanto gastei, quanto sobra, quanto posso investir. -->
     <dl class="headline">
         <div>

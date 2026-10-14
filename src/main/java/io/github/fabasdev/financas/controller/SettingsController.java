@@ -3,6 +3,7 @@ package io.github.fabasdev.financas.controller;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.AccountService;
 import io.github.fabasdev.financas.service.InvalidInputException;
+import io.github.fabasdev.financas.service.SampleDataService;
 import io.github.fabasdev.financas.service.SettingsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,10 +25,12 @@ public class SettingsController {
 
     private final SettingsService settings;
     private final AccountService accounts;
+    private final SampleDataService sampleData;
 
-    public SettingsController(SettingsService settings, AccountService accounts) {
+    public SettingsController(SettingsService settings, AccountService accounts, SampleDataService sampleData) {
         this.settings = settings;
         this.accounts = accounts;
+        this.sampleData = sampleData;
     }
 
     @GetMapping
@@ -88,6 +91,19 @@ public class SettingsController {
         }
         settings.resetData(me.getId());
         redirect.addFlashAttribute("success", "Pronto. Seus dados voltaram ao começo.");
+        return "redirect:/";
+    }
+
+    /** Troca os dados da conta por 6 meses fictícios. Pede confirmação (substitui tudo). */
+    @PostMapping("/exemplo")
+    public String sample(@AuthenticationPrincipal AppUserPrincipal me,
+            @RequestParam(name = "confirmo", required = false) String confirm, RedirectAttributes redirect) {
+        if (confirm == null) {
+            redirect.addFlashAttribute("error", "Marque a confirmação: os dados atuais serão substituídos.");
+            return "redirect:/ajustes";
+        }
+        sampleData.load(me.getId());
+        redirect.addFlashAttribute("success", "Dados de exemplo carregados. Para voltar ao começo, use \"Recomeçar do zero\" em Ajustes.");
         return "redirect:/";
     }
 

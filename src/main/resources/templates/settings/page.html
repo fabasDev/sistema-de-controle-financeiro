@@ -61,6 +61,15 @@
         <p><a th:href="@{/ajustes/importar}">Importar o backup do app antigo</a></p>
     </section>
 
+    <section aria-labelledby="exemplo-titulo">
+        <h2 id="exemplo-titulo">Dados de exemplo</h2>
+        <p>Troca os dados da conta por 6 meses fictícios, para explorar o app.</p>
+        <form th:action="@{/ajustes/exemplo}" method="post" class="form">
+            <label><input type="checkbox" name="confirmo" value="sim" required> Entendo que meus dados atuais serão substituídos</label>
+            <button type="submit">Usar dados de exemplo</button>
+        </form>
+    </section>
+
     <section aria-labelledby="recomecar-titulo">
         <h2 id="recomecar-titulo">Recomeçar do zero</h2>
         <p>Apaga lançamentos, contas fixas, metas e regras. A conta e a senha continuam.</p>
