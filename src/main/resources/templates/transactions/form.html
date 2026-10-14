@@ -75,6 +75,11 @@
             <a class="link-standalone" th:href="@{/lancamentos}">Cancelar</a>
         </p>
     </form>
+
+    <!-- Apagar fica aqui, longe do "Salvar". Com JavaScript apaga na hora e oferece desfazer; sem, pede confirmação. -->
+    <p th:if="${editingId}" class="danger-zone">
+        <a data-delete class="link-standalone" th:href="@{/lancamentos/{id}/excluir(id=${editingId})}"><svg th:replace="~{fragments/icons :: trash}"></svg> Apagar este lançamento</a>
+    </p>
 </main>
 </body>
 </html>

@@ -17,7 +17,13 @@
         Precisa de mais opções (repetir todo mês, parcelas, meta)? <a th:href="@{/lancamentos/novo}">Use o formulário completo</a>.
     </p>
 
-    <!-- Filtros por GET: ficam na URL e sobrevivem a editar e voltar. -->
+    <!--
+      Filtros por GET: ficam na URL e sobrevivem a editar e voltar. Ficam recolhidos para a lista
+      aparecer logo; com algum filtro em uso, já vêm abertos.
+    -->
+    <details class="filters-box" th:with="filtered=${!#strings.isEmpty(search) or type != null or categoryId != null or status != null}"
+             th:open="${filtered}">
+        <summary><svg th:replace="~{fragments/icons :: listFilter}"></svg> <span th:text="${filtered} ? 'Filtros em uso' : 'Filtrar'">Filtrar</span></summary>
     <form th:action="@{/lancamentos}" method="get" class="filters">
         <input type="hidden" name="mes" th:value="${month}">
         <div class="field">
@@ -48,16 +54,24 @@
                 <option value="pago" th:selected="${status == 'pago'}">Pagos ou recebidos</option>
             </select>
         </div>
-        <button type="submit" class="button-quiet">Filtrar</button>
+        <div class="actions">
+            <button type="submit">Filtrar</button>
+            <a th:if="${filtered}" class="link-standalone" th:href="@{/lancamentos(mes=${month})}">Limpar filtros</a>
+        </div>
     </form>
+    </details>
 
     <p th:if="${page.totalElements == 0}" class="empty">
         Nada por aqui neste mês com esses filtros. Registre um gasto no formulário acima ou limpe os filtros.
     </p>
 
-    <!-- No celular cada lançamento vira um bloco de três linhas (ver .ledger no app.css). -->
-    <table th:if="${page.totalElements > 0}" class="table ledger">
-        <caption class="small" th:text="${page.totalElements} + ' lançamento(s)'"></caption>
+    <!--
+      No celular cada lançamento vira um bloco de três linhas (ver .ledger no app.css). Tocar em
+      qualquer parte da linha abre a edição: o link da descrição cobre a linha toda, e só o botão
+      de pago/a pagar fica por cima dele. Apagar fica dentro da edição.
+    -->
+    <table th:if="${page.totalElements > 0}" class="table ledger ledger-links">
+        <caption class="small" th:text="${page.totalElements} + ' lançamento(s). Abra um para editar ou apagar.'"></caption>
         <thead>
         <tr>
             <th scope="col">Data</th>
@@ -65,14 +79,14 @@
             <th scope="col">Categoria</th>
             <th scope="col" class="num">Valor</th>
             <th scope="col">Situação</th>
-            <th scope="col"><span class="visually-hidden">Ações</span></th>
+            <td></td>
         </tr>
         </thead>
         <tbody>
         <tr th:each="t : ${page.content}">
             <td class="ledger-date" th:text="${@fmt.date(t.date)}"></td>
             <td class="ledger-desc">
-                <span th:text="${t.description}"></span>
+                <a class="row-link" th:href="@{/lancamentos/{id}/editar(id=${t.id})}"><span class="visually-hidden">Editar </span><span th:text="${t.description}"></span></a>
                 <span th:if="${t.fromRecurring}" class="small">(conta fixa)</span>
             </td>
             <td class="ledger-cat" th:text="${t.categoryName} ?: 'Sem categoria'"></td>
@@ -87,10 +101,7 @@
                     </button>
                 </form>
             </td>
-            <td class="row-actions">
-                <a th:href="@{/lancamentos/{id}/editar(id=${t.id})}"><svg th:replace="~{fragments/icons :: pencil}"></svg> Editar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
-                <a data-delete th:href="@{/lancamentos/{id}/excluir(id=${t.id})}"><svg th:replace="~{fragments/icons :: trash}"></svg> Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
-            </td>
+            <td class="ledger-go" aria-hidden="true"><svg th:replace="~{fragments/icons :: chevronRight}"></svg></td>
         </tr>
         </tbody>
     </table>

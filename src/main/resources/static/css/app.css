@@ -470,6 +470,29 @@
     padding-inline: var(--space-2);
   }
   a[data-delete] { color: var(--negative); }
+
+  /*
+   * Lista de lançamentos: a linha inteira abre a edição. O link da descrição se estica sobre a
+   * linha (::after); o botão de pago/a pagar fica por cima dele. O foco do teclado contorna a linha.
+   */
+  .ledger-links tbody tr { position: relative; }
+  .ledger-links tbody tr:hover { background: var(--paper-raised); }
+  /* A linha inteira é o alvo de toque, então o link não leva o recuo nem a largura mínima de .table td > a. */
+  .ledger-links .row-link { display: inline; min-inline-size: 0; min-block-size: 0; padding: 0; color: inherit; font-weight: 600; text-decoration: none; }
+  .row-link::after { content: ""; position: absolute; inset-block: 0; inset-inline: calc(-1 * var(--space-2)); }
+  .ledger-links tbody tr:hover .row-link { text-decoration: underline; }
+  .row-link:focus-visible { outline: none; }
+  .row-link:focus-visible::after { outline: 3px solid var(--accent); }
+  .ledger-links .ledger-status form { position: relative; z-index: 1; }
+  .ledger-go { color: var(--ink-muted); text-align: end; }
+
+  /* Apagar, na edição: separado do "Salvar" por espaço e uma linha. */
+  .danger-zone { margin-block-start: var(--space-6); padding-block-start: var(--space-4); border-block-start: 1px solid var(--rule); }
+
+  /* Filtros recolhidos: o ícone faz o papel do triângulo. */
+  .filters-box { margin-block: var(--space-3); }
+  .filters-box > summary { display: inline-flex; align-items: center; gap: var(--space-2); list-style: none; }
+  .filters-box > summary::-webkit-details-marker { display: none; }
   .is-income { color: var(--accent); }
   .status-toggle[aria-pressed="true"] { color: var(--accent); }
 
@@ -530,7 +553,8 @@
     .ledger-cat { grid-area: cat; }
     .ledger :is(.ledger-date, .ledger-cat) { color: var(--ink-muted); font-size: var(--text-small); }
     .ledger-status { grid-area: status; margin-inline-start: calc(-1 * var(--space-2)); }
-    .ledger .row-actions { grid-area: actions; }
+    .ledger .row-actions, .ledger .ledger-go { grid-area: actions; }
+    .ledger .ledger-go { display: flex; align-items: center; justify-content: flex-end; }
   }
 
   .filters { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-block: var(--space-4); }
