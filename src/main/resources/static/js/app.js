@@ -31,8 +31,8 @@ document.addEventListener('click', (event) => {
   form.submit()
 })
 
-// Menu do celular (<details>): Esc fecha e devolve o foco ao botão "Menu"; clicar fora também fecha.
-const menu = document.querySelector('.nav-narrow')
+// "Mais" na barra do celular (<details>): Esc fecha e devolve o foco ao botão; clicar fora também fecha.
+const menu = document.querySelector('.tab-more')
 if (menu) {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && menu.open) {

@@ -131,32 +131,72 @@
     text-underline-offset: 0.35em;
   }
 
-  /* Celular: navegação dentro de "Menu", que abre por cima do conteúdo. */
+  /*
+   * Celular: barra fixa embaixo, ao alcance do polegar. Quatro colunas iguais, ícone em cima e nome
+   * embaixo; a tela atual leva a cor de destaque, negrito e um traço em cima (não só a cor).
+   * O conteúdo ganha espaço no fim e o foco do teclado rola para cima da barra (WCAG 2.4.11).
+   */
   .nav-wide { display: none; }
-  .nav-narrow > summary {
-    display: inline-flex;
+  .tab-bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 20;
+    padding-block-end: env(safe-area-inset-bottom, 0px);
+    background: var(--paper-raised);
+    border-block-start: 1px solid var(--rule-strong);
+  }
+  .tab-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-inline-size: none;
+  }
+  .tab-list > li > a, .tab-more > summary {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--space-2);
-    padding-inline: var(--space-3);
-    border: 1px solid var(--rule-strong);
-    border-radius: var(--radius);
-    color: var(--ink);
+    justify-content: center;
+    gap: 2px;
+    min-block-size: var(--tab-bar);
+    padding: var(--space-1);
+    border-block-start: 3px solid transparent;
+    color: var(--ink-muted);
+    font-size: var(--text-small);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
     list-style: none;
   }
-  .nav-narrow > summary::-webkit-details-marker { display: none; }
-  .nav-narrow[open] > summary { border-color: var(--ink); }
-  .nav-narrow > nav {
+  .tab-list .icon { inline-size: 1.5rem; block-size: 1.5rem; }
+  .tab-list > li > a:hover, .tab-more > summary:hover { color: var(--ink); }
+  .tab-list > li > a[aria-current], .tab-more > summary.is-current {
+    border-block-start-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .tab-more > summary::-webkit-details-marker { display: none; }
+  .tab-more[open] > summary { color: var(--ink); }
+  /* "Mais" abre uma folha logo acima da barra, com as outras telas. */
+  .tab-sheet {
     position: absolute;
     inset-inline: 0;
-    inset-block-start: 100%;
-    z-index: 5;
-    padding: var(--space-2) var(--space-4) var(--space-4);
-    background: var(--paper);
-    border-block-end: 2px solid var(--ink);
+    inset-block-end: 100%;
+    padding: var(--space-2) var(--space-4);
+    background: var(--paper-raised);
+    border-block-start: 1px solid var(--rule-strong);
+  }
+  .tab-sheet a { min-block-size: 3rem; font-size: var(--text-lead); }
+
+  @media (max-width: 63.99rem) {
+    html:has(.tab-bar) { scroll-padding-block-end: calc(var(--tab-bar) + var(--space-4)); }
+    body:has(.tab-bar) { padding-block-end: calc(var(--tab-bar) + env(safe-area-inset-bottom, 0px)); }
   }
 
   @media (min-width: 64rem) {
-    .nav-narrow { display: none; }
+    .tab-bar { display: none; }
     .nav-wide { display: block; }
     .nav-wide .nav-list { display: flex; flex-wrap: wrap; gap: 0 var(--space-1); }
   }

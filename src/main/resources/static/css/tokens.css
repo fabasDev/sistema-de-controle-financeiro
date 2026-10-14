@@ -78,6 +78,7 @@
 
   --radius: 4px;
   --target: 44px;            /* alvo de toque mínimo (WCAG 2.5.5) */
+  --tab-bar: 3.5rem;         /* altura da barra de navegação do celular */
   --measure: 40rem;          /* largura de leitura (~75 caracteres) */
   --page-width: 72rem;
 }

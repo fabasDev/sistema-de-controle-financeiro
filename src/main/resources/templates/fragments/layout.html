@@ -23,25 +23,45 @@
 <body>
 
 <!--
-  Cabeçalho das telas logadas. No celular a navegação fica dentro de "Menu" (<details>, funciona
-  sem JavaScript); na tela larga ela aparece inteira. As duas usam a mesma lista (navList), e
-  só uma existe de cada vez para o leitor de tela, porque a outra fica com display: none.
+  Cabeçalho das telas logadas. Na tela larga a navegação aparece inteira no topo. No celular ela
+  vira uma barra fixa embaixo, perto do polegar: as três telas mais usadas e "Mais" (<details>,
+  funciona sem JavaScript), que abre as outras. Só uma das duas existe de cada vez para o leitor
+  de tela, porque a outra fica com display: none.
 -->
 <header th:fragment="appHeader" class="app-header">
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
     <p class="wordmark">Finanças</p>
-    <details class="nav-narrow">
-        <summary><svg th:replace="~{fragments/icons :: menu}"></svg> Menu</summary>
-        <nav aria-label="Principal">
-            <ul th:replace="~{fragments/layout :: navList}"></ul>
-        </nav>
-    </details>
     <nav class="nav-wide" aria-label="Principal">
         <ul th:replace="~{fragments/layout :: navList}"></ul>
     </nav>
     <form th:action="@{/logout}" method="post" class="logout">
         <button type="submit" class="button-quiet"><svg th:replace="~{fragments/icons :: logOut}"></svg> Sair</button>
     </form>
+    <!-- section: o primeiro trecho do caminho ("/ajustes/exportar" dá "ajustes"). -->
+    <nav class="tab-bar" aria-label="Principal"
+         th:with="section=${currentPath == null ? '' : #strings.substringBefore(currentPath.substring(1) + '/', '/')}">
+        <ul class="tab-list">
+            <li th:replace="~{fragments/layout :: tabItem('/', 'Início', 'house')}"></li>
+            <li th:replace="~{fragments/layout :: tabItem('/lancamentos', 'Lançamentos', 'list')}"></li>
+            <li th:replace="~{fragments/layout :: tabItem('/metas', 'Metas', 'target')}"></li>
+            <li>
+                <details class="tab-more">
+                    <!-- "Mais" fica marcado quando a tela atual é uma das que estão dentro dele. -->
+                    <summary th:classappend="${!#strings.isEmpty(section) and #strings.contains(' contas-fixas planejamento investimentos simulador historico ajustes ', ' ' + section + ' ')} ? 'is-current'">
+                        <svg th:replace="~{fragments/icons :: ellipsis}"></svg> Mais
+                    </summary>
+                    <ul class="nav-list tab-sheet">
+                        <li th:replace="~{fragments/layout :: navItem('/contas-fixas', 'Contas fixas')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/planejamento', 'Planejamento')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/investimentos', 'Investimentos')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/simulador', 'Simulador')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/historico', 'Histórico')}"></li>
+                        <li th:replace="~{fragments/layout :: navItem('/ajustes', 'Ajustes')}"></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </nav>
 </header>
 
 <ul th:fragment="navList" class="nav-list">
@@ -60,6 +80,12 @@
 <li th:fragment="navItem(path, label)">
     <a th:href="@{${path}}" th:text="${label}"
        th:attr="aria-current=${currentPath == path} ? 'page' : (${path != '/' and currentPath != null and #strings.startsWith(currentPath, path + '/')} ? 'true' : null)"></a>
+</li>
+
+<!-- Item da barra de baixo: ícone em cima, nome embaixo. A tela atual é marcada como no navItem. -->
+<li th:fragment="tabItem(path, label, icon)">
+    <a th:href="@{${path}}"
+       th:attr="aria-current=${currentPath == path} ? 'page' : (${path != '/' and currentPath != null and #strings.startsWith(currentPath, path + '/')} ? 'true' : null)"><svg th:replace="~{fragments/icons :: __${icon}__}"></svg> <span th:text="${label}">Início</span></a>
 </li>
 
 <!-- Mensagens de sucesso e erro que vêm de um redirect. O ícone repete o sentido do texto, não o substitui. -->
