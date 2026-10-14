@@ -91,7 +91,8 @@ public final class HistoryChart {
                 : max.divide(step, 0, RoundingMode.CEILING).multiply(step);
         int baseline = TOP + PLOT_HEIGHT;
         int left = size.left;
-        int plotRight = size.width - RIGHT;
+        // À direita, espaço para meio nome de mês: o do mês mais recente fica centrado sem sair do desenho.
+        int plotRight = size.width - Math.max(RIGHT, size.labelSpacing / 2);
         int groupWidth = (plotRight - left) / rows.size();
         int barWidth = Math.max(2, Math.min(MAX_BAR, (groupWidth - 8 - GAP) / 2));
 
@@ -114,8 +115,13 @@ public final class HistoryChart {
             addBar(bars, center + GAP / 2 + GAP % 2, barWidth, outflow(r), top, baseline, "bar-outflow",
                     month + ": saiu " + fmt.money(outflow(r)));
             if ((rows.size() - 1 - i) % labelEvery == 0) {
-                labels.add(new XLabel(center, fmt.shortMonth(r.month())));
+                // O nome é centrado na coluna, mas o último não pode passar da borda direita.
+                labels.add(new XLabel(Math.min(center, size.width - size.labelSpacing / 2), fmt.shortMonth(r.month())));
             }
+        }
+        // Se o último nome, puxado para dentro, ficou perto demais do anterior, o anterior sai.
+        if (labels.size() > 1 && labels.getLast().x() - labels.get(labels.size() - 2).x() < size.labelSpacing) {
+            labels.remove(labels.size() - 2);
         }
         String description = "Colunas por mês: entrou e saiu (gastos mais o que foi guardado). Os valores estão na tabela abaixo.";
         return new Model(size.key, size.width, HEIGHT, baseline, left, plotRight, baseline + size.labelOffset, bars,

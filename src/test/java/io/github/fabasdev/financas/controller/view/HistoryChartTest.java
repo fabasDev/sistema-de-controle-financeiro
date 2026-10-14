@@ -57,11 +57,19 @@ class HistoryChartTest {
 
         assertThat(chart.width()).isEqualTo(size.width());
         assertThat(chart.xLabels().getLast().label()).isEqualTo("out/26");
+        // Metade do espaço de um nome, de cada lado do centro, cabe dentro do desenho.
+        assertThat(chart.xLabels().getLast().x() + size.labelSpacing() / 2).isLessThanOrEqualTo(size.width());
         for (int i = 1; i < chart.xLabels().size(); i++) {
             assertThat(chart.xLabels().get(i).x() - chart.xLabels().get(i - 1).x())
                     .isGreaterThanOrEqualTo(size.labelSpacing());
         }
         assertThat(chart.bars()).allSatisfy(b -> assertThat(b.path()).doesNotContain("-"));
+        // Nenhum nome some por falta de espaço: os intervalos entre eles são todos iguais (sem buraco).
+        java.util.Set<Integer> gaps = new java.util.HashSet<>();
+        for (int i = 1; i < chart.xLabels().size(); i++) {
+            gaps.add(chart.xLabels().get(i).x() - chart.xLabels().get(i - 1).x());
+        }
+        assertThat(gaps).hasSizeLessThanOrEqualTo(1);
     }
 
     @Test
