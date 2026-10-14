@@ -115,14 +115,26 @@ Você pediu para arrumar as pendências. Ficaram assim:
 - O log do servidor ficou sem erro, e todas as 5 contas criadas tinham o hash em Argon2id com os parâmetros de produção.
 - O teste mostrou um detalhe: num banco com o locale "C", a busca não iguala letras acentuadas maiúsculas e minúsculas ("CAFÉ" e "café"). Num banco criado com `ICU_LOCALE 'pt-BR'`, iguala. Por isso o passo 2 agora cria o banco assim. O app e o roteiro de todas as telas também passaram nesse banco.
 
+**Dependências**
+- O Dependency-Check não rodou sem a chave da NVD:
+  - a versão 13.0.0 (a do `pom.xml`) manda a chave vazia, e a NVD responde "Invalid apiKey";
+  - a 12.2.2 começou a baixar sem chave, mas parou com erro 429 ("muitas consultas") em 27% dos 407.703 registros. Uma segunda tentativa, mais lenta, recomeçou do zero e foi interrompida.
+- No lugar dele, as 135 bibliotecas (as 97 do jar e as dos testes) foram conferidas na base pública OSV (osv.dev), que reúne os alertas do GitHub e não pede chave. Ela recebeu só os nomes e as versões.
+- A OSV achou 10 vulnerabilidades em duas bibliotecas que vêm com o Spring Boot 4.1.1:
+  - Tomcat 11.0.24: 3 falhas de autenticação e autorização, com nota de 9,1 a 9,8;
+  - Jackson 3.1.5: 7 falhas, quase todas de travar o servidor com um JSON feito de propósito, com nota até 7,5.
+- Como ainda não há Spring Boot 4.1.2, as versões foram fixadas no `pom.xml`: Tomcat 11.0.27 e Jackson 3.1.7 (`48dd63a`). Depois disso, a OSV não acusa nada.
+- Com as versões novas, os 256 testes e os dois roteiros no navegador passaram, com o Tomcat 11.0.27 confirmado no log.
+
 ## O que você precisa fazer à mão
 
 Nesta ordem:
 
-1. **Checar as dependências.**
-   - Peça a chave gratuita da NVD em https://nvd.nist.gov/developers/request-an-api-key.
-   - Defina `NVD_API_KEY` e rode `.\mvnw.cmd dependency-check:check`.
-   - O build falha se houver vulnerabilidade com nota 7 ou mais. **Isso ainda não foi feito.**
+1. **Checar as dependências com o Dependency-Check.**
+   - Peça a chave gratuita da NVD em https://nvd.nist.gov/developers/request-an-api-key. Ela é pedida com o seu e-mail, então só você consegue.
+   - Defina `NVD_API_KEY` e rode `.\mvnw.cmd dependency-check:check "-DossIndexAnalyzerEnabled=false"`.
+   - O build falha se houver vulnerabilidade com nota 7 ou mais.
+   - Sem a chave não dá: ver "Dependências" em "Pendências resolvidas". As dependências já foram conferidas na base OSV, mas o Dependency-Check é a checagem do plano e olha também a base da NVD.
 
 2. **Criar o banco PostgreSQL.** No `psql`, como administrador:
 
@@ -171,7 +183,8 @@ Nesta ordem:
 
 ## Pendências
 
-- Dependency-Check não rodou (falta a `NVD_API_KEY`).
+- O Dependency-Check não rodou, porque precisa da `NVD_API_KEY` (passo 1). As dependências foram conferidas na OSV.
+- Quando sair um Spring Boot mais novo, apague as propriedades `tomcat.version` e `jackson-bom.version` do `pom.xml`, se ele já trouxer versões iguais ou maiores.
 - PostgreSQL testado só na versão 18.6.
 - `favicon.svg` e `robots.txt` ficam 1 ano no cache sem versão no nome. Se um deles mudar, troque o nome do arquivo.
 - SEO 54 nas telas medidas, de propósito: o `robots.txt` bloqueia buscadores. Também falta `meta description`.

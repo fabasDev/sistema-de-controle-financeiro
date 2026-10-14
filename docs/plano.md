@@ -278,3 +278,4 @@ Detalhes em `docs/entrega-final.md`, seção "Pendências resolvidas depois do r
 - **Senha:** mínimo de 15 caracteres e Argon2id (`66fe6aa`). Isso substitui a decisão da Fase 1 (12 caracteres) e o BCrypt da Fase 2. Senhas antigas viram Argon2id no primeiro login.
 - **Gráfico do histórico no celular:** desenho próprio para a tela estreita (`88dd19a`, `fe0faba`).
 - **PostgreSQL de verdade:** migrações e roteiros testados no PostgreSQL 18.6. O banco de produção deve ser criado com `ICU_LOCALE 'pt-BR'`, para a busca igualar maiúsculas acentuadas.
+- **Dependências:** o Dependency-Check não roda sem a chave da NVD (a 13.0.0 recusa, e a 12.2.2 levou erro 429 em 27%). A conferência foi feita na base OSV e achou falhas no Tomcat 11.0.24 e no Jackson 3.1.5, corrigidas fixando Tomcat 11.0.27 e Jackson 3.1.7 (`48dd63a`). A checagem do plano continua pendente da chave.
