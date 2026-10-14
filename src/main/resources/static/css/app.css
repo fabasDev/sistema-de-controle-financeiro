@@ -513,8 +513,14 @@
   .chart-grid line { stroke: var(--chart-grid); stroke-width: 1; }
   .chart-baseline { stroke: var(--chart-ink); stroke-width: 1; }
   .chart-tick { fill: var(--chart-ink); font-family: var(--font-figures); font-size: 11px; font-variant-numeric: tabular-nums lining-nums; }
-  /* O SVG do histórico tem largura fixa (640) e encolhe no celular: letra maior para continuar legível. */
-  @media (max-width: 39.99rem) { .chart-tick { font-size: 16px; } }
+  /* Histórico: desenho largo (640) na tela larga e estreito (320) no celular, que aparece quase no
+     tamanho real; a letra do estreito é maior. As distâncias entre os nomes de mês estão em HistoryChart. */
+  .chart-svg-estreito { display: none; }
+  .chart-svg-estreito .chart-tick { font-size: 13px; }
+  @media (max-width: 39.99rem) {
+    .chart-svg-largo { display: none; }
+    .chart-svg-estreito { display: block; }
+  }
   .bar-income { fill: var(--series-1); }
   .bar-outflow { fill: var(--series-2); }
   .chart-svg path:hover { opacity: 0.8; }

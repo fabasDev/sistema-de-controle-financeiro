@@ -25,7 +25,7 @@ class HistoryChartTest {
         List<HistoryRow> rows = List.of(
                 row(2026, 9, "5000", "3200", "800"),
                 row(2026, 10, "5200", "4100", "0"));
-        HistoryChart.Model chart = HistoryChart.build(rows, fmt);
+        HistoryChart.Model chart = HistoryChart.build(rows, fmt, HistoryChart.Size.WIDE);
 
         assertThat(chart.bars()).hasSize(4);
         assertThat(chart.bars()).allSatisfy(b -> assertThat(b.path()).startsWith("M").endsWith("Z"));
@@ -37,8 +37,38 @@ class HistoryChartTest {
 
     @Test
     void mesSemValorNaoDesenhaColuna() {
-        HistoryChart.Model chart = HistoryChart.build(List.of(row(2026, 10, "0", "0", "0")), fmt);
+        HistoryChart.Model chart = HistoryChart.build(List.of(row(2026, 10, "0", "0", "0")), fmt, HistoryChart.Size.WIDE);
         assertThat(chart.bars()).isEmpty();
+    }
+
+    /**
+     * Nas duas larguras e nos três períodos da tela (6, 12 e 24 meses), os nomes de mês não se
+     * encostam e o mês mais recente sempre aparece.
+     */
+    @ParameterizedTest(name = "{0} com {1} meses")
+    @CsvSource({"WIDE, 6", "WIDE, 12", "WIDE, 24", "NARROW, 6", "NARROW, 12", "NARROW, 24"})
+    void nomesDeMesNaoSeEncostam(HistoryChart.Size size, int months) {
+        List<HistoryRow> rows = new java.util.ArrayList<>();
+        for (int i = months - 1; i >= 0; i--) {
+            YearMonth m = YearMonth.of(2026, 10).minusMonths(i);
+            rows.add(row(m.getYear(), m.getMonthValue(), "5000", "3000", "500"));
+        }
+        HistoryChart.Model chart = HistoryChart.build(rows, fmt, size);
+
+        assertThat(chart.width()).isEqualTo(size.width());
+        assertThat(chart.xLabels().getLast().label()).isEqualTo("out/26");
+        for (int i = 1; i < chart.xLabels().size(); i++) {
+            assertThat(chart.xLabels().get(i).x() - chart.xLabels().get(i - 1).x())
+                    .isGreaterThanOrEqualTo(size.labelSpacing());
+        }
+        assertThat(chart.bars()).allSatisfy(b -> assertThat(b.path()).doesNotContain("-"));
+    }
+
+    @Test
+    void paginaTemDoisDesenhosComIdsDiferentes() {
+        List<HistoryChart.Model> charts = HistoryChart.buildAll(List.of(row(2026, 10, "100", "50", "0")), fmt);
+        assertThat(charts).extracting(HistoryChart.Model::key).containsExactly("largo", "estreito");
+        assertThat(charts).extracting(HistoryChart.Model::width).containsExactly(640, 320);
     }
 
     private static HistoryRow row(int y, int m, String income, String spent, String saved) {

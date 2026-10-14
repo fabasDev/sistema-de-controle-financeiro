@@ -39,7 +39,7 @@ public class HistoryController {
         model.addAttribute("hasData", rows.stream().anyMatch(r -> r.income().signum() != 0
                 || r.spent().signum() != 0 || r.saved().signum() != 0));
         model.addAttribute("categories", history.categories(me.getId(), end, count));
-        model.addAttribute("chart", HistoryChart.build(rows, formats));
+        model.addAttribute("charts", HistoryChart.buildAll(rows, formats));
         return "history/page";
     }
 }

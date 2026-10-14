@@ -12,12 +12,14 @@ import java.util.List;
  * Segue a skill dataviz: uma escala só, colunas de no máximo 24px, ponta arredondada de 4px e
  * base reta, 2px de folga entre as colunas, grade em linha fina. As posições saem de BigDecimal
  * direto para pixels inteiros, sem passar por double.
+ *
+ * <p>O SVG encolhe junto com a tela, e a letra encolhe junto. Por isso há dois desenhos: um de
+ * 640 de largura para a tela larga e um de 320 para o celular, que aparece quase no tamanho real
+ * (o CSS mostra um ou outro). No estreito, a letra é maior e há menos nomes de mês no eixo.
  */
 public final class HistoryChart {
 
-    public static final int WIDTH = 640;
     public static final int HEIGHT = 240;
-    static final int LEFT = 56;
     static final int RIGHT = 8;
     static final int TOP = 12;
     static final int PLOT_HEIGHT = 180;
@@ -34,14 +36,52 @@ public final class HistoryChart {
     public record XLabel(int x, String label) {
     }
 
-    public record Model(int width, int height, int baseline, int plotLeft, int plotRight, List<Bar> bars,
-            List<Tick> ticks, List<XLabel> xLabels, String description) {
+    /**
+     * Uma largura de desenho. {@code left}: espaço para os valores do eixo; {@code labelSpacing}:
+     * distância mínima entre os nomes de mês, para não se encostarem (depende do tamanho da letra
+     * no CSS: 11px no largo, 13px no estreito).
+     */
+    public enum Size {
+        WIDE("largo", 640, 56, 44, 18),
+        NARROW("estreito", 320, 68, 52, 20);
+
+        private final String key;
+        private final int width;
+        private final int left;
+        private final int labelSpacing;
+        private final int labelOffset;
+
+        Size(String key, int width, int left, int labelSpacing, int labelOffset) {
+            this.key = key;
+            this.width = width;
+            this.left = left;
+            this.labelSpacing = labelSpacing;
+            this.labelOffset = labelOffset;
+        }
+
+        public int width() {
+            return width;
+        }
+
+        int labelSpacing() {
+            return labelSpacing;
+        }
+    }
+
+    /** {@code key} vai na classe CSS (chart-svg-largo) e no id da descrição, que precisa ser único na página. */
+    public record Model(String key, int width, int height, int baseline, int plotLeft, int plotRight,
+            int xLabelY, List<Bar> bars, List<Tick> ticks, List<XLabel> xLabels, String description) {
     }
 
     private HistoryChart() {
     }
 
-    public static Model build(List<HistoryRow> rows, ViewFormats fmt) {
+    /** Os dois desenhos, largo e estreito, para a mesma página. */
+    public static List<Model> buildAll(List<HistoryRow> rows, ViewFormats fmt) {
+        return List.of(build(rows, fmt, Size.WIDE), build(rows, fmt, Size.NARROW));
+    }
+
+    public static Model build(List<HistoryRow> rows, ViewFormats fmt, Size size) {
         BigDecimal max = Money.ZERO;
         for (HistoryRow r : rows) {
             max = Money.max(max, Money.max(r.income(), outflow(r)));
@@ -50,8 +90,9 @@ public final class HistoryChart {
         BigDecimal top = max.signum() == 0 ? step.multiply(BigDecimal.valueOf(4))
                 : max.divide(step, 0, RoundingMode.CEILING).multiply(step);
         int baseline = TOP + PLOT_HEIGHT;
-        int plotRight = WIDTH - RIGHT;
-        int groupWidth = (plotRight - LEFT) / rows.size();
+        int left = size.left;
+        int plotRight = size.width - RIGHT;
+        int groupWidth = (plotRight - left) / rows.size();
         int barWidth = Math.max(2, Math.min(MAX_BAR, (groupWidth - 8 - GAP) / 2));
 
         List<Tick> ticks = new ArrayList<>();
@@ -61,23 +102,24 @@ public final class HistoryChart {
 
         List<Bar> bars = new ArrayList<>();
         List<XLabel> labels = new ArrayList<>();
-        // Não cabe o nome de todos os meses (o gráfico encolhe no celular): com 12 meses mostra
-        // um a cada dois; com 24, um a cada três.
-        int labelEvery = rows.size() > 12 ? 3 : rows.size() > 6 ? 2 : 1;
+        // Quando não cabe o nome de todos os meses, mostra um a cada tantos, contando a partir do
+        // mês mais recente (o da direita), que sempre aparece.
+        int labelEvery = Math.max(1, (size.labelSpacing + groupWidth - 1) / groupWidth);
         for (int i = 0; i < rows.size(); i++) {
             HistoryRow r = rows.get(i);
-            int center = LEFT + groupWidth * i + groupWidth / 2;
+            int center = left + groupWidth * i + groupWidth / 2;
             String month = fmt.month(r.month());
             addBar(bars, center - GAP / 2 - barWidth, barWidth, r.income(), top, baseline, "bar-income",
                     month + ": entrou " + fmt.money(r.income()));
             addBar(bars, center + GAP / 2 + GAP % 2, barWidth, outflow(r), top, baseline, "bar-outflow",
                     month + ": saiu " + fmt.money(outflow(r)));
-            if (i % labelEvery == 0 || i == rows.size() - 1) {
+            if ((rows.size() - 1 - i) % labelEvery == 0) {
                 labels.add(new XLabel(center, fmt.shortMonth(r.month())));
             }
         }
         String description = "Colunas por mês: entrou e saiu (gastos mais o que foi guardado). Os valores estão na tabela abaixo.";
-        return new Model(WIDTH, HEIGHT, baseline, LEFT, plotRight, bars, ticks, labels, description);
+        return new Model(size.key, size.width, HEIGHT, baseline, left, plotRight, baseline + size.labelOffset, bars,
+                ticks, labels, description);
     }
 
     /** Saiu = consumo + o que foi guardado. */

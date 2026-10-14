@@ -21,9 +21,11 @@
             <li><span class="swatch bar-income"></span>Entrou</li>
             <li><span class="swatch bar-outflow"></span>Saiu (gastos + guardado)</li>
         </ul>
-        <svg class="chart-svg" role="img" aria-labelledby="grafico-titulo grafico-desc"
-             th:attr="viewBox='0 0 ' + ${chart.width} + ' ' + ${chart.height}">
-            <desc id="grafico-desc" th:text="${chart.description}"></desc>
+        <!-- Dois desenhos do mesmo gráfico: o largo e o do celular (ver HistoryChart). O CSS mostra
+             um só; o outro fica com display: none e some também para o leitor de tela. -->
+        <svg th:each="chart : ${charts}" th:class="'chart-svg chart-svg-' + ${chart.key}" role="img"
+             th:attr="aria-labelledby='grafico-titulo grafico-desc-' + ${chart.key},viewBox='0 0 ' + ${chart.width} + ' ' + ${chart.height}">
+            <desc th:id="'grafico-desc-' + ${chart.key}" th:text="${chart.description}"></desc>
             <g class="chart-grid">
                 <th:block th:each="t : ${chart.ticks}">
                     <line th:attr="x1=${chart.plotLeft},x2=${chart.plotRight},y1=${t.y},y2=${t.y}"></line>
@@ -33,7 +35,7 @@
             <path th:each="b : ${chart.bars}" th:attr="d=${b.path}" th:class="${b.cssClass}"><title th:text="${b.title}"></title></path>
             <line class="chart-baseline" th:attr="x1=${chart.plotLeft},x2=${chart.plotRight},y1=${chart.baseline},y2=${chart.baseline}"></line>
             <text th:each="l : ${chart.xLabels}" class="chart-tick" text-anchor="middle"
-                  th:attr="x=${l.x},y=${chart.baseline + 18}" th:text="${l.label}"></text>
+                  th:attr="x=${l.x},y=${chart.xLabelY}" th:text="${l.label}"></text>
         </svg>
     </figure>
 
