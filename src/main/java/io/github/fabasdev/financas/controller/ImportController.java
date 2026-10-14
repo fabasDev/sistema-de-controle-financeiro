@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-/** Importar o backup criptografado exportado pelo app antigo (React). */
+/** Importar um backup criptografado: o exportado pelo app antigo (React) ou pelo "Exportar meus dados". */
 @Controller
 @RequestMapping("/ajustes/importar")
 public class ImportController {

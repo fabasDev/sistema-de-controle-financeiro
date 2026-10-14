@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Exportar meus dados')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <h1>Exportar meus dados</h1>
+
+    <p th:if="${error}" class="notice notice-error" role="alert"><svg th:replace="~{fragments/icons :: circleAlert}"></svg> <span th:text="${error}"></span></p>
+
+    <p>
+        O arquivo traz lançamentos, contas fixas e parcelas, metas, potes, categorias, o resultado do perfil de
+        investidor e as preferências. A senha e o código de recuperação da conta não vão junto.
+    </p>
+    <p>
+        Ele sai criptografado com a senha que você escolher agora. <strong>Sem essa senha, ninguém abre o arquivo,
+        nem você.</strong> Ela pode ser diferente da senha da conta.
+    </p>
+
+    <form th:action="@{/ajustes/exportar}" method="post" class="form">
+        <div class="field">
+            <label for="senha">Senha do arquivo</label>
+            <input id="senha" name="senha" type="password" autocomplete="new-password" required aria-describedby="senha-ajuda">
+            <p id="senha-ajuda" class="hint">Pelo menos 12 caracteres. Uma frase com algumas palavras funciona bem.</p>
+        </div>
+        <div class="field">
+            <label for="confirmacao">Repita a senha</label>
+            <input id="confirmacao" name="confirmacao" type="password" autocomplete="new-password" required>
+        </div>
+        <p>
+            <button type="submit" class="button-primary">Baixar o arquivo</button>
+            <a class="link-standalone" th:href="@{/ajustes}">Voltar</a>
+        </p>
+    </form>
+
+    <p class="small">Para trazer os dados de volta, use <a th:href="@{/ajustes/importar}">Importar um backup</a>, aqui ou em outra conta.</p>
+</main>
+</body>
+</html>

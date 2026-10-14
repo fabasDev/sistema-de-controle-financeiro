@@ -131,6 +131,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findUnpaidOfRecurringFrom(@Param("recurringId") Long recurringId,
             @Param("from") YearMonth from);
 
+    /** Todos os lançamentos do usuário, do mais antigo ao mais novo, para o backup. Uma query só. */
+    @Query("""
+            select new io.github.fabasdev.financas.repository.TransactionExportRow(
+                t.id, t.type, t.date, t.description, t.amount, t.paid, c.id, g.id, r.id, t.recurringMonth)
+            from Transaction t left join t.category c left join t.goal g left join t.recurring r
+            where t.user.id = :userId
+            order by t.date, t.id
+            """)
+    List<TransactionExportRow> findForExport(@Param("userId") Long userId);
+
     /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
     @Modifying
     @Query("delete from Transaction e where e.user.id = :userId")

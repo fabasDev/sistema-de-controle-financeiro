@@ -38,8 +38,12 @@ O cookie de sessão é `Secure`, então em produção o app precisa estar atrás
 ### Trazer os dados do app antigo
 
 1. No app antigo (`legacy-web`), em Ajustes, use "Exportar backup criptografado".
-2. No app novo, entre na sua conta e vá em **Ajustes → Importar o backup do app antigo**.
+2. No app novo, entre na sua conta e vá em **Ajustes → Importar um backup**.
 3. Escolha o arquivo e digite a senha do backup. Os dados atuais da conta são substituídos.
+
+### Backup dos dados
+
+Em **Ajustes → Exportar meus dados**, o app baixa tudo o que a conta tem num arquivo `.json` criptografado com uma senha escolhida na hora (AES-256-GCM, chave derivada da senha com PBKDF2-SHA256 de 600 mil iterações). O formato é o mesmo do backup do app antigo, então o arquivo volta pela mesma tela de importação, nesta conta, em outra ou em outro servidor. A senha e o código de recuperação da conta não vão no arquivo.
 
 ### Verificar vulnerabilidades nas dependências
 
@@ -55,6 +59,7 @@ Enquanto `legacy-web/` existir, rode também `npm audit` dentro dela.
 - **Simulador:** atualiza enquanto você digita, com gráfico e tabela ano a ano. As contas são feitas no servidor, em `BigDecimal`.
 - **Histórico:** entradas × saídas por mês (gráfico e tabela) e gastos por categoria.
 - **Começar:** assistente inicial para a conta nova, dados de exemplo e importação do backup do app antigo.
+- **Backup:** exportar todos os dados num arquivo criptografado e importar de volta.
 
 Sem JavaScript, tudo continua funcionando: formulários vão para o servidor e apagar passa por uma página de confirmação. O JavaScript (módulos em `src/main/resources/static/js`, sem dependência nem build) só melhora a experiência.
 

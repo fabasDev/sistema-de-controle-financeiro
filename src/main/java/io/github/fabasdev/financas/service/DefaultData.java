@@ -60,4 +60,13 @@ public final class DefaultData {
     public static Optional<DefaultGoal> goalByLegacyId(String legacyId) {
         return GOALS.stream().filter(g -> g.legacyId().equals(legacyId)).findFirst();
     }
+
+    /** O caminho inverso, para o backup exportado: a chave de sistema vira o id do app antigo. */
+    public static Optional<DefaultCategory> categoryByKey(String key) {
+        return CATEGORIES.stream().filter(c -> c.key().equals(key)).findFirst();
+    }
+
+    public static Optional<DefaultGoal> goalByKey(String key) {
+        return GOALS.stream().filter(g -> g.key().equals(key)).findFirst();
+    }
 }

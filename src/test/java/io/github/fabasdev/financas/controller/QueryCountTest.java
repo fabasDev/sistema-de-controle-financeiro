@@ -1,8 +1,10 @@
 package io.github.fabasdev.financas.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.fabasdev.financas.domain.Bucket;
@@ -46,7 +48,7 @@ class QueryCountTest {
 
     static final List<String> PAGES = List.of("/", "/lancamentos", "/lancamentos/novo", "/contas-fixas",
             "/planejamento", "/metas", "/historico?meses=12", "/investimentos", "/api/assistente", "/comecar", "/simulador",
-            "/ajustes");
+            "/ajustes", "/ajustes/exportar");
 
     @Autowired
     MockMvc mvc;
@@ -86,22 +88,26 @@ class QueryCountTest {
         assertThat(((Page<?>) defaultResult.getModelAndView().getModel().get("page")).getSize()).isEqualTo(20);
     }
 
+    /** O backup lê tudo da conta de uma vez: o número de queries também não pode crescer com os registros. */
+    @Test
+    void exportarNaoFazUmaQueryPorRegistro() throws Exception {
+        assertThat(exportQueries(75)).isEqualTo(exportQueries(25));
+    }
+
+    private long exportQueries(int n) throws Exception {
+        AppUserPrincipal me = seed(n);
+        Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
+        stats.clear();
+        mvc.perform(post("/ajustes/exportar").with(user(me)).with(csrf())
+                        .param("senha", TestAccounts.PASSWORD).param("confirmacao", TestAccounts.PASSWORD))
+                .andExpect(status().isOk());
+        long count = stats.getPrepareStatementCount();
+        System.out.println("Queries ao exportar " + n + " registros: " + count);
+        return count;
+    }
+
     private Map<String, Long> queriesPerPage(int n) throws Exception {
-        AppUserPrincipal me = accounts.create().principal();
-        Long userId = me.getId();
-        Bucket bucket = buckets.findByUserIdOrderBySortOrderAscIdAsc(userId).getFirst();
-        LocalDate today = LocalDate.now();
-        for (int i = 0; i < n; i++) {
-            Category c = categories.create(userId,
-                    new CategoryService.CategoryData("Categoria " + i, "Tag", bucket.getId(), null, null));
-            var goal = goals.create(userId, new GoalService.GoalData("Meta " + i, "Target", GoalKind.GOAL,
-                    new BigDecimal("1000"), YearMonth.now().plusMonths(12), BigDecimal.ZERO));
-            transactions.create(userId, new TransactionService.TransactionData(TransactionType.EXPENSE,
-                    today.minusMonths(i % 6), "Gasto " + i, new BigDecimal("10.00"), c.getId(), goal.getId(), true,
-                    false, null));
-            recurring.create(userId, new RecurringService.RecurringData(TransactionType.EXPENSE, "Conta " + i,
-                    new BigDecimal("5.00"), c.getId(), null, 5, YearMonth.now().minusMonths(1), null, true));
-        }
+        AppUserPrincipal me = seed(n);
         // Primeira visita gera os lançamentos das contas fixas do mês; a medição é na segunda.
         for (String page : PAGES) {
             mvc.perform(get(page).with(user(me))).andExpect(status().isOk());
@@ -115,5 +121,26 @@ class QueryCountTest {
         }
         System.out.println("Queries por tela com " + n + " registros: " + counts);
         return counts;
+    }
+
+    /** Conta nova com n categorias, metas, lançamentos e contas fixas. */
+    private AppUserPrincipal seed(int n) {
+        AppUserPrincipal me = accounts.create().principal();
+        Long userId = me.getId();
+        Bucket bucket = buckets.findByUserIdOrderBySortOrderAscIdAsc(userId).getFirst();
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < n; i++) {
+            var goal = goals.create(userId, new GoalService.GoalData("Meta " + i, "Target", GoalKind.GOAL,
+                    new BigDecimal("1000"), YearMonth.now().plusMonths(12), BigDecimal.ZERO));
+            // Metade das categorias ligada a uma meta, para as telas e o backup lerem essa ligação também.
+            Category c = categories.create(userId, new CategoryService.CategoryData("Categoria " + i, "Tag",
+                    bucket.getId(), null, i % 2 == 0 ? goal.getId() : null));
+            transactions.create(userId, new TransactionService.TransactionData(TransactionType.EXPENSE,
+                    today.minusMonths(i % 6), "Gasto " + i, new BigDecimal("10.00"), c.getId(), goal.getId(), true,
+                    false, null));
+            recurring.create(userId, new RecurringService.RecurringData(TransactionType.EXPENSE, "Conta " + i,
+                    new BigDecimal("5.00"), c.getId(), null, 5, YearMonth.now().minusMonths(1), null, true));
+        }
+        return me;
     }
 }

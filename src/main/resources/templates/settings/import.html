@@ -4,7 +4,7 @@
 <body>
 <header th:replace="~{fragments/layout :: appHeader}"></header>
 <main id="conteudo" class="page">
-    <h1>Importar o backup do app antigo</h1>
+    <h1>Importar um backup</h1>
 
     <section th:if="${result}" class="notice notice-success notice-block" role="status" aria-labelledby="ok-titulo">
         <h2 id="ok-titulo"><svg th:replace="~{fragments/icons :: circleCheck}"></svg> Backup importado</h2>
@@ -26,7 +26,7 @@
 
     <th:block th:unless="${result}">
         <ol>
-            <li>No app antigo, abra Ajustes e use "Exportar backup criptografado".</li>
+            <li>Exporte o arquivo. Neste app: Ajustes, "Exportar meus dados". No app antigo: Ajustes, "Exportar backup criptografado".</li>
             <li>Escolha o arquivo .json aqui e digite a senha que você usou ao exportar.</li>
         </ol>
         <p><strong>Os dados atuais desta conta serão substituídos</strong> pelos do backup. A conta e a senha continuam as mesmas.</p>

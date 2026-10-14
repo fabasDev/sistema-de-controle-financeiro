@@ -16,9 +16,10 @@ import javax.crypto.spec.SecretKeySpec;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Abre o backup criptografado do app antigo, no mesmo formato de legacy-web/src/store/backup.ts:
- * chave AES-256 derivada da senha com PBKDF2-SHA256 e dados em AES-GCM, com AAD "financas:backup:v1".
- * A senha passa por NFKC antes, como fazia o deriveKek do navegador.
+ * Abre o backup criptografado, no formato de legacy-web/src/store/backup.ts: chave AES-256 derivada
+ * da senha com PBKDF2-SHA256 e dados em AES-GCM, com AAD "financas:backup:v1". A senha passa por NFKC
+ * antes, como fazia o deriveKek do navegador. O "Exportar meus dados" (BackupEncryptor) grava no mesmo
+ * formato, então o arquivo do app antigo e o deste app abrem pelo mesmo caminho.
  */
 public final class LegacyBackupDecryptor {
 
@@ -50,7 +51,7 @@ public final class LegacyBackupDecryptor {
         int iterations = kdf.path("iterations").asInt();
         if (iterations < MIN_ITERATIONS || iterations > MAX_ITERATIONS) {
             throw new InvalidInputException("file", "Este backup usa um parâmetro de segurança fora do esperado. "
-                    + "Exporte de novo pelo app antigo.");
+                    + "Exporte o backup de novo.");
         }
         byte[] salt = base64(kdf.get("salt"));
         byte[] iv = base64(root.get("iv"));
@@ -66,12 +67,8 @@ public final class LegacyBackupDecryptor {
 
     /** Devolve o JSON decifrado. Senha errada ou arquivo alterado: a tag do GCM não confere. */
     public static byte[] decrypt(Envelope envelope, String password) {
-        char[] chars = Normalizer.normalize(password, Normalizer.Form.NFKC).toCharArray();
-        PBEKeySpec spec = new PBEKeySpec(chars, envelope.salt(), envelope.iterations(), 256);
-        byte[] keyBytes = null;
         try {
-            keyBytes = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
-            SecretKey key = new SecretKeySpec(keyBytes, "AES");
+            SecretKey key = deriveKey(password, envelope.salt(), envelope.iterations());
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(128, envelope.iv()));
             cipher.updateAAD(AAD.getBytes(StandardCharsets.UTF_8));
@@ -81,6 +78,18 @@ public final class LegacyBackupDecryptor {
             throw new InvalidInputException("password", WRONG_PASSWORD);
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("Falha ao abrir o backup", e);
+        }
+    }
+
+    /** Chave AES-256 da senha (NFKC + PBKDF2-SHA256), usada para abrir e para gravar o backup. */
+    static SecretKey deriveKey(String password, byte[] salt, int iterations) throws GeneralSecurityException {
+        char[] chars = Normalizer.normalize(password, Normalizer.Form.NFKC).toCharArray();
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 256);
+        byte[] keyBytes = null;
+        try {
+            keyBytes = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
+            // O SecretKeySpec guarda uma cópia da chave, então keyBytes pode ser limpo em seguida.
+            return new SecretKeySpec(keyBytes, "AES");
         } finally {
             spec.clearPassword();
             Arrays.fill(chars, '\0');

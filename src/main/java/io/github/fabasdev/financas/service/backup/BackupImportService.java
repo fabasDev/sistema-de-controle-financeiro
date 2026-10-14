@@ -46,8 +46,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * "Importar backup do app antigo": abre o arquivo exportado pelo app React e substitui os dados
- * da conta logada. Os ids do arquivo ("cat-moradia", uuids...) não vão para o banco: cada registro
+ * "Importar um backup": abre o arquivo exportado pelo app React ou pelo "Exportar meus dados" (o
+ * formato é o mesmo) e substitui os dados da conta logada. Os ids do arquivo ("cat-moradia", uuids...) não vão para o banco: cada registro
  * ganha um id novo, e as ligações (categoria → pote, lançamento → conta fixa...) são refeitas
  * por um mapa id antigo → registro novo.
  */
