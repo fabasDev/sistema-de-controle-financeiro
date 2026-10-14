@@ -2,9 +2,9 @@
 
 Controle financeiro pessoal. Você registra os gastos do mês e o app responde três perguntas logo no topo: **quanto gastei, quanto sobra e quanto posso investir**.
 
-![Java 25](https://img.shields.io/badge/Java-25-1b2a33?style=flat-square&logo=openjdk&logoColor=white)
-![Spring Boot 4.1.1](https://img.shields.io/badge/Spring_Boot-4.1.1-17603f?style=flat-square&logo=springboot&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-1b2a33?style=flat-square&logo=postgresql&logoColor=white)
+![Java 25](https://img.shields.io/badge/Java-25-0c1b33?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot 4.1.1](https://img.shields.io/badge/Spring_Boot-4.1.1-1f4e9c?style=flat-square&logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-0c1b33?style=flat-square&logo=postgresql&logoColor=white)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/visao-geral-escuro.png">
@@ -103,15 +103,15 @@ Para voltar ao começo sem perder a conta, use **Ajustes → Recomeçar do zero*
 
 | Tela | O que faz |
 |---|---|
-| **Visão geral** | Mostra quanto gastei, quanto sobra e quanto posso investir. Logo abaixo ficam o lançamento rápido (valor, categoria e salvar, com a data de hoje e as categorias mais usadas primeiro) e as pendências do mês, com o botão "Marcar como pago". |
-| **Lançamentos** | Lista o mês, com busca e filtros por tipo, categoria e situação (pendentes ou pagas). |
+| **Visão geral** | Mostra quanto gastei, quanto sobra e quanto posso investir. Logo abaixo ficam o lançamento rápido (valor, categoria e salvar, com a data de hoje e as categorias mais usadas primeiro), as pendências do mês, com o botão "Marcar como pago", e uma barra por pote dizendo quanto do planejado já foi usado. |
+| **Lançamentos** | Lista o mês, com busca e filtros por tipo, categoria e situação (pendentes ou pagas). Tocar num lançamento abre a edição, onde também dá para apagar. |
 | **Contas fixas e parcelas** | Cada mês já começa com elas lançadas como pendentes, a pagar ou a receber. Mudar uma conta muda os lançamentos ainda não pagos dali em diante. Apagar tira os lançamentos futuros e deixa o histórico. |
 | **Planejamento** | Define a regra que divide a renda em potes. Há quatro prontas: 50/30/20, 70/20/10, 6 potes e "pague-se primeiro" (80/20). Editar os potes cria uma regra sua. Cada categoria fica num pote e pode ter limite mensal. |
 | **Metas** | Calcula a reserva de emergência (quantos meses de custo de vida guardar e quanto falta). Também guarda metas com valor e prazo e diz quanto guardar por mês para chegar lá. |
 | **Investimentos** | Tem o questionário de perfil (as respostas ficam no navegador), a carteira sugerida e um assistente que responde com os seus números, sem IA externa. |
 | **Simulador** | Simula juros compostos com inflação e aumento do aporte a cada ano. Atualiza enquanto você digita e mostra gráfico e tabela ano a ano. |
 | **Histórico** | Mostra entradas × saídas por mês, em gráfico e tabela, e os gastos por categoria. |
-| **Ajustes** | Reúne nome, tema (claro, escuro ou o do aparelho), troca de senha, novo código de recuperação, backup, dados de exemplo, recomeçar do zero e excluir a conta. |
+| **Ajustes** | Reúne nome, tema (escuro, que é o padrão, claro ou o do aparelho), troca de senha, novo código de recuperação, backup, dados de exemplo, recomeçar do zero e excluir a conta. |
 
 Apagar qualquer registro (lançamento, conta fixa, meta, pote ou categoria) mostra **Desfazer** por 10 minutos.
 
@@ -142,12 +142,12 @@ src/main/java/io/github/fabasdev/financas/
   security/     política de senha, limite de tentativas, filtros de sessão
   config/       Spring Security, relógio (fuso America/Sao_Paulo) e cache do JavaScript
 src/main/resources/
-  db/migration/ V1 (tabelas), V2 (regras 50/30/20, 70/20/10, 6 potes e 80/20) e V3 (tema na conta)
+  db/migration/ V1 (tabelas), V2 (regras 50/30/20, 70/20/10, 6 potes e 80/20), V3 (tema na conta) e V4 (escuro como padrão)
   security/     listas de senhas comuns, com a licença
   templates/    HTML das telas (fragments/icons.html: ícones Lucide)
   static/css/   tokens.css (cor, tipografia, espaçamento) e app.css
   static/fonts/ fontes Besley e Atkinson Hyperlegible Next, com as licenças
-  static/js/    melhorias em JavaScript (simulador, questionário, assistente, validação de formulário, menu)
+  static/js/    melhorias em JavaScript (simulador, questionário, assistente, validação de formulário, "Mais" do celular)
 src/test/java/  testes JUnit 5 (perfil test, H2 em memória)
 src/test/js/    testes do JavaScript (node --test)
 legacy-web/     app React antigo (até a importação dos dados ser conferida)
@@ -156,9 +156,9 @@ docs/           plano, entrega final, auditoria, medições do Lighthouse e as c
 
 ### Visual
 
-A direção é a de um **livro-caixa sóbrio**: papel claro, tinta escura, um verde de destaque e vermelho só para valor negativo. Os valores usam a fonte Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. O app segue o tema claro ou escuro do aparelho, ou o escolhido em Ajustes, que fica guardado na conta.
+A direção é a **noite azul**: fundo azul-marinho escuro, texto claro, um azul-céu de destaque e vermelho só para valor negativo. O tema claro (papel frio, tinta azul-marinho e azul-cobalto) e o automático, que segue o aparelho, ficam em Ajustes, guardados na conta. Os valores usam a fonte Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. No celular, a navegação fica numa barra embaixo, perto do polegar: Início, Lançamentos, Metas e "Mais".
 
-Cor, tipografia e espaçamento ficam todos em [`tokens.css`](src/main/resources/static/css/tokens.css), e o resto do CSS só usa esses nomes. O plano de design está em [`docs/plano.md`](docs/plano.md), na parte "Como a Fase 4 ficou".
+Cor, tipografia e espaçamento ficam todos em [`tokens.css`](src/main/resources/static/css/tokens.css), e o resto do CSS só usa esses nomes. O plano de design está em [`docs/plano.md`](docs/plano.md), nas partes "Como a Fase 4 ficou" e "Noite azul".
 
 ## Segurança
 

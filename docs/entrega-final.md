@@ -33,7 +33,7 @@ O app novo agora faz tudo o que o antigo fazia: as três funções que faltavam 
 - Tudo funciona sem JavaScript.
 
 **Fase 4: visual** (`3c6e228` a `5b6dee3`)
-- Direção "livro-caixa sóbrio": Besley nos valores, Atkinson Hyperlegible Next no texto, ícones do Lucide e tema escuro pelos mesmos tokens.
+- Direção "livro-caixa sóbrio": Besley nos valores, Atkinson Hyperlegible Next no texto, ícones do Lucide e tema escuro pelos mesmos tokens. As cores foram trocadas depois pela "Noite azul" (ver "Noite azul" no fim deste arquivo).
 - Acessibilidade 100 no Lighthouse nas 18 telas testadas. `/security-review` sem achados.
 
 **Fase 5: desempenho** (`7bbb74e` a `604bdca`)
@@ -62,7 +62,7 @@ Na primeira versão deste relatório, o app novo ainda não fazia três coisas q
 
 Detalhes:
 - **Exportar:** a senha do arquivo segue a regra da senha da conta, porque quem pegar o arquivo pode tentar adivinhá-la no próprio computador. A Privacidade passou a citar a portabilidade (LGPD, art. 18, V). Só existe o formato criptografado; uma planilha (CSV) pode vir depois, se você quiser.
-- **Tema:** fica na conta, não num cookie, porque o "Sair" apaga os cookies do site e a Privacidade promete um cookie só. As telas de entrar e de cadastro seguem o aparelho. Se você trocar o tema num aparelho, outro aparelho já logado só muda quando entrar de novo.
+- **Tema:** fica na conta, não num cookie, porque o "Sair" apaga os cookies do site e a Privacidade promete um cookie só. As telas de entrar e de cadastro usam o escuro, que virou o padrão com a "Noite azul". Se você trocar o tema num aparelho, outro aparelho já logado só muda quando entrar de novo.
 
 **Verificação das três funções:**
 - `./mvnw verify`: 244 testes JUnit, BUILD SUCCESS. Os novos cobrem:
@@ -189,3 +189,16 @@ Nesta ordem:
 - `favicon.svg` e `robots.txt` ficam 1 ano no cache sem versão no nome. Se um deles mudar, troque o nome do arquivo.
 - SEO 54 nas telas medidas, de propósito: o `robots.txt` bloqueia buscadores. Também falta `meta description`.
 - Testado só no Chrome e em `localhost`. Safari e Firefox não foram testados.
+
+## Noite azul (14/10/2026)
+
+Você achou que as cores não ficaram boas e preferiu tons de azul mais escuro. Entre três paletas aplicadas nas telas de verdade, escolheu a "Noite azul". Também marcou três pontos da experiência para arrumar. Detalhes e decisões em `docs/plano.md`, seção "Noite azul".
+
+| O quê | Como ficou | Commit |
+|---|---|---|
+| Cores | Fundo azul-marinho escuro como padrão, texto claro e destaque azul-céu. O claro (papel frio, tinta azul-marinho, azul-cobalto) e o automático ficam em Ajustes. A migração V4 passa para o escuro as contas que estavam no automático. | `ab82586` |
+| Navegação no celular | Barra fixa embaixo com Início, Lançamentos, Metas e "Mais", no lugar do botão "Menu". | `5af7c41` |
+| Lista de lançamentos | Tocar na linha abre a edição; "Apagar" foi para dentro dela, com desfazer. Filtros recolhidos até serem usados. | `e319d2a` |
+| Planejado × realizado | Uma barra por pote, com "121% do planejado" escrito ao lado e aviso quando passa do plano. | `9c07a47` |
+
+Quando você reiniciar o app, a V4 roda no seu banco em `./data` e a sua conta passa a abrir no escuro.
