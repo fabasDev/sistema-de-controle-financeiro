@@ -55,7 +55,7 @@
 
     <section th:if="${result}" id="resultado" aria-labelledby="resultado-titulo">
         <h2 id="resultado-titulo">Resultado</h2>
-        <p id="resultado-estado" class="small" role="status"></p>
+        <p id="resultado-estado" class="small status-line" role="status"></p>
         <dl class="figures">
             <dt>Total no fim</dt><dd class="value" id="sim-total" th:text="${@fmt.money(result.finalTotal)}"></dd>
             <dt>Em valores de hoje</dt><dd class="value" id="sim-real" th:text="${@fmt.money(result.finalReal)}"></dd>
@@ -69,8 +69,10 @@
                 th:text="${result.requiredMonthly != null} ? ${@fmt.money(result.requiredMonthly)} + ' por mês' : ''"></dd>
         </dl>
 
-        <!-- O gráfico é desenhado pelo JavaScript; sem ele, a tabela abaixo mostra os mesmos números. -->
-        <figure class="chart" id="sim-grafico" hidden>
+        <!-- O gráfico é desenhado pelo JavaScript; sem ele, a tabela abaixo mostra os mesmos números.
+             O espaço já fica reservado na primeira pintura (viewBox fixo), com a pauta vazia enquanto
+             o desenho não chega, para a tabela não ser empurrada para baixo depois. -->
+        <figure class="chart needs-js" id="sim-grafico">
             <figcaption id="sim-grafico-titulo">Como o dinheiro cresce</figcaption>
             <ul class="chart-legend" aria-hidden="true">
                 <li><span class="swatch line-total"></span>Total</li>
@@ -78,9 +80,14 @@
                 <li><span class="swatch line-real"></span>Em valores de hoje</li>
             </ul>
             <div class="chart-area">
-                <svg class="chart-svg" role="img" tabindex="0" aria-labelledby="sim-grafico-titulo sim-grafico-desc"
-                     aria-describedby="sim-grafico-ajuda">
+                <svg class="chart-svg" viewBox="0 0 640 260" role="img" tabindex="0"
+                     aria-labelledby="sim-grafico-titulo sim-grafico-desc" aria-describedby="sim-grafico-ajuda">
                     <desc id="sim-grafico-desc">Linhas do total, do valor investido e do total em valores de hoje, ano a ano. Os valores estão na tabela abaixo.</desc>
+                    <g class="chart-grid">
+                        <line x1="64" x2="544" y1="12" y2="12"/><line x1="64" x2="544" y1="67" y2="67"/>
+                        <line x1="64" x2="544" y1="122" y2="122"/><line x1="64" x2="544" y1="177" y2="177"/>
+                        <line x1="64" x2="544" y1="232" y2="232"/>
+                    </g>
                 </svg>
                 <div class="chart-tooltip" hidden></div>
             </div>

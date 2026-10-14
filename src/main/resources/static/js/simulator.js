@@ -108,7 +108,6 @@ function init() {
     }
     renderTable(data.points)
     renderChart(data.points)
-    figure.hidden = false
   }
 
   function renderTable(all) {

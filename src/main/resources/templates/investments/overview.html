@@ -30,10 +30,15 @@
         <section id="questionario" aria-labelledby="questionario-titulo">
             <h3 id="questionario-titulo" th:text="${profile} ? 'Refazer o questionário' : 'Descubra seu perfil'">Descubra seu perfil</h3>
             <p class="small">São 8 perguntas. As respostas ficam no seu navegador: só o resultado é salvo.</p>
-            <!-- Preenchido por investments.js. Sem JavaScript, fica a escolha direta abaixo. -->
-            <div id="questionario-js">
-                <p class="small">O questionário precisa de JavaScript. Você pode escolher o perfil direto abaixo.</p>
-            </div>
+            <p class="small no-js-only">O questionário precisa de JavaScript. Você pode escolher o perfil direto abaixo.</p>
+            <!-- investments.js monta as perguntas dentro deste <details> fechado. Montar dentro de algo
+                 fechado não empurra o resto da página depois que ela aparece (sem layout shift). -->
+            <details class="needs-js">
+                <summary>Responder as perguntas</summary>
+                <div id="questionario-js">
+                    <p class="small">Se as perguntas não aparecerem, recarregue a página ou escolha o perfil direto abaixo.</p>
+                </div>
+            </details>
         </section>
 
         <details>
@@ -84,7 +89,7 @@
     <section aria-labelledby="assistente-titulo">
         <h2 id="assistente-titulo">Pergunte ao assistente</h2>
         <p class="small">Respostas educativas montadas com os seus números, sem inteligência artificial externa. As perguntas não saem do navegador.</p>
-        <div id="assistente-js">
+        <div id="assistente-js" class="chat">
             <p class="small">O assistente precisa de JavaScript.</p>
         </div>
     </section>
