@@ -80,10 +80,17 @@
   --page-width: 72rem;
 }
 
-/* Tema escuro: os mesmos nomes com outros valores. Segue a preferência do sistema.
+/* Tema escolhido em Ajustes (data-theme no <html>). Sem o atributo, vale o do aparelho.
+   O color-scheme faz campos, barras de rolagem e o fundo do navegador seguirem a escolha. */
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+/* Tema escuro: os mesmos nomes com outros valores. Vale quando o aparelho está no escuro (e a
+   pessoa não escolheu o claro) ou quando ela escolheu o escuro. Os dois blocos têm os mesmos
+   valores; o ThemeTokensTest confere isso.
    Contraste: tinta 13,2:1, lápis 7,7:1, verde 8,5:1, vermelho 6,8:1, borda 4,7:1. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --paper: #172124;
     --paper-raised: #1e2a2e;
     --ink: #e2e8e3;
@@ -97,4 +104,19 @@
     --series-2: #bd821a;
     --series-3: #5aa26b;
   }
+}
+
+:root[data-theme="dark"] {
+  --paper: #172124;
+  --paper-raised: #1e2a2e;
+  --ink: #e2e8e3;
+  --ink-muted: #a7b4ae;
+  --rule: #34443f;
+  --rule-strong: #7d8c86;
+  --accent: #7ccb9f;
+  --on-accent: #10201a;
+  --negative: #f08a7e;
+  --series-1: #5894d0;
+  --series-2: #bd821a;
+  --series-3: #5aa26b;
 }

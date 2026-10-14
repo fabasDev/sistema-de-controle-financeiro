@@ -3,8 +3,9 @@
 <head th:fragment="head(title)">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Tema claro e escuro, conforme o sistema. Vem antes do CSS para evitar o clarão branco. -->
-    <meta name="color-scheme" content="light dark">
+    <!-- Tema claro ou escuro: o escolhido em Ajustes (theme) ou, sem escolha, o do aparelho. Vem antes
+         do CSS para o navegador já pintar o fundo na cor certa, sem clarão. -->
+    <meta name="color-scheme" th:content="${theme} ?: 'light dark'">
     <title th:text="${title} + ' · Finanças'">Finanças</title>
     <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
     <!-- Token CSRF para os pedidos feitos pelo JavaScript (fetch). -->

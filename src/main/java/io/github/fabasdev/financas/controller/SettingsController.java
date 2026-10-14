@@ -1,5 +1,7 @@
 package io.github.fabasdev.financas.controller;
 
+import io.github.fabasdev.financas.controller.view.ThemeSession;
+import io.github.fabasdev.financas.domain.Theme;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.AccountService;
 import io.github.fabasdev.financas.service.InvalidInputException;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** Perfil, senha, código de recuperação, recomeçar do zero e excluir a conta. */
+/** Perfil, tema, senha, código de recuperação, recomeçar do zero e excluir a conta. */
 @Controller
 @RequestMapping("/ajustes")
 public class SettingsController {
@@ -26,17 +28,21 @@ public class SettingsController {
     private final SettingsService settings;
     private final AccountService accounts;
     private final SampleDataService sampleData;
+    private final ThemeSession themes;
 
-    public SettingsController(SettingsService settings, AccountService accounts, SampleDataService sampleData) {
+    public SettingsController(SettingsService settings, AccountService accounts, SampleDataService sampleData,
+            ThemeSession themes) {
         this.settings = settings;
         this.accounts = accounts;
         this.sampleData = sampleData;
+        this.themes = themes;
     }
 
     @GetMapping
     public String page(@AuthenticationPrincipal AppUserPrincipal me, Model model) {
         model.addAttribute("settings", settings.get(me.getId()));
         model.addAttribute("deleteWord", AccountService.DELETE_WORD);
+        model.addAttribute("themes", Theme.values());
         return "settings/page";
     }
 
@@ -48,6 +54,21 @@ public class SettingsController {
         } else {
             settings.updateDisplayName(me.getId(), displayName);
             redirect.addFlashAttribute("success", "Nome salvo.");
+        }
+        return "redirect:/ajustes";
+    }
+
+    @PostMapping("/tema")
+    public String updateTheme(@AuthenticationPrincipal AppUserPrincipal me,
+            @RequestParam(name = "tema", defaultValue = "") String value, HttpServletRequest request,
+            RedirectAttributes redirect) {
+        Theme theme = Theme.fromParam(value).orElse(null);
+        if (theme == null) {
+            redirect.addFlashAttribute("error", "Escolha um dos temas.");
+        } else {
+            settings.updateTheme(me.getId(), theme);
+            themes.remember(me.getId(), theme, request);
+            redirect.addFlashAttribute("success", "Tema salvo.");
         }
         return "redirect:/ajustes";
     }

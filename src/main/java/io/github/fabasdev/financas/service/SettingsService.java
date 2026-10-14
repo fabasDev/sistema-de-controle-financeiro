@@ -1,5 +1,6 @@
 package io.github.fabasdev.financas.service;
 
+import io.github.fabasdev.financas.domain.Theme;
 import io.github.fabasdev.financas.domain.UserSettings;
 import io.github.fabasdev.financas.dto.Simulation;
 import io.github.fabasdev.financas.repository.UserRepository;
@@ -36,6 +37,11 @@ public class SettingsService {
     }
 
     @Transactional
+    public void updateTheme(Long userId, Theme theme) {
+        get(userId).setTheme(theme);
+    }
+
+    @Transactional
     public void saveSimulation(Long userId, Simulation.Params p, BigDecimal target) {
         UserSettings s = get(userId);
         s.setSimInitial(p.initial());
@@ -47,12 +53,18 @@ public class SettingsService {
         s.setSimTarget(target);
     }
 
-    /** Apaga lançamentos, contas, metas e regras e volta aos dados iniciais. A conta continua. */
+    /**
+     * Apaga lançamentos, contas, metas e regras e volta aos dados iniciais. A conta continua, e o
+     * tema também: ele é aparência, não dado, e a sessão guarda o tema lido (ThemeSession).
+     */
     @Transactional
     public void resetData(Long userId) {
+        // Lido por consulta, sem carregar a entidade: ela é apagada e criada de novo logo abaixo.
+        Theme theme = settings.findThemeByUserId(userId).orElse(Theme.SYSTEM);
         eraser.eraseFinancialData(userId);
         settings.deleteAllByUserId(userId);
         settings.flush();
         provisioner.provision(users.getReferenceById(userId));
+        get(userId).setTheme(theme);
     }
 }

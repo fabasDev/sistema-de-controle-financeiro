@@ -76,7 +76,7 @@ Sem JavaScript, tudo continua funcionando: formulários vão para o servidor e a
 
 ## Visual
 
-Direção "livro-caixa sóbrio": papel claro, tinta escura, um verde de destaque e os valores em fonte de números impressos. Segue o tema claro ou escuro do sistema. Cor, tipografia e espaçamento ficam em `src/main/resources/static/css/tokens.css`; o resto do CSS só usa esses nomes. O plano de design e a verificação estão em `docs/plano.md` ("Como a Fase 4 ficou").
+Direção "livro-caixa sóbrio": papel claro, tinta escura, um verde de destaque e os valores em fonte de números impressos. Segue o tema claro ou escuro do aparelho, ou o escolhido em Ajustes (fica na conta e vale em qualquer aparelho). Cor, tipografia e espaçamento ficam em `src/main/resources/static/css/tokens.css`; o resto do CSS só usa esses nomes. O plano de design e a verificação estão em `docs/plano.md` ("Como a Fase 4 ficou").
 
 ### Fontes e ícones de terceiros
 

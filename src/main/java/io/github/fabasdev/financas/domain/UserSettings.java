@@ -69,6 +69,10 @@ public class UserSettings {
     @Column(nullable = false)
     private boolean onboarded;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Theme theme = Theme.SYSTEM;
+
     protected UserSettings() {
     }
 
@@ -195,5 +199,13 @@ public class UserSettings {
 
     public void setOnboarded(boolean onboarded) {
         this.onboarded = onboarded;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(Theme theme) {
+        this.theme = theme;
     }
 }

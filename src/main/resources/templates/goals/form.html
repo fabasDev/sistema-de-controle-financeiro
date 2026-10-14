@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:data-theme="${theme}">
 <head th:replace="~{fragments/layout :: head(${editingId} ? 'Editar meta' : 'Nova meta')}"></head>
 <body>
 <header th:replace="~{fragments/layout :: appHeader}"></header>

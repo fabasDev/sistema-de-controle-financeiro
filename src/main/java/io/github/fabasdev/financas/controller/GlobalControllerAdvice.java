@@ -1,5 +1,6 @@
 package io.github.fabasdev.financas.controller;
 
+import io.github.fabasdev.financas.controller.view.ThemeSession;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,12 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
+    private final ThemeSession themes;
+
+    public GlobalControllerAdvice(ThemeSession themes) {
+        this.themes = themes;
+    }
+
     /** Nome do usuário logado, para o cabeçalho das telas. */
     @ModelAttribute("currentUsername")
     public String currentUsername(@AuthenticationPrincipal AppUserPrincipal principal) {
@@ -29,6 +36,15 @@ public class GlobalControllerAdvice {
     @ModelAttribute("currentPath")
     public String currentPath(HttpServletRequest request) {
         return request.getRequestURI().substring(request.getContextPath().length());
+    }
+
+    /**
+     * Tema escolhido em Ajustes: "light", "dark" ou null (segue o aparelho). Sem login, como nas
+     * telas de entrar e de cadastro, a página segue o aparelho.
+     */
+    @ModelAttribute("theme")
+    public String theme(@AuthenticationPrincipal AppUserPrincipal principal, HttpServletRequest request) {
+        return principal == null ? null : themes.current(principal.getId(), request).attribute();
     }
 
     /** Registro inexistente ou de outro usuário: mesma resposta 404 nos dois casos. */

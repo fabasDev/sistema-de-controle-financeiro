@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:data-theme="${theme}">
 <head th:replace="~{fragments/layout :: head('Privacidade')}"></head>
 <body>
 <main id="conteudo" class="page">
@@ -18,7 +18,7 @@
         <li><strong>Conta:</strong> nome de usuário, a senha em forma de hash (BCrypt, não dá para desfazer) e o hash do código de recuperação.</li>
         <li><strong>Dados financeiros que você informa:</strong> receitas, despesas, categorias, contas fixas, parcelas, metas, saldo da reserva e os valores do simulador.</li>
         <li><strong>Perfil de investidor:</strong> só o resultado (perfil, pontuação, data e os percentuais que você ajustar). As respostas do questionário não saem do navegador.</li>
-        <li><strong>Preferências:</strong> nome de exibição, regra de distribuição e meses da reserva.</li>
+        <li><strong>Preferências:</strong> nome de exibição, regra de distribuição, meses da reserva e tema.</li>
     </ul>
     <p>O app não pede CPF, endereço, dados bancários, senhas de banco, localização, contatos, câmera ou microfone.</p>
 
