@@ -5,6 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -21,6 +24,9 @@ public class LoginThrottleFilter extends OncePerRequestFilter {
 
     public static final String SCOPE = "login";
 
+    /** O mesmo tipo de matcher que o formulário de login usa, para os dois nunca divergirem. */
+    private static final RequestMatcher LOGIN = PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/login");
+
     private final LoginAttemptService attempts;
 
     public LoginThrottleFilter(LoginAttemptService attempts) {
@@ -29,9 +35,7 @@ public class LoginThrottleFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // Compara pelo URI: o servletPath pode vir vazio, conforme o mapeamento do servlet.
-        return !("POST".equals(request.getMethod())
-                && (request.getContextPath() + "/login").equals(request.getRequestURI()));
+        return !LOGIN.matches(request);
     }
 
     @Override

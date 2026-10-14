@@ -101,6 +101,19 @@ class WebSecurityTest {
                     .andExpect(unauthenticated());
         }
 
+        /**
+         * Um caminho codificado (/%6cogin = /login) não serve para escapar do limite de tentativas:
+         * o firewall do Spring Security recusa a requisição antes do login (400).
+         */
+        @Test
+        void caminhoCodificadoNaoEntraPorFora() throws Exception {
+            Account a = accounts.create();
+            mvc.perform(post("/%6cogin").with(csrf()).with(fromIp(randomIp()))
+                            .param("username", a.user().getUsername()).param("password", a.password()))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(unauthenticated());
+        }
+
         @Test
         void loginSemTokenCsrfEhRecusado() throws Exception {
             Account a = accounts.create();

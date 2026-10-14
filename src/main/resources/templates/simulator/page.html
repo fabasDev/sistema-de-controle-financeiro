@@ -37,10 +37,13 @@
             <label for="meta">Meta de patrimônio (R$) <span class="small">(opcional)</span></label>
             <input id="meta" name="meta" type="text" inputmode="decimal" maxlength="20" th:value="${values.meta}">
         </div>
-        <p>
-            <button type="submit" class="button-primary">Simular</button>
-            <button type="submit" th:formaction="@{/simulador/salvar}" formmethod="post">Salvar estes valores</button>
-        </p>
+        <p><button type="submit" class="button-primary">Simular</button></p>
+    </form>
+
+    <!-- Formulário POST separado: só assim o Thymeleaf inclui o token CSRF. Salva os valores simulados. -->
+    <form th:if="${#lists.isEmpty(errors)}" th:action="@{/simulador/salvar}" method="post">
+        <input type="hidden" th:each="e : ${values}" th:name="${e.key}" th:value="${e.value}">
+        <button type="submit">Salvar estes valores</button>
     </form>
 
     <div th:if="${!#lists.isEmpty(errors)}" class="notice notice-error" role="alert">

@@ -37,6 +37,8 @@ class PagesRenderTest {
     SampleData sample;
     @Autowired
     ProfileService profiles;
+    @Autowired
+    io.github.fabasdev.financas.service.SettingsService settings;
 
     AppUserPrincipal me;
     SampleData.Ids ids;
@@ -93,6 +95,20 @@ class PagesRenderTest {
                         .param("categoryId", ids.category().toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Informe um valor maior que zero.")));
+    }
+
+    @Test
+    void salvarOsValoresDoSimulador() throws Exception {
+        mvc.perform(get("/simulador?inicial=2500&mensal=150&taxa=9,5&anos=7").with(user(me)))
+                .andExpect(content().string(containsString("action=\"/simulador/salvar\"")))
+                .andExpect(content().string(containsString("name=\"_csrf\"")));
+        mvc.perform(post("/simulador/salvar").with(user(me)).with(csrf())
+                        .param("inicial", "2500").param("mensal", "150").param("taxa", "9,5").param("anos", "7"))
+                .andExpect(redirectedUrl("/simulador"));
+        var s = settings.get(me.getId());
+        org.assertj.core.api.Assertions.assertThat(s.getSimInitial()).isEqualByComparingTo("2500");
+        org.assertj.core.api.Assertions.assertThat(s.getSimAnnualRate()).isEqualByComparingTo("9.5");
+        org.assertj.core.api.Assertions.assertThat(s.getSimYears()).isEqualTo(7);
     }
 
     @Test
