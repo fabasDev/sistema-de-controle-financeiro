@@ -73,11 +73,11 @@
 
     <section aria-labelledby="outras-titulo">
         <h2 id="outras-titulo">Ou, se preferir</h2>
-        <form th:action="@{/ajustes/exemplo}" method="post" class="inline">
-            <input type="hidden" name="confirmo" value="sim">
+        <form th:action="@{/ajustes/exemplo}" method="post" class="form">
+            <p class="small">6 meses fictícios, no lugar dos dados desta conta. Dá para apagar depois em Ajustes.</p>
+            <label><input type="checkbox" name="confirmo" value="sim" required> Entendo que os dados atuais da conta serão substituídos</label>
             <button type="submit">Explorar com dados de exemplo</button>
         </form>
-        <span class="small">6 meses fictícios. Dá para apagar depois em Ajustes.</span>
         <form th:action="@{/comecar/pular}" method="post">
             <button type="submit">Pular e configurar depois</button>
         </form>
