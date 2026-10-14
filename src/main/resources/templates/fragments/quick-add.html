@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  Lançamento rápido: valor → categoria → salvar. A data já vem com hoje.
+  Parâmetro "back": "inicio" ou "lancamentos" (para onde voltar depois de salvar).
+-->
+<section th:fragment="form(back)" class="quick-add" aria-labelledby="rapido-titulo">
+    <h2 id="rapido-titulo">Registrar um gasto</h2>
+    <form th:action="@{/lancamentos/rapido}" method="post" class="form quick-add-form">
+        <input type="hidden" name="type" value="EXPENSE">
+        <input type="hidden" name="paid" value="true">
+        <input type="hidden" name="voltar" th:value="${back}">
+        <div class="field">
+            <label for="rapido-valor">Valor (R$)</label>
+            <input id="rapido-valor" name="amount" type="text" inputmode="decimal" autocomplete="off" maxlength="20"
+                   required pattern="[R$ ]*[0-9][0-9.,]*" placeholder="0,00" enterkeyhint="next"
+                   data-msg-value-missing="Digite quanto gastou." data-msg-pattern-mismatch="Use só números, como 1.234,56.">
+        </div>
+        <div class="field">
+            <label for="rapido-categoria">Categoria</label>
+            <select id="rapido-categoria" name="categoryId" required data-msg-value-missing="Escolha uma categoria.">
+                <option value="">Escolha…</option>
+                <optgroup th:unless="${#lists.isEmpty(quick.mostUsed)}" label="Mais usadas">
+                    <option th:each="c : ${quick.mostUsed}" th:value="${c.id}" th:text="${c.name}"></option>
+                </optgroup>
+                <optgroup th:label="${#lists.isEmpty(quick.mostUsed)} ? 'Categorias' : 'Outras'">
+                    <option th:each="c : ${quick.others}" th:value="${c.id}" th:text="${c.name}"></option>
+                </optgroup>
+            </select>
+        </div>
+        <details class="field">
+            <summary>Data e descrição</summary>
+            <div class="field">
+                <label for="rapido-data">Data</label>
+                <input id="rapido-data" name="date" type="date" th:value="${today}" required>
+            </div>
+            <div class="field">
+                <label for="rapido-descricao">Descrição <span class="small">(opcional)</span></label>
+                <input id="rapido-descricao" name="description" type="text" maxlength="200">
+            </div>
+        </details>
+        <p>
+            <button type="submit" class="button-primary">Salvar gasto</button>
+            <a th:href="@{/lancamentos/novo(tipo=INCOME)}">Registrar receita</a>
+        </p>
+    </form>
+</section>
+</body>
+</html>

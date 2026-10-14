@@ -10,6 +10,10 @@
            th:attr="aria-current=${n == count} ? 'page' : null"></a>
     </nav>
 
+    <p th:if="${!hasData}" class="empty">
+        Ainda não há lançamentos nesses meses. Registre seus gastos e receitas e o histórico aparece aqui.
+    </p>
+
     <table class="table">
         <caption class="small">Entradas × saídas por mês</caption>
         <thead><tr><th scope="col">Mês</th><th scope="col" class="num">Entrou</th><th scope="col" class="num">Gastou</th><th scope="col" class="num">Guardou</th><th scope="col" class="num">Sobrou</th><th scope="col" class="num">Poupança</th></tr></thead>

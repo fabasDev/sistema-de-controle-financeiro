@@ -46,6 +46,9 @@
     <section aria-labelledby="metas-titulo">
         <h2 id="metas-titulo">Suas metas</h2>
         <p><a class="button-primary" th:href="@{/metas/nova}">Nova meta</a></p>
+        <p th:unless="${hasOwnGoals}" class="empty">
+            Além da reserva, você ainda não tem metas. Crie uma com valor e prazo (uma viagem, um curso) e o app mostra quanto guardar por mês.
+        </p>
         <table class="table">
             <thead><tr><th scope="col">Meta</th><th scope="col" class="num">Guardado</th><th scope="col" class="num">Alvo</th><th scope="col">Por mês até o prazo</th><th scope="col"><span class="visually-hidden">Ações</span></th></tr></thead>
             <tbody>

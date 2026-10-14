@@ -30,7 +30,10 @@ public class HistoryController {
         YearMonth end = YearMonth.now(clock);
         model.addAttribute("count", count);
         model.addAttribute("months", Months.range(end, count));
-        model.addAttribute("rows", history.months(me.getId(), end, count));
+        var rows = history.months(me.getId(), end, count);
+        model.addAttribute("rows", rows);
+        model.addAttribute("hasData", rows.stream().anyMatch(r -> r.income().signum() != 0
+                || r.spent().signum() != 0 || r.saved().signum() != 0));
         model.addAttribute("categories", history.categories(me.getId(), end, count));
         return "history/page";
     }

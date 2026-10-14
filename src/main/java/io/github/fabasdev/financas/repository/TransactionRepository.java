@@ -98,6 +98,17 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> expensesByCategoryAndMonth(@Param("userId") Long userId, @Param("start") LocalDate start,
             @Param("end") LocalDate end);
 
+    /** Categorias mais usadas em despesas desde {@code since}, da mais usada para a menos usada. */
+    @Query("""
+            select t.category.id from Transaction t
+            where t.user.id = :userId and t.category is not null and t.date >= :since
+              and t.type = io.github.fabasdev.financas.domain.TransactionType.EXPENSE
+            group by t.category.id
+            order by count(t) desc, t.category.id
+            """)
+    List<Long> findMostUsedCategoryIds(@Param("userId") Long userId, @Param("since") LocalDate since,
+            Pageable pageable);
+
     @Query("select t.id from Transaction t where t.user.id = :userId and t.goal.id = :goalId")
     List<Long> findIdsByGoal(@Param("userId") Long userId, @Param("goalId") Long goalId);
 

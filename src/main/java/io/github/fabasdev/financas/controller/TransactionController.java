@@ -2,6 +2,7 @@ package io.github.fabasdev.financas.controller;
 
 import io.github.fabasdev.financas.controller.form.FormValues;
 import io.github.fabasdev.financas.controller.view.MonthParam;
+import io.github.fabasdev.financas.controller.view.ViewFormats;
 import io.github.fabasdev.financas.domain.Category;
 import io.github.fabasdev.financas.domain.Transaction;
 import io.github.fabasdev.financas.domain.TransactionType;
@@ -68,15 +69,17 @@ public class TransactionController {
     private final GoalService goals;
     private final RecurringService recurring;
     private final UndoService undo;
+    private final ViewFormats formats;
     private final Clock clock;
 
     public TransactionController(TransactionService transactions, CategoryService categories, GoalService goals,
-            RecurringService recurring, UndoService undo, Clock clock) {
+            RecurringService recurring, UndoService undo, ViewFormats formats, Clock clock) {
         this.transactions = transactions;
         this.categories = categories;
         this.goals = goals;
         this.recurring = recurring;
         this.undo = undo;
+        this.formats = formats;
         this.clock = clock;
     }
 
@@ -101,9 +104,33 @@ public class TransactionController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("search", trimmedSearch);
         model.addAttribute("categories", categories.list(me.getId()));
+        model.addAttribute("quick", categories.quickAddOptions(me.getId(), LocalDate.now(clock)));
+        model.addAttribute("today", LocalDate.now(clock));
         model.addAttribute("page", transactions.page(me.getId(), month, new Filter(type, categoryId, trimmedSearch),
                 pageable));
         return "transactions/list";
+    }
+
+    /**
+     * Lançamento rápido do topo das telas: valor e categoria (data de hoje já vem preenchida).
+     * {@code voltar} só aceita as duas telas que têm o formulário, para não virar um redirect aberto.
+     */
+    @PostMapping("/rapido")
+    public String quickAdd(@AuthenticationPrincipal AppUserPrincipal me, @Valid @ModelAttribute("form") TransactionForm form,
+            BindingResult errors, @RequestParam(name = "voltar", defaultValue = "") String back, Model model,
+            RedirectAttributes redirect) {
+        TransactionData data = toData(form, errors);
+        if (data != null) {
+            try {
+                Transaction t = transactions.create(me.getId(), data);
+                redirect.addFlashAttribute("success", "Gasto de " + formats.money(t.getAmount()) + " salvo.");
+                return "inicio".equals(back) ? "redirect:/?mes=" + t.getMonth() : "redirect:/lancamentos?mes=" + t.getMonth();
+            } catch (InvalidInputException e) {
+                errors.rejectValue(e.getField(), "invalid", e.getMessage());
+            }
+        }
+        // Com erro, abre o formulário completo com a mensagem ao lado do campo.
+        return showForm(me, form, null, model);
     }
 
     @GetMapping("/novo")

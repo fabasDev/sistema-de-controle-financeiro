@@ -89,6 +89,32 @@ class PagesRenderTest {
     }
 
     @Test
+    void lancamentoRapidoSalvaEVoltaParaATelaDeOrigem() throws Exception {
+        mvc.perform(post("/lancamentos/rapido").with(user(me)).with(csrf())
+                        .param("type", "EXPENSE").param("paid", "true").param("voltar", "inicio")
+                        .param("date", "2026-10-13").param("amount", "42,50").param("categoryId", ids.category().toString()))
+                .andExpect(redirectedUrl("/?mes=2026-10"));
+        // Qualquer outro valor de "voltar" volta para a lista (não é um redirect aberto).
+        mvc.perform(post("/lancamentos/rapido").with(user(me)).with(csrf())
+                        .param("type", "EXPENSE").param("paid", "true").param("voltar", "https://exemplo.com")
+                        .param("date", "2026-10-13").param("amount", "1,00").param("categoryId", ids.category().toString()))
+                .andExpect(redirectedUrl("/lancamentos?mes=2026-10"));
+        // A categoria usada aparece no grupo "Mais usadas".
+        mvc.perform(get("/").with(user(me)))
+                .andExpect(content().string(containsString("label=\"Mais usadas\"")))
+                .andExpect(content().string(containsString("Registrar um gasto")));
+    }
+
+    @Test
+    void lancamentoRapidoComErroAbreOFormularioCompleto() throws Exception {
+        mvc.perform(post("/lancamentos/rapido").with(user(me)).with(csrf())
+                        .param("type", "EXPENSE").param("paid", "true").param("voltar", "inicio")
+                        .param("date", "2026-10-13").param("amount", ""))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Informe um valor.")));
+    }
+
+    @Test
     void formularioComErroVoltaComAMensagemAoLadoDoCampo() throws Exception {
         mvc.perform(post("/lancamentos").with(user(me)).with(csrf())
                         .param("type", "EXPENSE").param("date", "2026-10-13").param("amount", "-5")

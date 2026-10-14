@@ -12,9 +12,9 @@
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
-    <p>
-        <a class="button-primary" th:href="@{/lancamentos/novo}">Novo gasto</a>
-        <a th:href="@{/lancamentos/novo(tipo=INCOME)}">Nova receita</a>
+    <section th:replace="~{fragments/quick-add :: form('lancamentos')}"></section>
+    <p class="small">
+        Precisa de mais opções (repetir todo mês, parcelas, meta)? <a th:href="@{/lancamentos/novo}">Use o formulário completo</a>.
     </p>
 
     <!-- Filtros por GET: ficam na URL e sobrevivem a editar e voltar. -->
@@ -44,7 +44,7 @@
     </form>
 
     <p th:if="${page.totalElements == 0}" class="empty">
-        Nada por aqui neste mês com esses filtros. <a th:href="@{/lancamentos/novo}">Registrar um gasto</a>
+        Nada por aqui neste mês com esses filtros. Registre um gasto no formulário acima ou limpe os filtros.
     </p>
 
     <table th:if="${page.totalElements > 0}" class="table">

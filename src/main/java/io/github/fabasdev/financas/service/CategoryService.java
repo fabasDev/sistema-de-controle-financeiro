@@ -10,7 +10,10 @@ import io.github.fabasdev.financas.repository.UserRepository;
 import io.github.fabasdev.financas.service.undo.Snapshots;
 import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +50,30 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<Category> list(Long userId) {
         return categories.findByUserIdOrderByIdAsc(userId);
+    }
+
+    /** Categorias do lançamento rápido: as mais usadas primeiro, depois as outras (sem as arquivadas). */
+    public record QuickAddOptions(List<Category> mostUsed, List<Category> others) {
+    }
+
+    /** Quantas categorias aparecem no grupo "Mais usadas". */
+    static final int MOST_USED = 5;
+
+    @Transactional(readOnly = true)
+    public QuickAddOptions quickAddOptions(Long userId, LocalDate today) {
+        List<Category> active = categories.findByUserIdOrderByIdAsc(userId).stream()
+                .filter(c -> !c.isArchived())
+                .toList();
+        List<Long> usedIds = transactions.findMostUsedCategoryIds(userId, today.minusDays(90),
+                PageRequest.of(0, MOST_USED));
+        List<Category> mostUsed = usedIds.stream()
+                .flatMap(id -> active.stream().filter(c -> c.getId().equals(id)))
+                .toList();
+        List<Category> others = active.stream()
+                .filter(c -> !mostUsed.contains(c))
+                .sorted(Comparator.comparing((Category c) -> c.getBucket().getSortOrder()).thenComparing(Category::getName))
+                .toList();
+        return new QuickAddOptions(mostUsed, others);
     }
 
     @Transactional(readOnly = true)

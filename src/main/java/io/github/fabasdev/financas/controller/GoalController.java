@@ -72,7 +72,9 @@ public class GoalController {
     public String list(@AuthenticationPrincipal AppUserPrincipal me, Model model) {
         YearMonth month = YearMonth.now(clock);
         UserSettings s = goals.settings(me.getId());
-        model.addAttribute("goals", goals.list(me.getId(), month));
+        var list = goals.list(me.getId(), month);
+        model.addAttribute("goals", list);
+        model.addAttribute("hasOwnGoals", list.stream().anyMatch(g -> g.kind() == GoalKind.GOAL));
         model.addAttribute("rec", suggestions.recommendation(me.getId(), month));
         if (!model.containsAttribute("reserveForm")) {
             model.addAttribute("reserveForm", new ReserveForm(s.getReserveMonths(), s.getReserveBase(),
