@@ -101,7 +101,10 @@ Nesta ordem:
 4. **Colocar HTTPS na frente do app.** É obrigatório.
    - O cookie de sessão é `Secure` e tem o prefixo `__Host-`, então em HTTP o navegador não guarda o cookie e o login não funciona.
    - No seu computador funciona porque o Chrome trata `localhost` como seguro.
-   - O caminho mais simples é um proxy com certificado gratuito (Caddy ou Nginx com Let's Encrypt), com o app escutando só localmente.
+   - O caminho mais simples é um proxy com certificado gratuito (Caddy ou Nginx com Let's Encrypt).
+   - Deixe o app escutando só na própria máquina, com `server.address=127.0.0.1` ou a variável `SERVER_ADDRESS=127.0.0.1`, e não abra a porta 8080 no firewall.
+     - Por padrão, o Spring Boot escuta em todas as interfaces de rede.
+     - Com a porta aberta em HTTP, o formulário de login mandaria a senha sem criptografia, mesmo com o cookie `Secure`.
    - Com o proxy, configure `server.forward-headers-strategy=native` e `server.tomcat.redirect-context-root=false`, como pede a documentação do Spring Boot. Sem isso, acontecem dois problemas:
      - o limite de tentativas enxerga o IP do proxy;
      - o cabeçalho HSTS não é enviado.
@@ -112,6 +115,7 @@ Nesta ordem:
    - Os dados dele ficam no navegador, separados por endereço. Abra o app antigo no mesmo navegador e no mesmo endereço em que você o usava. Por exemplo, `npm run dev` abre em `localhost:5173` e `npm run preview` em `localhost:4173`.
    - Em Ajustes, use "Exportar backup criptografado".
    - No app novo, vá em **Ajustes → Importar o backup do app antigo** e confira os números.
+   - A importação **substitui** tudo o que já existe na conta nova. Importe antes de lançar dados de verdade nela.
 
 7. **Apagar `legacy-web/`**, só depois de:
    - decidir sobre os três itens da seção acima;
