@@ -5,7 +5,7 @@
 <header th:replace="~{fragments/layout :: appHeader}"></header>
 <main id="conteudo" class="page">
     <h1>Editar pote</h1>
-    <form th:action="@{/planejamento/potes/{id}(id=${bucketId})}" th:object="${form}" method="post" class="form" novalidate>
+    <form th:action="@{/planejamento/potes/{id}(id=${bucketId})}" th:object="${form}" method="post" class="form">
         <div class="field">
             <label for="name">Nome</label>
             <input id="name" name="name" type="text" maxlength="60" th:value="*{name}" required th:attr="aria-invalid=${#fields.hasErrors('name')}">

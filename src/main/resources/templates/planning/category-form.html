@@ -6,7 +6,7 @@
 <main id="conteudo" class="page">
     <h1 th:text="${editingId} ? 'Editar categoria' : 'Nova categoria'">Nova categoria</h1>
     <form th:action="${editingId} ? @{/planejamento/categorias/{id}(id=${editingId})} : @{/planejamento/categorias}"
-          th:object="${form}" method="post" class="form" novalidate>
+          th:object="${form}" method="post" class="form">
         <div class="field">
             <label for="name">Nome</label>
             <input id="name" name="name" type="text" maxlength="60" th:value="*{name}" required th:attr="aria-invalid=${#fields.hasErrors('name')}">
@@ -22,7 +22,7 @@
         </div>
         <div class="field">
             <label for="budget">Limite mensal (R$) <span class="small">(opcional)</span></label>
-            <input id="budget" name="budget" type="text" inputmode="decimal" maxlength="20" th:value="*{budget}" th:attr="aria-invalid=${#fields.hasErrors('budget')}">
+            <input id="budget" name="budget" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="*{budget}" th:attr="aria-invalid=${#fields.hasErrors('budget')}">
             <p class="field-error" th:if="${#fields.hasErrors('budget')}" th:errors="*{budget}"></p>
         </div>
         <div class="field">

@@ -8,7 +8,7 @@
     <p th:if="${editingId}" class="small">Lançamentos ainda não pagos deste mês em diante acompanham a alteração.</p>
 
     <form th:action="${editingId} ? @{/contas-fixas/{id}(id=${editingId})} : @{/contas-fixas}" th:object="${form}"
-          method="post" class="form" novalidate>
+          method="post" class="form">
         <fieldset class="field">
             <legend>Tipo</legend>
             <label><input type="radio" name="type" value="EXPENSE" th:checked="*{type?.name() == 'EXPENSE'}"> Despesa</label>
@@ -26,7 +26,7 @@
 
         <div class="field">
             <label for="amount">Valor (R$)</label>
-            <input id="amount" name="amount" type="text" inputmode="decimal" maxlength="20" th:value="*{amount}" required
+            <input id="amount" name="amount" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="*{amount}" required
                    placeholder="0,00" th:attr="aria-invalid=${#fields.hasErrors('amount')}">
             <p class="field-error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
         </div>

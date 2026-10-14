@@ -6,7 +6,7 @@
     <h1>Recuperar senha</h1>
     <p>Use o código de recuperação que apareceu quando você criou a conta.</p>
 
-    <form th:action="@{/recuperar}" th:object="${form}" method="post" class="form" novalidate>
+    <form th:action="@{/recuperar}" th:object="${form}" method="post" class="form">
         <div class="field">
             <label for="username">Usuário</label>
             <input id="username" name="username" type="text" th:value="*{username}" autocomplete="username"

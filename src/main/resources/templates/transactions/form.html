@@ -8,7 +8,7 @@
     <p th:if="${fromRecurring}" class="notice">Este lançamento vem de uma conta fixa. A alteração vale só para este mês.</p>
 
     <form th:action="${editingId} ? @{/lancamentos/{id}(id=${editingId})} : @{/lancamentos}" th:object="${form}"
-          method="post" class="form" novalidate>
+          method="post" class="form">
         <p class="field-error" th:if="${#fields.hasGlobalErrors()}" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></p>
 
         <fieldset class="field">
@@ -20,7 +20,7 @@
 
         <div class="field">
             <label for="amount">Valor (R$)</label>
-            <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" maxlength="20"
+            <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56."
                    th:value="*{amount}" required placeholder="0,00"
                    th:attr="aria-invalid=${#fields.hasErrors('amount')},aria-describedby=${#fields.hasErrors('amount')} ? 'amount-erro' : null">
             <p id="amount-erro" class="field-error" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>

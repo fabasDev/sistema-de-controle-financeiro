@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${title} + ' · Finanças'">Finanças</title>
     <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <!-- Token CSRF para os pedidos feitos pelo JavaScript (fetch). -->
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
+    <meta name="_csrf_parameter" th:if="${_csrf}" th:content="${_csrf.parameterName}">
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script type="module" th:src="@{/js/app.js}"></script>
 </head>
 <body>
 

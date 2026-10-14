@@ -11,11 +11,11 @@
     <form th:action="@{/simulador}" method="get" class="form" id="simulador">
         <div class="field">
             <label for="inicial">Valor inicial (R$)</label>
-            <input id="inicial" name="inicial" type="text" inputmode="decimal" maxlength="20" th:value="${values.inicial}">
+            <input id="inicial" name="inicial" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="${values.inicial}">
         </div>
         <div class="field">
             <label for="mensal">Aporte mensal (R$)</label>
-            <input id="mensal" name="mensal" type="text" inputmode="decimal" maxlength="20" th:value="${values.mensal}">
+            <input id="mensal" name="mensal" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="${values.mensal}">
         </div>
         <div class="field">
             <label for="taxa">Rentabilidade (% ao ano)</label>
@@ -35,7 +35,7 @@
         </div>
         <div class="field">
             <label for="meta">Meta de patrimônio (R$) <span class="small">(opcional)</span></label>
-            <input id="meta" name="meta" type="text" inputmode="decimal" maxlength="20" th:value="${values.meta}">
+            <input id="meta" name="meta" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="${values.meta}">
         </div>
         <p><button type="submit" class="button-primary">Simular</button></p>
     </form>
