@@ -166,9 +166,16 @@ function init() {
   /** Tooltip: mouse (o ponto mais perto) e teclado (setas andam um ano; Home/End vão às pontas). */
   function setupHover() {
     let index = null
+    let shownPoints = null
+    let pointerX = 0
+    let frame = 0
     const show = (i, fromKeyboard) => {
       if (!points.length) return
-      index = Math.max(0, Math.min(points.length - 1, i))
+      const next = Math.max(0, Math.min(points.length - 1, i))
+      // Mesmo ano e mesmos dados: o tooltip já está certo, não precisa montar de novo.
+      if (next === index && shownPoints === points && !tooltip.hidden) return
+      index = next
+      shownPoints = points
       const { x } = geometry(points)
       const p = points[index]
       const crosshair = svg.querySelector('.chart-crosshair')
@@ -194,14 +201,23 @@ function init() {
       tooltip.style.left = `${Math.min(left + 12, rect.width - tooltip.offsetWidth)}px`
     }
     const hide = () => {
+      cancelAnimationFrame(frame)
+      frame = 0
       svg.querySelector('.chart-crosshair')?.setAttribute('visibility', 'hidden')
       tooltip.hidden = true
     }
+    // O mouse dispara vários pointermove por quadro. Guardamos só a última posição e desenhamos
+    // uma vez por quadro (requestAnimationFrame), em vez de medir a página a cada evento.
     svg.addEventListener('pointermove', (event) => {
       if (!points.length) return
-      const rect = svg.getBoundingClientRect()
-      const px = ((event.clientX - rect.left) / rect.width) * VIEW.width
-      show(nearestIndex(px, points.length, geometry(points).x), false)
+      pointerX = event.clientX
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const rect = svg.getBoundingClientRect()
+        const px = ((pointerX - rect.left) / rect.width) * VIEW.width
+        show(nearestIndex(px, points.length, geometry(points).x), false)
+      })
     })
     svg.addEventListener('pointerleave', hide)
     svg.addEventListener('blur', hide)
