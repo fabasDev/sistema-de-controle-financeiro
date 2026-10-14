@@ -30,7 +30,7 @@
                 <td class="value num" th:text="${@fmt.number(b.percent)} + '%'"></td>
                 <td>
                     <a th:href="@{/planejamento/potes/{id}/editar(id=${b.id})}">Editar<span class="visually-hidden" th:text="' ' + ${b.name}"></span></a>
-                    <a th:if="${#lists.size(buckets) > 1}" th:href="@{/planejamento/potes/{id}/excluir(id=${b.id})}">Remover<span class="visually-hidden" th:text="' ' + ${b.name}"></span></a>
+                    <a data-delete th:if="${#lists.size(buckets) > 1}" th:href="@{/planejamento/potes/{id}/excluir(id=${b.id})}">Remover<span class="visually-hidden" th:text="' ' + ${b.name}"></span></a>
                 </td>
             </tr>
             </tbody>
@@ -64,7 +64,7 @@
                 <td class="value num" th:text="${c.budget} ? ${@fmt.money(c.budget)} : '—'"></td>
                 <td>
                     <a th:href="@{/planejamento/categorias/{id}/editar(id=${c.id})}">Editar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></a>
-                    <a th:unless="${c.archived}" th:href="@{/planejamento/categorias/{id}/excluir(id=${c.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></a>
+                    <a data-delete th:unless="${c.archived}" th:href="@{/planejamento/categorias/{id}/excluir(id=${c.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></a>
                     <form th:if="${c.archived}" th:action="@{/planejamento/categorias/{id}/reativar(id=${c.id})}" method="post" class="inline">
                         <button type="submit">Reativar<span class="visually-hidden" th:text="' ' + ${c.name}"></span></button>
                     </form>

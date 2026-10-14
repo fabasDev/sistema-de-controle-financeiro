@@ -7,6 +7,8 @@ import io.github.fabasdev.financas.domain.TransactionType;
 import io.github.fabasdev.financas.repository.RecurringEntryRepository;
 import io.github.fabasdev.financas.repository.TransactionRepository;
 import io.github.fabasdev.financas.repository.UserRepository;
+import io.github.fabasdev.financas.service.undo.Snapshots;
+import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.YearMonth;
@@ -115,13 +117,23 @@ public class RecurringService {
 
     /** Apaga a conta e os lançamentos futuros ainda não pagos. O que já passou fica no histórico. */
     @Transactional
-    public void remove(Long userId, Long id) {
+    public UndoAction.RecurringDeleted remove(Long userId, Long id) {
         RecurringEntry r = recurring.findByIdAndUserId(id, userId).orElseThrow(NotFoundException::new);
         YearMonth next = YearMonth.now(clock).plusMonths(1);
-        transactions.deleteAll(transactions.findUnpaidOfRecurringFrom(r.getId(), next));
+        List<Transaction> future = transactions.findUnpaidOfRecurringFrom(r.getId(), next);
+        Set<Long> futureIds = new HashSet<>(future.stream().map(Transaction::getId).toList());
+        List<Transaction> kept = transactions.findByRecurringId(r.getId()).stream()
+                .filter(t -> !futureIds.contains(t.getId()))
+                .toList();
+        UndoAction.RecurringDeleted undo = new UndoAction.RecurringDeleted(Snapshots.of(r),
+                future.stream().map(Snapshots::of).toList(),
+                kept.stream().map(t -> new UndoAction.RecurringLink(t.getId(), t.getRecurringMonth())).toList());
+        transactions.deleteAll(future);
+        // Solta a ligação nas próprias entidades: um UPDATE em massa não mudaria as que já estão carregadas.
+        kept.forEach(Transaction::unlinkRecurring);
         transactions.flush();
-        transactions.unlinkRecurring(r.getId());
         recurring.delete(r);
+        return undo;
     }
 
     private void apply(Long userId, RecurringEntry r, RecurringData data) {

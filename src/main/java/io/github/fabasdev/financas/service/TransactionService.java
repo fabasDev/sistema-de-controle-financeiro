@@ -10,6 +10,8 @@ import io.github.fabasdev.financas.dto.TransactionRow;
 import io.github.fabasdev.financas.repository.RecurringEntryRepository;
 import io.github.fabasdev.financas.repository.TransactionRepository;
 import io.github.fabasdev.financas.repository.UserRepository;
+import io.github.fabasdev.financas.service.undo.Snapshots;
+import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -105,12 +107,14 @@ public class TransactionService {
      * para a conta não recriar o lançamento.
      */
     @Transactional
-    public void delete(Long userId, Long id) {
+    public UndoAction.TransactionDeleted delete(Long userId, Long id) {
         Transaction t = get(userId, id);
+        UndoAction.TxSnapshot snapshot = Snapshots.of(t);
         if (t.getRecurring() != null && t.getRecurringMonth() != null) {
             t.getRecurring().getSkippedMonths().add(t.getRecurringMonth());
         }
         transactions.delete(t);
+        return new UndoAction.TransactionDeleted(snapshot);
     }
 
     /** Categoria obrigatória na despesa; receita não tem categoria nem meta. */

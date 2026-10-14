@@ -22,6 +22,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findByBucket(Bucket bucket);
 
+    @Query("select c.id from Category c where c.user.id = :userId and c.goal.id = :goalId")
+    List<Long> findIdsByGoal(@Param("userId") Long userId, @Param("goalId") Long goalId);
+
+    boolean existsByUserIdAndSystemKey(Long userId, String systemKey);
+
     /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
     @Modifying
     @Query("delete from Category e where e.user.id = :userId")

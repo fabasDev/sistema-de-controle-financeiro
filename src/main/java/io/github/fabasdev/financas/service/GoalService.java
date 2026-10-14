@@ -6,10 +6,14 @@ import io.github.fabasdev.financas.domain.Money;
 import io.github.fabasdev.financas.domain.ReserveBase;
 import io.github.fabasdev.financas.domain.UserSettings;
 import io.github.fabasdev.financas.dto.GoalPlan;
+import io.github.fabasdev.financas.repository.CategoryRepository;
 import io.github.fabasdev.financas.repository.GoalRepository;
+import io.github.fabasdev.financas.repository.RecurringEntryRepository;
 import io.github.fabasdev.financas.repository.TransactionRepository;
 import io.github.fabasdev.financas.repository.UserRepository;
 import io.github.fabasdev.financas.repository.UserSettingsRepository;
+import io.github.fabasdev.financas.service.undo.Snapshots;
+import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.HashMap;
@@ -36,13 +40,17 @@ public class GoalService {
 
     private final GoalRepository goals;
     private final TransactionRepository transactions;
+    private final RecurringEntryRepository recurring;
+    private final CategoryRepository categories;
     private final UserSettingsRepository settings;
     private final UserRepository users;
 
-    public GoalService(GoalRepository goals, TransactionRepository transactions, UserSettingsRepository settings,
-            UserRepository users) {
+    public GoalService(GoalRepository goals, TransactionRepository transactions, RecurringEntryRepository recurring,
+            CategoryRepository categories, UserSettingsRepository settings, UserRepository users) {
         this.goals = goals;
         this.transactions = transactions;
+        this.recurring = recurring;
+        this.categories = categories;
         this.settings = settings;
         this.users = users;
     }
@@ -95,14 +103,18 @@ public class GoalService {
 
     /** A reserva padrão não pode ser apagada. Lançamentos e categorias ligados à meta perdem a ligação. */
     @Transactional
-    public void delete(Long userId, Long id) {
+    public UndoAction.GoalDeleted delete(Long userId, Long id) {
         Goal g = get(userId, id);
         if (g.isReserve()) {
             throw new BusinessRuleException("A reserva de emergência não pode ser apagada.");
         }
         // As chaves estrangeiras têm ON DELETE SET NULL: o banco solta os lançamentos,
-        // contas fixas e categorias que apontavam para esta meta.
+        // contas fixas e categorias que apontavam para esta meta. Os ids ficam guardados para o desfazer.
+        UndoAction.GoalDeleted undo = new UndoAction.GoalDeleted(Snapshots.of(g),
+                transactions.findIdsByGoal(userId, id), recurring.findIdsByGoal(userId, id),
+                categories.findIdsByGoal(userId, id));
         goals.delete(g);
+        return undo;
     }
 
     @Transactional(readOnly = true)

@@ -98,6 +98,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> expensesByCategoryAndMonth(@Param("userId") Long userId, @Param("start") LocalDate start,
             @Param("end") LocalDate end);
 
+    @Query("select t.id from Transaction t where t.user.id = :userId and t.goal.id = :goalId")
+    List<Long> findIdsByGoal(@Param("userId") Long userId, @Param("goalId") Long goalId);
+
+    List<Transaction> findByRecurringId(Long recurringId);
+
+    boolean existsByRecurringIdAndRecurringMonth(Long recurringId, YearMonth recurringMonth);
+
     /** Contas fixas que já têm lançamento no mês. */
     @Query("""
             select t.recurring.id from Transaction t
@@ -112,11 +119,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             """)
     List<Transaction> findUnpaidOfRecurringFrom(@Param("recurringId") Long recurringId,
             @Param("from") YearMonth from);
-
-    /** Solta os lançamentos de uma conta fixa que vai ser apagada (o histórico fica). */
-    @Modifying
-    @Query("update Transaction t set t.recurring = null, t.recurringMonth = null where t.recurring.id = :recurringId")
-    int unlinkRecurring(@Param("recurringId") Long recurringId);
 
     /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
     @Modifying

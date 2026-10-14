@@ -30,6 +30,9 @@ public interface RecurringEntryRepository extends JpaRepository<RecurringEntry, 
 
     boolean existsByCategoryId(Long categoryId);
 
+    @Query("select r.id from RecurringEntry r where r.user.id = :userId and r.goal.id = :goalId")
+    List<Long> findIdsByGoal(@Param("userId") Long userId, @Param("goalId") Long goalId);
+
     /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
     @Modifying
     @Query("delete from RecurringEntry e where e.user.id = :userId")

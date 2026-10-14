@@ -56,7 +56,7 @@
                 <td th:text="${g.plan.done} ? 'Concluída' : (${g.plan.monthlyNeeded} ? ${@fmt.money(g.plan.monthlyNeeded)} + ' por ' + ${g.plan.monthsLeft} + ' mês(es)' : '—')"></td>
                 <td>
                     <a th:href="@{/metas/{id}/editar(id=${g.id})}">Editar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
-                    <a th:unless="${g.reserve}" th:href="@{/metas/{id}/excluir(id=${g.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
+                    <a data-delete th:unless="${g.reserve}" th:href="@{/metas/{id}/excluir(id=${g.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${g.name}"></span></a>
                 </td>
             </tr>
             </tbody>

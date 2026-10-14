@@ -7,6 +7,8 @@ import io.github.fabasdev.financas.repository.CategoryRepository;
 import io.github.fabasdev.financas.repository.RecurringEntryRepository;
 import io.github.fabasdev.financas.repository.TransactionRepository;
 import io.github.fabasdev.financas.repository.UserRepository;
+import io.github.fabasdev.financas.service.undo.Snapshots;
+import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class CategoryService {
     }
 
     public enum RemoveResult { REMOVED, ARCHIVED }
+
+    public record RemoveOutcome(RemoveResult result, UndoAction undo) {
+    }
 
     private final CategoryRepository categories;
     private final BucketRepository buckets;
@@ -77,14 +82,15 @@ public class CategoryService {
 
     /** Sem uso, apaga. Com lançamentos ou contas fixas, só arquiva (o histórico continua certo). */
     @Transactional
-    public RemoveResult remove(Long userId, Long id) {
+    public RemoveOutcome remove(Long userId, Long id) {
         Category c = get(userId, id);
         if (transactions.existsByCategoryId(c.getId()) || recurring.existsByCategoryId(c.getId())) {
             c.setArchived(true);
-            return RemoveResult.ARCHIVED;
+            return new RemoveOutcome(RemoveResult.ARCHIVED, new UndoAction.CategoryArchived(c.getId()));
         }
+        UndoAction undo = new UndoAction.CategoryDeleted(Snapshots.of(c));
         categories.delete(c);
-        return RemoveResult.REMOVED;
+        return new RemoveOutcome(RemoveResult.REMOVED, undo);
     }
 
     @Transactional

@@ -14,6 +14,8 @@ import io.github.fabasdev.financas.service.RecurringService;
 import io.github.fabasdev.financas.service.TransactionService;
 import io.github.fabasdev.financas.service.TransactionService.Filter;
 import io.github.fabasdev.financas.service.TransactionService.TransactionData;
+import io.github.fabasdev.financas.service.undo.UndoAction;
+import io.github.fabasdev.financas.service.undo.UndoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -65,14 +67,16 @@ public class TransactionController {
     private final CategoryService categories;
     private final GoalService goals;
     private final RecurringService recurring;
+    private final UndoService undo;
     private final Clock clock;
 
     public TransactionController(TransactionService transactions, CategoryService categories, GoalService goals,
-            RecurringService recurring, Clock clock) {
+            RecurringService recurring, UndoService undo, Clock clock) {
         this.transactions = transactions;
         this.categories = categories;
         this.goals = goals;
         this.recurring = recurring;
+        this.undo = undo;
         this.clock = clock;
     }
 
@@ -173,13 +177,15 @@ public class TransactionController {
     public String delete(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
             RedirectAttributes redirect) {
         YearMonth month = transactions.get(me.getId(), id).getMonth();
+        String returnTo = "/lancamentos?mes=" + month;
         try {
-            transactions.delete(me.getId(), id);
+            UndoAction action = transactions.delete(me.getId(), id);
             redirect.addFlashAttribute("success", "Lançamento apagado.");
+            redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), action, returnTo));
         } catch (BusinessRuleException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/lancamentos?mes=" + month;
+        return "redirect:" + returnTo;
     }
 
     private String showForm(AppUserPrincipal me, TransactionForm form, Long id, Model model) {

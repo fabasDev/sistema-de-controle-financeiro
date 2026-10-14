@@ -11,6 +11,8 @@ import io.github.fabasdev.financas.service.GoalService;
 import io.github.fabasdev.financas.service.GoalService.GoalData;
 import io.github.fabasdev.financas.service.InvalidInputException;
 import io.github.fabasdev.financas.service.InvestmentSuggestionService;
+import io.github.fabasdev.financas.service.undo.UndoAction;
+import io.github.fabasdev.financas.service.undo.UndoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -56,11 +58,13 @@ public class GoalController {
 
     private final GoalService goals;
     private final InvestmentSuggestionService suggestions;
+    private final UndoService undo;
     private final Clock clock;
 
-    public GoalController(GoalService goals, InvestmentSuggestionService suggestions, Clock clock) {
+    public GoalController(GoalService goals, InvestmentSuggestionService suggestions, UndoService undo, Clock clock) {
         this.goals = goals;
         this.suggestions = suggestions;
+        this.undo = undo;
         this.clock = clock;
     }
 
@@ -155,8 +159,9 @@ public class GoalController {
     public String delete(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
             RedirectAttributes redirect) {
         try {
-            goals.delete(me.getId(), id);
+            UndoAction action = goals.delete(me.getId(), id);
             redirect.addFlashAttribute("success", "Meta apagada. Os lançamentos continuam, só sem a meta.");
+            redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), action, "/metas"));
         } catch (BusinessRuleException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }

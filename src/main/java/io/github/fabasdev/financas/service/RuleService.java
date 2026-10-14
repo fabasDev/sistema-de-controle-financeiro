@@ -12,9 +12,12 @@ import io.github.fabasdev.financas.repository.CategoryRepository;
 import io.github.fabasdev.financas.repository.RulePresetRepository;
 import io.github.fabasdev.financas.repository.UserRepository;
 import io.github.fabasdev.financas.repository.UserSettingsRepository;
+import io.github.fabasdev.financas.service.undo.Snapshots;
+import io.github.fabasdev.financas.service.undo.UndoAction;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,16 +131,22 @@ public class RuleService {
 
     /** Aplica uma regra pronta: troca os potes e remapeia cada categoria para o pote mais adequado. */
     @Transactional
-    public void applyPreset(Long userId, String presetId) {
+    public UndoAction.PresetApplied applyPreset(Long userId, String presetId) {
         User user = users.getReferenceById(userId);
         List<Bucket> old = buckets.findByUserIdOrderBySortOrderAscIdAsc(userId);
+        UserSettings settings = settingsOf(userId);
+        String previousPreset = settings.getPresetId();
+        Map<Long, Integer> previousIndex = new HashMap<>();
         List<BucketWithClaims> created = createBucketsFromPreset(user, presetId);
         for (Category category : categories.findByUserIdOrderByIdAsc(userId)) {
+            previousIndex.put(category.getId(), old.indexOf(category.getBucket()));
             category.setBucket(bucketFor(category.getSystemKey(), category.getKind(), created));
         }
         categories.flush();
         buckets.deleteAll(old);
-        settingsOf(userId).setPresetId(presetId);
+        settings.setPresetId(presetId);
+        return new UndoAction.PresetApplied(previousPreset, old.stream().map(Snapshots::of).toList(),
+                Map.copyOf(previousIndex), created.stream().map(c -> c.bucket().getId()).toList());
     }
 
     /** Edita um pote. Se o tipo mudar, as categorias dele passam a ter o novo tipo. */
@@ -171,7 +180,7 @@ public class RuleService {
 
     /** Remove um pote. As categorias dele vão para o primeiro pote que sobrar. */
     @Transactional
-    public void removeBucket(Long userId, Long bucketId) {
+    public UndoAction.BucketRemoved removeBucket(Long userId, Long bucketId) {
         Bucket bucket = buckets.findByIdAndUserId(bucketId, userId).orElseThrow(NotFoundException::new);
         List<Bucket> remaining = new ArrayList<>(buckets.findByUserIdOrderBySortOrderAscIdAsc(userId));
         remaining.removeIf(b -> b.getId().equals(bucketId));
@@ -179,13 +188,19 @@ public class RuleService {
             throw new BusinessRuleException("A regra precisa de pelo menos um pote.");
         }
         Bucket fallback = remaining.getFirst();
+        Map<Long, BucketKind> moved = new HashMap<>();
         for (Category category : categories.findByBucket(bucket)) {
+            moved.put(category.getId(), category.getKind());
             category.setBucket(fallback);
             category.setKind(fallback.getKind());
         }
+        UserSettings settings = settingsOf(userId);
+        UndoAction.BucketRemoved undo = new UndoAction.BucketRemoved(Snapshots.of(bucket), settings.getPresetId(),
+                Map.copyOf(moved));
         categories.flush();
         buckets.delete(bucket);
-        settingsOf(userId).setPresetId(UserSettings.CUSTOM_PRESET);
+        settings.setPresetId(UserSettings.CUSTOM_PRESET);
+        return undo;
     }
 
     @Transactional

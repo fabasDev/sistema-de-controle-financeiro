@@ -37,7 +37,13 @@
 
 <!-- Mensagens de sucesso e erro que vêm de um redirect. -->
 <div th:fragment="flash">
-    <p th:if="${success}" class="notice notice-success" role="status" th:text="${success}"></p>
+    <div th:if="${success}" class="notice notice-success" role="status">
+        <span th:text="${success}"></span>
+        <form th:if="${undoToken}" th:action="@{/desfazer}" method="post" class="inline">
+            <input type="hidden" name="token" th:value="${undoToken}">
+            <button type="submit">Desfazer</button>
+        </form>
+    </div>
     <p th:if="${error}" class="notice notice-error" role="alert" th:text="${error}"></p>
 </div>
 

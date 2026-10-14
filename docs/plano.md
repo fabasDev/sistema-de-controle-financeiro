@@ -126,6 +126,7 @@ O limite de login será código próprio, sem biblioteca extra.
 - O topo da tela mostra três números: gastei, sobra, posso investir. Junto vem um aviso fixo de que é uma "estimativa educativa, não recomendação".
 - Validação no servidor e no formulário, mensagens ao lado do campo, e estados vazio/carregando/erro com instrução do que fazer.
 - Apagar tem "Desfazer" por alguns segundos (exclusão adiada no servidor). Sem JS, cai numa confirmação.
+  - *Como ficou (Fase 3):* em vez de adiar a exclusão, o registro é apagado de verdade e uma cópia dele e das ligações fica na sessão por 10 minutos. O "Desfazer" recria tudo. Com exclusão adiada, toda soma, saldo e listagem precisaria ignorar registros "meio apagados", e um esquecimento distorceria os números. Vale para lançamento, conta fixa, meta, categoria, pote e troca de regra. Com JS, o "Apagar" vai direto e o "Desfazer" aparece na mensagem. Sem JS, a página de confirmação continua.
 - Botões com texto. Os que têm só ícone ganham `aria-label` e um tooltip no hover e no foco, ligado por `aria-describedby`.
 - Alvos de toque de 44px, foco visível, labels, uso completo pelo teclado e contraste AA, conferidos com a skill de auditoria de acessibilidade.
 - Gráficos só em duas telas:

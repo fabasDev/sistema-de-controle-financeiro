@@ -77,7 +77,7 @@
             </td>
             <td>
                 <a th:href="@{/lancamentos/{id}/editar(id=${t.id})}">Editar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
-                <a th:href="@{/lancamentos/{id}/excluir(id=${t.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
+                <a data-delete th:href="@{/lancamentos/{id}/excluir(id=${t.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${t.description}"></span></a>
             </td>
         </tr>
         </tbody>

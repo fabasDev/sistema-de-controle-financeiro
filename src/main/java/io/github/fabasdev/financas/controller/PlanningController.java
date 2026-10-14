@@ -14,6 +14,8 @@ import io.github.fabasdev.financas.service.GoalService;
 import io.github.fabasdev.financas.service.InvalidInputException;
 import io.github.fabasdev.financas.service.NotFoundException;
 import io.github.fabasdev.financas.service.RuleService;
+import io.github.fabasdev.financas.service.undo.UndoAction;
+import io.github.fabasdev.financas.service.undo.UndoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -58,13 +60,15 @@ public class PlanningController {
     private final CategoryService categories;
     private final GoalService goals;
     private final BucketRepository buckets;
+    private final UndoService undo;
 
     public PlanningController(RuleService rules, CategoryService categories, GoalService goals,
-            BucketRepository buckets) {
+            BucketRepository buckets, UndoService undo) {
         this.rules = rules;
         this.categories = categories;
         this.goals = goals;
         this.buckets = buckets;
+        this.undo = undo;
     }
 
     @GetMapping
@@ -86,8 +90,9 @@ public class PlanningController {
     public String applyPreset(@AuthenticationPrincipal AppUserPrincipal me, @RequestParam("presetId") String presetId,
             RedirectAttributes redirect) {
         try {
-            rules.applyPreset(me.getId(), presetId);
+            UndoAction action = rules.applyPreset(me.getId(), presetId);
             redirect.addFlashAttribute("success", "Regra aplicada. As categorias foram para os novos potes.");
+            redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), action, "/planejamento"));
         } catch (NotFoundException e) {
             redirect.addFlashAttribute("error", "Escolha uma regra da lista.");
         }
@@ -148,8 +153,9 @@ public class PlanningController {
     public String removeBucket(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
             RedirectAttributes redirect) {
         try {
-            rules.removeBucket(me.getId(), id);
+            UndoAction action = rules.removeBucket(me.getId(), id);
             redirect.addFlashAttribute("success", "Pote removido. As categorias dele foram para o primeiro pote.");
+            redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), action, "/planejamento"));
         } catch (BusinessRuleException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
@@ -215,10 +221,11 @@ public class PlanningController {
     @PostMapping("/categorias/{id}/excluir")
     public String removeCategory(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
             RedirectAttributes redirect) {
-        CategoryService.RemoveResult result = categories.remove(me.getId(), id);
-        redirect.addFlashAttribute("success", result == CategoryService.RemoveResult.REMOVED
+        CategoryService.RemoveOutcome outcome = categories.remove(me.getId(), id);
+        redirect.addFlashAttribute("success", outcome.result() == CategoryService.RemoveResult.REMOVED
                 ? "Categoria apagada."
                 : "A categoria tem lançamentos, então foi arquivada: some dos formulários, mas o histórico continua.");
+        redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), outcome.undo(), "/planejamento"));
         return "redirect:/planejamento";
     }
 

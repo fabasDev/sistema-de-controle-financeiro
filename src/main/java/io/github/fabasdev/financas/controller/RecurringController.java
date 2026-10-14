@@ -10,6 +10,8 @@ import io.github.fabasdev.financas.service.GoalService;
 import io.github.fabasdev.financas.service.InvalidInputException;
 import io.github.fabasdev.financas.service.RecurringService;
 import io.github.fabasdev.financas.service.RecurringService.RecurringData;
+import io.github.fabasdev.financas.service.undo.UndoAction;
+import io.github.fabasdev.financas.service.undo.UndoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -55,13 +57,15 @@ public class RecurringController {
     private final RecurringService recurring;
     private final CategoryService categories;
     private final GoalService goals;
+    private final UndoService undo;
     private final Clock clock;
 
     public RecurringController(RecurringService recurring, CategoryService categories, GoalService goals,
-            Clock clock) {
+            UndoService undo, Clock clock) {
         this.recurring = recurring;
         this.categories = categories;
         this.goals = goals;
+        this.undo = undo;
         this.clock = clock;
     }
 
@@ -134,8 +138,9 @@ public class RecurringController {
     @PostMapping("/{id}/excluir")
     public String delete(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
             RedirectAttributes redirect) {
-        recurring.remove(me.getId(), id);
+        UndoAction action = recurring.remove(me.getId(), id);
         redirect.addFlashAttribute("success", "Conta fixa apagada. Os lançamentos já feitos continuam no histórico.");
+        redirect.addFlashAttribute(UndoController.UNDO_TOKEN, undo.offer(me.getId(), action, "/contas-fixas"));
         return "redirect:/contas-fixas";
     }
 

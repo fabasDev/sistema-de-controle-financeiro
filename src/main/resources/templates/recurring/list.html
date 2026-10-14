@@ -35,7 +35,7 @@
             <td class="value num" th:text="${@fmt.money(r.amount)}"></td>
             <td>
                 <a th:href="@{/contas-fixas/{id}/editar(id=${r.id})}">Editar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
-                <a th:href="@{/contas-fixas/{id}/excluir(id=${r.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
+                <a data-delete th:href="@{/contas-fixas/{id}/excluir(id=${r.id})}">Apagar<span class="visually-hidden" th:text="' ' + ${r.description}"></span></a>
             </td>
         </tr>
         </tbody>
