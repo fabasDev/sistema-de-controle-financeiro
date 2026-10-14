@@ -81,6 +81,8 @@ class StaticResourcesTest {
     @Test
     void comprimeOCssMasNaoOHtml() throws Exception {
         HttpResponse<String> page = get("/login", "gzip");
+        // O Tomcat só comprime acima de 2 KB; abaixo disso o teste passaria mesmo com HTML na lista.
+        assertThat(page.body().length()).as("tamanho do HTML").isGreaterThan(2048);
         assertThat(page.headers().firstValue("Content-Encoding")).isEmpty();
         HttpResponse<String> css = get(find(APP_CSS, page.body()), "gzip");
         assertThat(css.headers().firstValue("Content-Encoding")).hasValue("gzip");
