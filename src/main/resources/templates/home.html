@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Visão geral')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: appHeader}"></header>
+<main id="conteudo" class="page">
+    <nav class="month-nav" aria-label="Mês">
+        <a th:href="@{/(mes=${previousMonth})}" th:text="'← ' + ${@fmt.month(previousMonth)}">Mês anterior</a>
+        <h1 th:text="${@fmt.month(month)}">Outubro de 2026</h1>
+        <a th:href="@{/(mes=${nextMonth})}" th:text="${@fmt.month(nextMonth)} + ' →'">Próximo mês</a>
+    </nav>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <!-- As três perguntas do topo: quanto gastei, quanto sobra, quanto posso investir. -->
+    <dl class="headline">
+        <div>
+            <dt>Gastei</dt>
+            <dd class="value" th:text="${@fmt.money(summary.spent)}">R$ 0,00</dd>
+        </div>
+        <div>
+            <dt>Sobra</dt>
+            <dd class="value" th:text="${@fmt.money(summary.balance)}">R$ 0,00</dd>
+        </div>
+        <div>
+            <dt>Posso investir</dt>
+            <dd class="value" th:text="${@fmt.money(rec.toInvest)}">R$ 0,00</dd>
+        </div>
+    </dl>
+    <p th:replace="~{fragments/layout :: disclaimer}"></p>
+
+    <p th:unless="${summary.hasData}" class="empty">
+        Nenhum lançamento neste mês. <a th:href="@{/lancamentos/novo}">Registrar um gasto</a>
+    </p>
+
+    <section th:if="${summary.hasData}" aria-labelledby="mes-titulo">
+        <h2 id="mes-titulo">Este mês</h2>
+        <dl class="figures">
+            <dt>Receitas</dt><dd class="value" th:text="${@fmt.money(summary.income)}"></dd>
+            <dt>Guardado</dt><dd class="value" th:text="${@fmt.money(summary.saved)}"></dd>
+            <dt>A pagar</dt><dd class="value" th:text="${@fmt.money(summary.unpaid)}"></dd>
+            <dt>Para a reserva</dt><dd class="value" th:text="${@fmt.money(rec.toReserve)}"></dd>
+        </dl>
+    </section>
+
+    <section aria-labelledby="potes-titulo">
+        <h2 id="potes-titulo">Planejado × realizado</h2>
+        <table class="table">
+            <thead><tr><th scope="col">Pote</th><th scope="col" class="num">Planejado</th><th scope="col" class="num">Realizado</th></tr></thead>
+            <tbody>
+            <tr th:each="b : ${summary.buckets}">
+                <th scope="row" th:text="${b.name} + ' (' + ${#numbers.formatDecimal(b.percent, 1, 0)} + '%)'"></th>
+                <td class="value num" th:text="${@fmt.money(b.planned)}"></td>
+                <td class="value num" th:text="${@fmt.money(b.actual)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

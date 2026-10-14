@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Privacidade')}"></head>
+<body>
+<main id="conteudo" class="page">
+    <h1>Privacidade</h1>
+    <p>Como o app trata os seus dados, em linguagem direta.</p>
+
+    <h2>O que mudou em relação à versão antiga</h2>
+    <p>
+        A versão antiga guardava tudo só no seu navegador, criptografado com a sua senha.
+        Nesta versão, os dados ficam no servidor, ligados à sua conta. Assim você acessa de qualquer aparelho,
+        mas quem administra o servidor tem acesso técnico ao banco de dados.
+    </p>
+
+    <h2>Quais dados ficam guardados</h2>
+    <ul>
+        <li><strong>Conta:</strong> nome de usuário, a senha em forma de hash (BCrypt, não dá para desfazer) e o hash do código de recuperação.</li>
+        <li><strong>Dados financeiros que você informa:</strong> receitas, despesas, categorias, contas fixas, parcelas, metas, saldo da reserva e os valores do simulador.</li>
+        <li><strong>Perfil de investidor:</strong> só o resultado (perfil, pontuação, data e os percentuais que você ajustar). As respostas do questionário não saem do navegador.</li>
+        <li><strong>Preferências:</strong> nome de exibição, regra de distribuição e meses da reserva.</li>
+    </ul>
+    <p>O app não pede CPF, endereço, dados bancários, senhas de banco, localização, contatos, câmera ou microfone.</p>
+
+    <h2>Cookies e registros</h2>
+    <ul>
+        <li>Um único cookie, de sessão, para manter você logado. Ele não serve para rastrear e some quando você sai.</li>
+        <li>O servidor registra entradas, erros de senha e trocas de senha, com o endereço IP e um apelido do usuário (não o nome). Senhas, códigos e valores nunca vão para esses registros.</li>
+        <li>Não há anúncios, scripts de outros sites nem envio para serviços de inteligência artificial.</li>
+    </ul>
+
+    <h2>Como os dados são protegidos</h2>
+    <ul>
+        <li>Cada consulta ao banco filtra pela sua conta. Outra pessoa logada não consegue abrir os seus lançamentos, nem sabendo o número deles.</li>
+        <li>Depois de muitas tentativas erradas de senha, o login espera alguns minutos antes de aceitar outra.</li>
+        <li>A sessão termina depois de 30 minutos sem uso ou 8 horas depois de entrar.</li>
+    </ul>
+
+    <h2>Sugestões de investimento</h2>
+    <p>
+        As sugestões são estimativas educativas feitas com os seus números. Não são recomendação, análise ou
+        consultoria de valores mobiliários nos termos da regulamentação da CVM. Rentabilidade passada não garante
+        rentabilidade futura. Antes de decidir, consulte um profissional habilitado.
+    </p>
+
+    <h2>Seus direitos (LGPD)</h2>
+    <ul>
+        <li><strong>Acesso e correção:</strong> tudo aparece nas telas do app e pode ser editado.</li>
+        <li><strong>Eliminação:</strong> em Ajustes, "Excluir conta" apaga a conta e todos os dados.</li>
+    </ul>
+
+    <p><a th:href="@{/}">Voltar</a></p>
+</main>
+</body>
+</html>

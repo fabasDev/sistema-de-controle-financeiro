@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Criar conta')}"></head>
+<body class="auth">
+<main id="conteudo" class="auth-main">
+    <h1>Criar conta</h1>
+    <p>Seus lançamentos ficam guardados no servidor, ligados só à sua conta.</p>
+
+    <form th:action="@{/cadastro}" th:object="${form}" method="post" class="form" novalidate>
+        <div class="field">
+            <label for="username">Usuário</label>
+            <input id="username" name="username" type="text" th:value="*{username}" autocomplete="username"
+                   autocapitalize="none" spellcheck="false" maxlength="60" required
+                   th:attr="aria-invalid=${#fields.hasErrors('username')},aria-describedby=${#fields.hasErrors('username')} ? 'username-erro' : 'username-ajuda'">
+            <p id="username-ajuda" class="hint">De 3 a 60 caracteres: letras, números, ponto, hífen ou sublinhado.</p>
+            <p id="username-erro" class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+        </div>
+        <div class="field">
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" autocomplete="new-password" required
+                   th:attr="aria-invalid=${#fields.hasErrors('password')},aria-describedby=${#fields.hasErrors('password')} ? 'password-erro' : 'password-ajuda'">
+            <p id="password-ajuda" class="hint">Pelo menos 12 caracteres. Uma frase com algumas palavras funciona bem.</p>
+            <p id="password-erro" class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+        </div>
+        <div class="field">
+            <label for="confirm">Repita a senha</label>
+            <input id="confirm" name="confirm" type="password" autocomplete="new-password" required
+                   th:attr="aria-invalid=${#fields.hasErrors('confirm')},aria-describedby=${#fields.hasErrors('confirm')} ? 'confirm-erro' : null">
+            <p id="confirm-erro" class="field-error" th:if="${#fields.hasErrors('confirm')}" th:errors="*{confirm}"></p>
+        </div>
+        <button type="submit" class="button-primary">Criar conta</button>
+    </form>
+
+    <p>Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+    <p class="small"><a th:href="@{/privacidade}">Como seus dados são tratados</a></p>
+</main>
+</body>
+</html>

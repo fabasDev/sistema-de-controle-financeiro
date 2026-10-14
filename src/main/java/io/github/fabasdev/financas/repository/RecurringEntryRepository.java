@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,4 +29,9 @@ public interface RecurringEntryRepository extends JpaRepository<RecurringEntry, 
     BigDecimal sumActiveIncome(@Param("userId") Long userId, @Param("month") YearMonth month);
 
     boolean existsByCategoryId(Long categoryId);
+
+    /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
+    @Modifying
+    @Query("delete from RecurringEntry e where e.user.id = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

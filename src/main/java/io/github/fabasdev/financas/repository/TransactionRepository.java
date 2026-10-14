@@ -3,9 +3,11 @@ package io.github.fabasdev.financas.repository;
 import io.github.fabasdev.financas.domain.Transaction;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -53,4 +55,29 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> sumPaidExpensesByGoal(@Param("userId") Long userId);
 
     boolean existsByCategoryId(Long categoryId);
+
+    /** Contas fixas que já têm lançamento no mês. */
+    @Query("""
+            select t.recurring.id from Transaction t
+            where t.user.id = :userId and t.recurringMonth = :month and t.recurring is not null
+            """)
+    List<Long> findRecurringIdsInMonth(@Param("userId") Long userId, @Param("month") YearMonth month);
+
+    /** Lançamentos ainda não pagos de uma conta fixa, do mês {@code from} em diante. */
+    @Query("""
+            select t from Transaction t
+            where t.recurring.id = :recurringId and t.paid = false and t.recurringMonth >= :from
+            """)
+    List<Transaction> findUnpaidOfRecurringFrom(@Param("recurringId") Long recurringId,
+            @Param("from") YearMonth from);
+
+    /** Solta os lançamentos de uma conta fixa que vai ser apagada (o histórico fica). */
+    @Modifying
+    @Query("update Transaction t set t.recurring = null, t.recurringMonth = null where t.recurring.id = :recurringId")
+    int unlinkRecurring(@Param("recurringId") Long recurringId);
+
+    /** Apaga todos os registros do usuário (usado ao excluir a conta e ao importar um backup). */
+    @Modifying
+    @Query("delete from Transaction e where e.user.id = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

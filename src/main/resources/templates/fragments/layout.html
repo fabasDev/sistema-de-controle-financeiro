@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Finanças'">Finanças</title>
+    <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<!-- Cabeçalho das telas logadas: navegação e botão Sair (POST com token CSRF). -->
+<header th:fragment="appHeader" class="app-header">
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <nav aria-label="Principal">
+        <ul>
+            <li><a th:href="@{/}">Visão geral</a></li>
+            <li><a th:href="@{/lancamentos}">Lançamentos</a></li>
+            <li><a th:href="@{/contas-fixas}">Contas fixas</a></li>
+            <li><a th:href="@{/planejamento}">Planejamento</a></li>
+            <li><a th:href="@{/metas}">Metas</a></li>
+            <li><a th:href="@{/investimentos}">Investimentos</a></li>
+            <li><a th:href="@{/simulador}">Simulador</a></li>
+            <li><a th:href="@{/historico}">Histórico</a></li>
+            <li><a th:href="@{/ajustes}">Ajustes</a></li>
+        </ul>
+    </nav>
+    <form th:action="@{/logout}" method="post" class="logout">
+        <button type="submit">Sair</button>
+    </form>
+</header>
+
+<!-- Mensagens de sucesso e erro que vêm de um redirect. -->
+<div th:fragment="flash">
+    <p th:if="${success}" class="notice notice-success" role="status" th:text="${success}"></p>
+    <p th:if="${error}" class="notice notice-error" role="alert" th:text="${error}"></p>
+</div>
+
+<!-- Aviso obrigatório em toda sugestão de investimento. -->
+<p th:fragment="disclaimer" class="disclaimer">
+    Estimativa educativa feita com os seus números. Não é recomendação de investimento.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body class="auth">
+<main id="conteudo" class="auth-main">
+    <h1>Entrar</h1>
+
+    <p th:if="${param.erro}" class="notice notice-error" role="alert">Usuário ou senha incorretos.</p>
+    <p th:if="${param.bloqueado}" class="notice notice-error" role="alert">
+        Muitas tentativas. Espere alguns minutos e tente de novo.
+    </p>
+    <p th:if="${param.saiu}" class="notice" role="status">Você saiu da sua conta.</p>
+    <p th:if="${param.expirou}" class="notice" role="status">Sua sessão expirou. Entre de novo.</p>
+
+    <form th:action="@{/login}" method="post" class="form">
+        <div class="field">
+            <label for="username">Usuário</label>
+            <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none"
+                   spellcheck="false" maxlength="60" required autofocus>
+        </div>
+        <div class="field">
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="button-primary">Entrar</button>
+    </form>
+
+    <p><a th:href="@{/recuperar}">Esqueci a senha</a></p>
+    <p>Ainda não tem conta? <a th:href="@{/cadastro}">Criar conta</a></p>
+    <p class="small"><a th:href="@{/privacidade}">Privacidade</a></p>
+</main>
+</body>
+</html>

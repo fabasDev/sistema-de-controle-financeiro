@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Código de recuperação')}"></head>
+<body class="auth">
+<main id="conteudo" class="auth-main">
+    <h1 th:text="${afterRecovery} ? 'Senha trocada' : 'Conta criada'">Conta criada</h1>
+
+    <p th:if="${afterRecovery}">O código antigo deixou de valer. Este é o seu novo código:</p>
+    <p th:unless="${afterRecovery}">Guarde este código. Se esquecer a senha, é com ele que você cria outra.</p>
+
+    <p class="recovery-code"><code th:text="${recoveryCode}">XXXX-XXXX</code></p>
+
+    <ul>
+        <li>Ele aparece só agora. Anote em papel ou num gerenciador de senhas.</li>
+        <li>Quem tiver o código e o seu usuário consegue trocar a sua senha.</li>
+    </ul>
+
+    <p><a class="button-primary" th:href="@{/login}">Já guardei, ir para entrar</a></p>
+</main>
+</body>
+</html>

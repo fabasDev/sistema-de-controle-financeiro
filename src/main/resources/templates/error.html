@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Algo deu errado')}"></head>
+<body>
+<!-- Nunca mostra detalhes internos (stack trace, mensagem da exceção, SQL). -->
+<main id="conteudo" class="page" th:switch="${status}">
+    <th:block th:case="404">
+        <h1>Página não encontrada</h1>
+        <p>O endereço não existe ou o registro não é da sua conta.</p>
+    </th:block>
+    <th:block th:case="403">
+        <h1>Não foi possível concluir</h1>
+        <p>A página ficou aberta por muito tempo ou o pedido veio de fora do app. Volte, recarregue a página e tente de novo.</p>
+    </th:block>
+    <th:block th:case="413">
+        <h1>Arquivo grande demais</h1>
+        <p>O limite é de 10 MB.</p>
+    </th:block>
+    <th:block th:case="*">
+        <h1>Algo deu errado</h1>
+        <p>Não foi culpa sua. Tente de novo em alguns instantes.</p>
+    </th:block>
+    <p><a th:href="@{/}">Ir para a visão geral</a></p>
+</main>
+</body>
+</html>
