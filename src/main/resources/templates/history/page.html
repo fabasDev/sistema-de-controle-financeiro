@@ -14,6 +14,29 @@
         Ainda não há lançamentos nesses meses. Registre seus gastos e receitas e o histórico aparece aqui.
     </p>
 
+    <!-- O gráfico só repete a tabela de baixo em forma visual: a tabela é a versão acessível. -->
+    <figure th:if="${hasData}" class="chart">
+        <figcaption id="grafico-titulo">Entrou × saiu por mês</figcaption>
+        <ul class="chart-legend" aria-hidden="true">
+            <li><span class="swatch bar-income"></span>Entrou</li>
+            <li><span class="swatch bar-outflow"></span>Saiu (gastos + guardado)</li>
+        </ul>
+        <svg class="chart-svg" role="img" aria-labelledby="grafico-titulo grafico-desc"
+             th:attr="viewBox='0 0 ' + ${chart.width} + ' ' + ${chart.height}">
+            <desc id="grafico-desc" th:text="${chart.description}"></desc>
+            <g class="chart-grid">
+                <th:block th:each="t : ${chart.ticks}">
+                    <line th:attr="x1=${chart.plotLeft},x2=${chart.plotRight},y1=${t.y},y2=${t.y}"></line>
+                    <text class="chart-tick" text-anchor="end" th:attr="x=${chart.plotLeft - 6},y=${t.y + 4}" th:text="${t.label}"></text>
+                </th:block>
+            </g>
+            <path th:each="b : ${chart.bars}" th:attr="d=${b.path}" th:class="${b.cssClass}"><title th:text="${b.title}"></title></path>
+            <line class="chart-baseline" th:attr="x1=${chart.plotLeft},x2=${chart.plotRight},y1=${chart.baseline},y2=${chart.baseline}"></line>
+            <text th:each="l : ${chart.xLabels}" class="chart-tick" text-anchor="middle"
+                  th:attr="x=${l.x},y=${chart.baseline + 18}" th:text="${l.label}"></text>
+        </svg>
+    </figure>
+
     <table class="table">
         <caption class="small">Entradas × saídas por mês</caption>
         <thead><tr><th scope="col">Mês</th><th scope="col" class="num">Entrou</th><th scope="col" class="num">Gastou</th><th scope="col" class="num">Guardou</th><th scope="col" class="num">Sobrou</th><th scope="col" class="num">Poupança</th></tr></thead>

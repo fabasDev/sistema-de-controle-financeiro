@@ -70,3 +70,38 @@ button, .button-primary { padding: .5rem 1rem; border: 1px solid #0b5d3b; border
 [aria-current="page"] { font-weight: 700; }
 fieldset { border: 0; padding: 0; margin: 0; }
 legend { font-weight: 600; }
+
+/* Gráficos (skill dataviz). Cores provisórias da paleta de referência, validadas com o script da skill;
+   a Fase 4 troca pelos tokens da direção visual. */
+:root { --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --chart-grid: #e3e1da; --chart-ink: #52514e; }
+.chart { margin: 1rem 0; }
+.chart figcaption { font-weight: 600; }
+.chart-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart-grid line { stroke: var(--chart-grid); stroke-width: 1; }
+.chart-baseline { stroke: var(--chart-ink); stroke-width: 1; }
+.chart-tick { fill: var(--chart-ink); font-size: 11px; font-variant-numeric: tabular-nums; }
+.bar-income { fill: var(--series-1); }
+.bar-outflow { fill: var(--series-2); }
+.chart-svg path:hover { opacity: .8; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; list-style: none; padding: 0; margin: .25rem 0; font-size: .875rem; }
+.swatch { display: inline-block; width: .75rem; height: .75rem; border-radius: 2px; margin-right: .375rem; vertical-align: -1px; }
+.swatch.bar-income { background: var(--series-1); }
+.swatch.bar-outflow { background: var(--series-2); }
+.swatch.line-total { background: var(--series-1); }
+.swatch.line-invested { background: var(--series-2); }
+.swatch.line-real { background: var(--series-3); }
+.line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.line.line-total { stroke: var(--series-1); }
+.line.line-invested { stroke: var(--series-2); }
+.line.line-real { stroke: var(--series-3); }
+.chart-end-label { fill: var(--chart-ink); font-size: 12px; }
+.chart-crosshair { stroke: var(--chart-ink); stroke-width: 1; }
+.chart-area { position: relative; }
+.chart-svg:focus-visible { outline: 3px solid #0b5d3b; outline-offset: 2px; }
+.chart-tooltip { position: absolute; top: 0; min-width: 12rem; padding: .5rem .75rem; background: #fff; border: 1px solid var(--chart-grid); border-radius: 4px; font-size: .875rem; pointer-events: none; }
+.chart-tooltip b { font-variant-numeric: tabular-nums; }
+.chart-tooltip .key { display: inline-block; width: .75rem; height: 2px; margin-right: .375rem; vertical-align: middle; }
+.chart-tooltip .key.line-total { background: var(--series-1); }
+.chart-tooltip .key.line-invested { background: var(--series-2); }
+.chart-tooltip .key.line-real { background: var(--series-3); }
+[aria-busy="true"] .figures, [aria-busy="true"] .chart, [aria-busy="true"] table { opacity: .6; }

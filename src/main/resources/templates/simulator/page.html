@@ -8,7 +8,9 @@
     <div th:replace="~{fragments/layout :: flash}"></div>
     <p th:replace="~{fragments/layout :: disclaimer}"></p>
 
-    <form th:action="@{/simulador}" method="get" class="form" id="simulador">
+    <!-- Sem JavaScript: "Simular" manda o formulário e a página volta com o resultado.
+         Com JavaScript (simulator.js): o resultado atualiza sozinho enquanto você digita. -->
+    <form th:action="@{/simulador}" method="get" class="form" id="simulador" data-api="/api/simulacao">
         <div class="field">
             <label for="inicial">Valor inicial (R$)</label>
             <input id="inicial" name="inicial" type="text" inputmode="decimal" maxlength="20" pattern="[R$ ]*[0-9][0-9.,]*" data-msg-pattern-mismatch="Use só números, como 1.234,56." th:value="${values.inicial}">
@@ -19,7 +21,7 @@
         </div>
         <div class="field">
             <label for="taxa">Rentabilidade (% ao ano)</label>
-            <input id="taxa" name="taxa" type="text" inputmode="decimal" maxlength="8" th:value="${values.taxa}">
+            <input id="taxa" name="taxa" type="text" inputmode="decimal" maxlength="8" pattern="[0-9][0-9.,]*" data-msg-pattern-mismatch="Use um número, como 10,5." th:value="${values.taxa}">
         </div>
         <div class="field">
             <label for="anos">Anos</label>
@@ -27,11 +29,11 @@
         </div>
         <div class="field">
             <label for="inflacao">Inflação (% ao ano)</label>
-            <input id="inflacao" name="inflacao" type="text" inputmode="decimal" maxlength="8" th:value="${values.inflacao}">
+            <input id="inflacao" name="inflacao" type="text" inputmode="decimal" maxlength="8" pattern="[0-9][0-9.,]*" data-msg-pattern-mismatch="Use um número, como 4,5." th:value="${values.inflacao}">
         </div>
         <div class="field">
             <label for="aumento">Aumento do aporte a cada ano (%)</label>
-            <input id="aumento" name="aumento" type="text" inputmode="decimal" maxlength="8" th:value="${values.aumento}">
+            <input id="aumento" name="aumento" type="text" inputmode="decimal" maxlength="8" pattern="[0-9][0-9.,]*" data-msg-pattern-mismatch="Use um número, como 3." th:value="${values.aumento}">
         </div>
         <div class="field">
             <label for="meta">Meta de patrimônio (R$) <span class="small">(opcional)</span></label>
@@ -41,7 +43,7 @@
     </form>
 
     <!-- Formulário POST separado: só assim o Thymeleaf inclui o token CSRF. Salva os valores simulados. -->
-    <form th:if="${#lists.isEmpty(errors)}" th:action="@{/simulador/salvar}" method="post">
+    <form th:if="${#lists.isEmpty(errors)}" th:action="@{/simulador/salvar}" method="post" id="simulador-salvar">
         <input type="hidden" th:each="e : ${values}" th:name="${e.key}" th:value="${e.value}">
         <button type="submit">Salvar estes valores</button>
     </form>
@@ -50,21 +52,41 @@
         <p th:each="e : ${errors}" th:text="${e}"></p>
     </div>
 
-    <section th:if="${result}" aria-labelledby="resultado-titulo">
+    <section th:if="${result}" id="resultado" aria-labelledby="resultado-titulo">
         <h2 id="resultado-titulo">Resultado</h2>
+        <p id="resultado-estado" class="small" role="status"></p>
         <dl class="figures">
-            <dt>Total no fim</dt><dd class="value" th:text="${@fmt.money(last.total)}"></dd>
-            <dt>Em valores de hoje</dt><dd class="value" th:text="${@fmt.money(last.real)}"></dd>
-            <dt>Total investido</dt><dd class="value" th:text="${@fmt.money(last.invested)}"></dd>
-            <dt>Ganho com juros</dt><dd class="value" th:text="${@fmt.money(last.total.subtract(last.invested))}"></dd>
-            <th:block th:if="${result.requiredMonthly != null}">
-                <dt>Chega na meta em</dt>
-                <dd th:text="${result.monthsToTarget != null} ? ${@fmt.duration(result.monthsToTarget)} : 'mais de 100 anos'"></dd>
-                <dt>Aporte para chegar no prazo</dt><dd class="value" th:text="${@fmt.money(result.requiredMonthly)} + ' por mês'"></dd>
-            </th:block>
+            <dt>Total no fim</dt><dd class="value" id="sim-total" th:text="${@fmt.money(result.finalTotal)}"></dd>
+            <dt>Em valores de hoje</dt><dd class="value" id="sim-real" th:text="${@fmt.money(result.finalReal)}"></dd>
+            <dt>Total investido</dt><dd class="value" id="sim-investido" th:text="${@fmt.money(result.finalInvested)}"></dd>
+            <dt>Ganho com juros</dt><dd class="value" id="sim-juros" th:text="${@fmt.money(result.interestEarned)}"></dd>
+            <dt id="sim-meta-rotulo" th:hidden="${result.requiredMonthly == null}">Chega na meta em</dt>
+            <dd id="sim-meta" th:hidden="${result.requiredMonthly == null}"
+                th:text="${result.monthsToTarget != null} ? ${@fmt.duration(result.monthsToTarget)} : 'mais de 100 anos'"></dd>
+            <dt id="sim-aporte-rotulo" th:hidden="${result.requiredMonthly == null}">Aporte para chegar no prazo</dt>
+            <dd id="sim-aporte" class="value" th:hidden="${result.requiredMonthly == null}"
+                th:text="${result.requiredMonthly != null} ? ${@fmt.money(result.requiredMonthly)} + ' por mês' : ''"></dd>
         </dl>
 
-        <table class="table">
+        <!-- O gráfico é desenhado pelo JavaScript; sem ele, a tabela abaixo mostra os mesmos números. -->
+        <figure class="chart" id="sim-grafico" hidden>
+            <figcaption id="sim-grafico-titulo">Como o dinheiro cresce</figcaption>
+            <ul class="chart-legend" aria-hidden="true">
+                <li><span class="swatch line-total"></span>Total</li>
+                <li><span class="swatch line-invested"></span>Investido</li>
+                <li><span class="swatch line-real"></span>Em valores de hoje</li>
+            </ul>
+            <div class="chart-area">
+                <svg class="chart-svg" role="img" tabindex="0" aria-labelledby="sim-grafico-titulo sim-grafico-desc"
+                     aria-describedby="sim-grafico-ajuda">
+                    <desc id="sim-grafico-desc">Linhas do total, do valor investido e do total em valores de hoje, ano a ano. Os valores estão na tabela abaixo.</desc>
+                </svg>
+                <div class="chart-tooltip" hidden></div>
+            </div>
+            <p id="sim-grafico-ajuda" class="small">Passe o mouse ou use as setas do teclado no gráfico para ver cada ano.</p>
+        </figure>
+
+        <table class="table" id="sim-tabela">
             <caption class="small">Ano a ano</caption>
             <thead><tr><th scope="col">Ano</th><th scope="col" class="num">Investido</th><th scope="col" class="num">Total</th><th scope="col" class="num">Valores de hoje</th></tr></thead>
             <tbody>
@@ -78,5 +100,6 @@
         </table>
     </section>
 </main>
+<script type="module" th:src="@{/js/simulator.js}"></script>
 </body>
 </html>

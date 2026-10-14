@@ -28,8 +28,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class SimulatorController {
 
-    /** Resultado completo de uma simulação. */
-    public record SimulationResult(List<Simulation.Point> points, Integer monthsToTarget, BigDecimal requiredMonthly) {
+    /**
+     * Resultado completo de uma simulação. Os totais finais e o ganho com juros já vêm calculados
+     * (BigDecimal), para o JavaScript só exibir.
+     */
+    public record SimulationResult(List<Simulation.Point> points, BigDecimal finalTotal, BigDecimal finalInvested,
+            BigDecimal finalReal, BigDecimal interestEarned, Integer monthsToTarget, BigDecimal requiredMonthly) {
     }
 
     private final SimulationService simulator;
@@ -123,7 +127,9 @@ public class SimulatorController {
             months = m.orElse(null);
             required = simulator.requiredMonthly(p.initial(), p.annualRate(), p.years() * 12, target);
         }
-        return new SimulationResult(points, months, required);
+        Simulation.Point last = points.getLast();
+        return new SimulationResult(points, last.total(), last.invested(), last.real(),
+                last.total().subtract(last.invested()), months, required);
     }
 
     private static boolean within(BigDecimal v, BigDecimal max) {

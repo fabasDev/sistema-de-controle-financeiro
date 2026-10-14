@@ -72,6 +72,19 @@ public class ViewFormats {
         return Character.toUpperCase(name.charAt(0)) + name.substring(1) + " de " + month.getYear();
     }
 
+    /** "out/26": rótulo curto para eixos de gráfico. */
+    public String shortMonth(YearMonth month) {
+        String name = month.getMonth().getDisplayName(TextStyle.SHORT, PT_BR).replace(".", "");
+        return name + "/" + String.valueOf(month.getYear()).substring(2);
+    }
+
+    /** "R$ 0", "R$ 500", "R$ 2,5 mil", "R$ 1 mi": valores redondos dos eixos. */
+    public String compact(BigDecimal value) {
+        NumberFormat format = NumberFormat.getCompactNumberInstance(PT_BR, NumberFormat.Style.SHORT);
+        format.setMaximumFractionDigits(1);
+        return "R$ " + format.format(value);
+    }
+
     /** "2 anos e 3 meses". Porte de formatDuration (format.ts). */
     public String duration(int totalMonths) {
         int years = totalMonths / 12;

@@ -1,5 +1,7 @@
 package io.github.fabasdev.financas.controller;
 
+import io.github.fabasdev.financas.controller.view.HistoryChart;
+import io.github.fabasdev.financas.controller.view.ViewFormats;
 import io.github.fabasdev.financas.domain.Months;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.HistoryService;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class HistoryController {
 
     private final HistoryService history;
+    private final ViewFormats formats;
     private final Clock clock;
 
-    public HistoryController(HistoryService history, Clock clock) {
+    public HistoryController(HistoryService history, ViewFormats formats, Clock clock) {
         this.history = history;
+        this.formats = formats;
         this.clock = clock;
     }
 
@@ -35,6 +39,7 @@ public class HistoryController {
         model.addAttribute("hasData", rows.stream().anyMatch(r -> r.income().signum() != 0
                 || r.spent().signum() != 0 || r.saved().signum() != 0));
         model.addAttribute("categories", history.categories(me.getId(), end, count));
+        model.addAttribute("chart", HistoryChart.build(rows, formats));
         return "history/page";
     }
 }
