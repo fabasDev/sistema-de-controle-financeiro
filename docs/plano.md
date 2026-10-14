@@ -112,6 +112,15 @@ O limite de login será código próprio, sem biblioteca extra.
 - README em pt-BR com instruções de rodar, testar e configurar.
 - Aviso para você rodar `/security-review`.
 
+### O que mudou na execução da Fase 2 (13/10/2026)
+- **Pacote:** `io.github.fabasdev.financas` (escolha do Fabrício).
+- **Ids:** os ids do app antigo ("cat-moradia", "goal-reserva") eram iguais para todo mundo. No banco, cada registro tem id gerado, e as categorias e metas padrão ganharam uma `system_key` por usuário.
+- **Índice por mês:** o lançamento não tem mais coluna `month`, porque o mês vem da data. O índice `(user_id, entry_date DESC, id DESC)` atende tanto a listagem quanto o resumo do mês. As contas fixas usam `recurring_month` com UNIQUE, para não gerar o mesmo mês duas vezes.
+- **Importação:** o app antigo só exporta backup cifrado (`Settings.tsx`), então só esse formato é aceito.
+- **Perfil de investidor:** só o resultado fica no banco. As respostas do questionário ficam no navegador.
+- **Limite de login:** além de usuário+IP, há contador por usuário (20) e por IP (50), como recomenda o Authentication Cheat Sheet.
+- **Pendente da Fase 2:** rodar o Dependency-Check quando a chave da NVD (`NVD_API_KEY`) existir; testar as migrações num PostgreSQL de verdade (até agora só no H2 em modo PostgreSQL).
+
 ## Fase 3: experiência de uso
 - Novo gasto: formulário curto no topo do mês, com data de hoje, categoria e valor com teclado numérico (`inputmode="decimal"`).
 - O topo da tela mostra três números: gastei, sobra, posso investir. Junto vem um aviso fixo de que é uma "estimativa educativa, não recomendação".
