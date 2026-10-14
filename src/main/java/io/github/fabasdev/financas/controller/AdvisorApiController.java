@@ -57,7 +57,7 @@ public class AdvisorApiController {
             @RequestParam(name = "mes", required = false) String monthParam) {
         YearMonth month = MonthParam.parse(monthParam, clock);
         MonthSummary summary = summaries.summarize(me.getId(), month);
-        Recommendation rec = suggestions.recommendation(me.getId(), month);
+        Recommendation rec = suggestions.recommendation(me.getId(), month, summary);
         var s = settings.get(me.getId());
         var profile = profiles.find(me.getId());
         List<CategoryAmount> top = summary.categories().stream()

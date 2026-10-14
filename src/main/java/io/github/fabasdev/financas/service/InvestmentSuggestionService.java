@@ -51,8 +51,13 @@ public class InvestmentSuggestionService {
 
     @Transactional(readOnly = true)
     public Recommendation recommendation(Long userId, YearMonth month) {
+        return recommendation(userId, month, summaries.summarize(userId, month));
+    }
+
+    /** Mesma conta, reaproveitando um resumo do mês que a tela já calculou. */
+    @Transactional(readOnly = true)
+    public Recommendation recommendation(Long userId, YearMonth month, MonthSummary summary) {
         UserSettings userSettings = settings.findById(userId).orElseThrow(NotFoundException::new);
-        MonthSummary summary = summaries.summarize(userId, month);
         ReserveInfo reserve = reserveInfo(userId, month, userSettings, summary);
 
         BigDecimal futurePlanned = Money.round(summary.buckets().stream()

@@ -1,6 +1,7 @@
 package io.github.fabasdev.financas.controller;
 
 import io.github.fabasdev.financas.controller.view.MonthParam;
+import io.github.fabasdev.financas.dto.MonthSummary;
 import io.github.fabasdev.financas.security.AppUserPrincipal;
 import io.github.fabasdev.financas.service.InvestmentSuggestionService;
 import io.github.fabasdev.financas.service.MonthSummaryService;
@@ -38,8 +39,9 @@ public class HomeController {
         model.addAttribute("month", month);
         model.addAttribute("previousMonth", month.minusMonths(1));
         model.addAttribute("nextMonth", month.plusMonths(1));
-        model.addAttribute("summary", summaries.summarize(me.getId(), month));
-        model.addAttribute("rec", suggestions.recommendation(me.getId(), month));
+        MonthSummary summary = summaries.summarize(me.getId(), month);
+        model.addAttribute("summary", summary);
+        model.addAttribute("rec", suggestions.recommendation(me.getId(), month, summary));
         return "home";
     }
 }
