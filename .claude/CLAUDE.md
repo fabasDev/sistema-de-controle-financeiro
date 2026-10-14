@@ -18,12 +18,12 @@ Decisão sobre a interface: Thymeleaf (HTML renderizado no servidor) com JavaScr
 
 ## Comandos
 
-Ajuste esta seção assim que a migração terminar.
+Pelo Maven Wrapper, sem instalar o Maven. No PowerShell, use `.\mvnw.cmd` e ponha o `-D...` entre aspas.
 
-- Rodar: `mvn spring-boot:run`
-- Testar: `mvn test`
-- Build: `mvn package`
-- Checar vulnerabilidades nas dependências: OWASP Dependency-Check
+- Rodar: `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev` (H2 em `./data`). Sem o perfil `dev`, o app exige `DB_URL`, `DB_USER` e `DB_PASSWORD`.
+- Testar: `./mvnw test` e `node --test "src/test/js/**/*.test.mjs"`
+- Build: `./mvnw verify` (testes + jar em `target/`)
+- Checar vulnerabilidades nas dependências: `./mvnw dependency-check:check`, com `NVD_API_KEY` definida
 
 Rode build e testes ao fim de cada tarefa e só diga que funciona se tiver rodado.
 
