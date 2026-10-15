@@ -324,3 +324,46 @@ Você achou que as cores do livro-caixa esverdeado não ficaram boas, preferiu t
 - As capturas do README (`docs/img`) foram refeitas com o mesmo enquadramento, nos dois temas.
 - `/security-review` sem achados.
 - Testado só no Chrome.
+
+## Menu lateral e painéis (14/10/2026)
+Você pediu o menu do lado esquerdo e botões mais estilizados, e disse que ainda achava o app "muito simples". A causa principal era a regra "hierarquia sem caixas", que você tinha mantido na "Noite azul": nada separava as partes da tela além de linhas finas.
+- Três estilos foram aplicados nas telas de verdade, todos já com o menu lateral, e comparados lado a lado numa página local: "A · Painéis", "B · Cartão de saldo" e "C · Painéis + cartão". Você escolheu a **C** e manteve a barra embaixo no celular (a outra opção era uma gaveta à esquerda).
+- A regra do CLAUDE.md mudou: hierarquia por tamanho, peso e espaço, com painéis só para agrupar partes da tela, de pesos diferentes, com borda fina e sem sombra. Continuam proibidos a grade de cards iguais com sombra e ícone em círculo, o degradê e o glassmorphism.
+
+**Menu lateral** (`e49b62f`):
+- A partir de 1024 px, o cabeçalho vira um menu fixo à esquerda (15rem), da altura da janela, com fundo um tom abaixo do da página. As telas ficam em três grupos com nome ("O mês": visão geral, lançamentos e contas fixas; "Planejar": planejamento, metas e histórico; "Investir": investimentos e simulador), Ajustes separado e "Sair" no pé.
+- Cada tela tem um ícone do Lucide (lucide-static 1.56.0) ao lado do nome. A tela atual ganha fundo azul suave, a cor de destaque e um traço à esquerda.
+- No celular nada muda além dos ícones na folha "Mais".
+
+**Visão geral** (`948bc78`):
+- Os três números ficam lado a lado no topo. Uma container query no próprio bloco decide quando (34rem ou mais), e o tamanho dos números acompanha a largura dele (`cqi`), para caber também em 1024 px com o menu.
+- Embaixo, duas colunas a partir de 76rem: pendências e gastos por categoria à esquerda; registrar um gasto, o resumo do mês e os potes à direita. A coluna da direita vem antes no HTML, para o celular mostrar o formulário logo depois dos números; `grid-auto-flow: dense` põe as duas na mesma linha.
+- Na coluna estreita, cada pendência ocupa duas linhas. A coluna "Limite" só aparece quando alguma categoria tem limite.
+
+**Painéis, cartão e botões** (`f3c14a5`):
+- Painéis um tom acima do fundo, com borda fina e cantos de 14px, sem sombra, nas seções, formulários, tabelas e gráficos que estão direto na página. A regra usa `:where()`, sem peso, para as margens próprias e o traço azul de "Registrar um gasto" continuarem valendo.
+- Cartão de saldo azul-cobalto (`#1d4f99`), igual nos dois temas, com o traço duplo sob o saldo.
+- Botões com cantos de 10px: a ação principal cheia; as outras com fundo azul suave; "Sair" e "Pago" só ganham fundo com o mouse em cima; o de apagar com fundo vermelho suave, que ganha borda com o mouse (escurecer o fundo derrubava o contraste para 4,1:1 no claro). Os meses vizinhos viraram botões em pílula.
+
+**Tokens novos** (`static/css/tokens.css`):
+
+| Nome | Escuro (padrão) | Claro | Uso |
+|---|---|---|---|
+| `--surface` | `#11233f` | `#ffffff` | painéis |
+| `--sidebar-bg` | `#081428` | `#e9eef5` | menu lateral |
+| `--accent-soft` | destaque a 14% | destaque a 10% | botões secundários, item atual do menu |
+| `--accent-soft-strong` | destaque a 24% | destaque a 18% | botão secundário com o mouse em cima |
+| `--negative-soft` | vermelho a 14% | vermelho a 10% | botão de apagar |
+| `--card`, `--on-card`, `--on-card-muted`, `--negative-on-card` | `#1d4f99`, `#ffffff`, `#d3e4ff`, `#ffc9c4` | iguais | cartão de saldo |
+| `--sidebar`, `--radius-button`, `--radius-panel`, `--radius-card` | 15rem, 10px, 14px, 18px | iguais | tamanhos |
+
+- Contraste medido por script (WCAG AA), no pior fundo de cada caso. Escuro: painel com texto 14,0:1 e apoio 7,7:1; menu com apoio 9,0:1; botão secundário 5,8:1 (4,6:1 com o mouse); botão de apagar 5,4:1. Claro: painel com apoio 7,3:1; menu com apoio 6,2:1; botão secundário 5,9:1 (5,2:1 com o mouse); botão de apagar 4,8:1. Cartão: branco 8,0:1, rótulo 6,2:1 e o vermelho do saldo negativo 5,5:1. Não há nada focável dentro do cartão.
+
+**Verificação (14/10/2026):**
+- `./mvnw test`: 270 testes JUnit, todos passando (eram 268). Novos: o menu lateral em `NavigationTest` (grupos, as nove telas, um ícone por tela, tela atual) e a visão geral em `PagesRenderTest` (ordem das colunas no HTML, coluna "Limite" sumindo e voltando). Os 35 testes de JavaScript continuam passando.
+- Roteiros no Chrome contra o jar final: o do plano (15 verificações), o das funções novas (29), o da lista no celular (11), as 17 telas com dados de exemplo e um roteiro novo do menu lateral (14: pular para o conteúdo, contorno de foco no menu, tela atual marcada, menu preso ao rolar com "Sair" visível, os três números numa linha em 1024 px, sem rolagem horizontal em 1280 e 1024, barra de baixo só no celular). Sem erro de console, de CSP ou de rede. Os roteiros passaram a rolar o botão para o meio da tela antes de clicar: em 390 px o "Salvar" da edição abre atrás da barra de baixo, e o clique do roteiro caía em "Início". Uma pessoa rola antes de tocar.
+- Todas as 19 telas fotografadas em 1280 e 390 px e conferidas: sem rolagem horizontal.
+- Lighthouse 13.5.0, tema escuro, 3 execuções por tela. Celular: desempenho 99 a 100, acessibilidade 100 e CLS 0 nas 7 telas (cadastro, login, visão geral, lançamentos, simulador, investimentos e histórico). Computador, onde o menu lateral aparece: desempenho 100, acessibilidade 100 e CLS de 0,001 a 0,003 na visão geral, nos lançamentos e no histórico. O peso das telas logadas subiu de 8 a 9 KiB (a visão geral foi de 111 para 120 KiB), pelos ícones do menu e pelo CSS novo. Três execuções no celular (lançamentos, simulador e histórico) falharam por erro do próprio Lighthouse (NO_NAVSTART); a mediana usa as outras duas.
+- As capturas do README (`docs/img`) foram refeitas, agora com o menu lateral e os painéis.
+- `/security-review` sem achados.
+- Testado só no Chrome.

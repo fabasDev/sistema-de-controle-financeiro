@@ -8,7 +8,7 @@ Controle financeiro pessoal. Você registra os gastos do mês e o app responde t
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/img/visao-geral-escuro.png">
-  <img src="docs/img/visao-geral-claro.png" alt="Visão geral do app na tela larga: quanto gastei, quanto sobra e quanto posso investir, o lançamento rápido e as pendências do mês">
+  <img src="docs/img/visao-geral-claro.png" alt="Visão geral do app na tela larga: o menu à esquerda, o cartão com quanto gastei, quanto sobra e quanto posso investir e, embaixo, as pendências, os gastos por categoria, o lançamento rápido e os potes">
 </picture>
 
 > [!NOTE]
@@ -156,9 +156,9 @@ docs/           plano, entrega final, auditoria, medições do Lighthouse e as c
 
 ### Visual
 
-A direção é a **noite azul**: fundo azul-marinho escuro, texto claro, um azul-céu de destaque e vermelho só para valor negativo. O tema claro (papel frio, tinta azul-marinho e azul-cobalto) e o automático, que segue o aparelho, ficam em Ajustes, guardados na conta. Os valores usam a fonte Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. No celular, a navegação fica numa barra embaixo, perto do polegar: Início, Lançamentos, Metas e "Mais".
+A direção é a **noite azul**: fundo azul-marinho escuro, texto claro, um azul-céu de destaque e vermelho só para valor negativo. O tema claro (papel frio, tinta azul-marinho e azul-cobalto) e o automático, que segue o aparelho, ficam em Ajustes, guardados na conta. Cada parte da tela fica num painel um tom acima do fundo, com borda fina e sem sombra, e os três números do topo ficam num cartão azul-cobalto. Os valores usam a fonte Besley com algarismos tabulares, e o saldo leva o traço duplo da contabilidade. Na tela larga, o menu fica fixo à esquerda, com as telas em três grupos ("O mês", "Planejar" e "Investir"). No celular, a navegação fica numa barra embaixo, perto do polegar: Início, Lançamentos, Metas e "Mais".
 
-Cor, tipografia e espaçamento ficam todos em [`tokens.css`](src/main/resources/static/css/tokens.css), e o resto do CSS só usa esses nomes. O plano de design está em [`docs/plano.md`](docs/plano.md), nas partes "Como a Fase 4 ficou" e "Noite azul".
+Cor, tipografia e espaçamento ficam todos em [`tokens.css`](src/main/resources/static/css/tokens.css), e o resto do CSS só usa esses nomes. O plano de design está em [`docs/plano.md`](docs/plano.md), nas partes "Como a Fase 4 ficou", "Noite azul" e "Menu lateral e painéis".
 
 ## Segurança
 

@@ -202,3 +202,15 @@ Você achou que as cores não ficaram boas e preferiu tons de azul mais escuro. 
 | Planejado × realizado | Uma barra por pote, com "121% do planejado" escrito ao lado e aviso quando passa do plano. | `9c07a47` |
 
 Quando você reiniciar o app, a V4 roda no seu banco em `./data` e a sua conta passa a abrir no escuro.
+
+## Menu lateral e painéis (14/10/2026)
+
+Você pediu o menu do lado esquerdo e botões mais estilizados, e achava o app "muito simples". Entre três estilos aplicados nas telas de verdade, escolheu painéis com o cartão de saldo, e a regra "sem caixas" do CLAUDE.md mudou. Detalhes e decisões em `docs/plano.md`, seção "Menu lateral e painéis".
+
+| O quê | Como ficou | Commit |
+|---|---|---|
+| Menu lateral | Na tela larga, menu fixo à esquerda com ícones e as telas em três grupos. No celular continua a barra embaixo. | `e49b62f` |
+| Visão geral | Os três números lado a lado no topo e, embaixo, duas colunas sem o vazio da direita. A coluna "Limite" só aparece quando há limite. | `948bc78` |
+| Painéis, cartão e botões | Cada parte da tela num painel com borda fina, os números num cartão azul-cobalto, botões com cantos arredondados e fundo suave. | `f3c14a5` |
+
+Para ver no seu app, reinicie (Ctrl+C e rode de novo). Não há migração nova.
